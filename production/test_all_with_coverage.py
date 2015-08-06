@@ -17,11 +17,11 @@ if __name__ == '__main__':
         '--with-coverage', '--cover-branches', '--cover-erase',
         '--cover-package=production',
         ]
-    nose.main(argv=argv, exit=False)
 
     cur_dir = os.getcwd()
     try:
         os.chdir(os.path.dirname(os.path.abspath(__file__)))
+        nose.main(argv=argv, exit=False)
         coverage.cmdline.main(argv=['html'])
     finally:
         os.chdir(cur_dir)

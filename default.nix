@@ -29,7 +29,6 @@ stdenv.mkDerivation {
   src = ./.;
   buildInputs = [ python
                   nose
-                  nosexcover
                   coverage
                   hypothesis
                   graphviz ];

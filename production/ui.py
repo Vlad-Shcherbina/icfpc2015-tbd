@@ -3,8 +3,10 @@ import json
 import logging
 import os
 import sys
+import re
 import termios
 import tty
+import time
 
 from production import utils
 from production import game
@@ -45,16 +47,24 @@ def main():
     path = os.path.join(utils.get_data_dir(), 'qualifier/problem_7.json')
     with open(path) as fin:
         data = json.load(fin)
+        m = re.match('.*/problem_(\\d+)\\.json', path)
+        assert m
+        problem_id = m.group(1)
 
-    g = game.Game(data, data['sourceSeeds'][0])
+    seed = data['sourceSeeds'][0]
+    g = game.Game(data, seed)
 
     try:
-      print "\x1b\x5b\x48\x1b\x5b\x4a" + g.render_grid()
-      for ch in gamepad():
+      moves = gamepad()
+      sys.stdout.write("\x1b\x5b\x48\x1b\x5b\x4a")
+      sys.stdout.write(g.render_grid())
+      for ch in moves:
         g.execute_char(ch)
-        print "\x1b\x5b\x48\x1b\x5b\x4a" + g.render_grid()
+        sys.stdout.write("\x1b\x5b\x48\x1b\x5b\x4a")
+        sys.stdout.write(g.render_grid())
     except game.GameEnded as e:
       print(e)
+      print(utils.gen_output(problem_id, seed, g.history))
 
 
 if __name__ == '__main__':

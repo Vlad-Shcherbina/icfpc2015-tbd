@@ -1,3 +1,4 @@
+import json
 import os
 
 
@@ -37,3 +38,24 @@ def count_substrings(s, ss):
         i = j + 1
 
     return result
+
+
+def gen_output(problem_id, seed, history):
+    '''
+    [ { "problemId": number   /* The `id` of the game configuration */
+      , "seed":      number   /* The seed for the particular game */
+      , "tag":       string   /* A tag for this solution. */
+      , "solution":  Commands
+      }
+    ]
+
+    The tag field is meant to allow teams to associate scores on the
+    leaderboards with specific submitted solutions. If no tag field is
+    supplied, a tag will be generated from the submission time.
+    '''
+
+    return json.dumps([{
+      'problemId': problem_id,
+      'seed': seed,
+      'solution': "".join(history)
+    }])

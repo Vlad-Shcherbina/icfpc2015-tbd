@@ -103,7 +103,32 @@ class Game(object):
 
         self.pick_next_unit()
 
+    def collapse_rows(self):
+        cnt_in_row = [0] * self.height
+        for x, y in self.filled:
+            cnt_in_row[y] += 1
+
+        updated_y = {}
+        y1 = self.height - 1
+        for y in reversed(range(self.height)):
+            if cnt_in_row[y] != self.width:
+                updated_y[y] = y1
+                y1 -= 1
+        assert y1 >= 0
+
+        new_filled = set()
+        for x, y in self.filled:
+            if y in updated_y:
+                new_filled.add((x, updated_y[y]))
+
+        cells_destroyed = len(self.filled) - len(new_filled)
+        assert cells_destroyed >= 0
+        assert cells_destroyed % self.width == 0
+
+        self.filled = new_filled
+
     def execute_command(self, command):
+        logging.info('execut_command {}'.format(command))
         new_placement = self.current_placement.apply_command(command)
         if self.can_place(new_placement):
             self.current_placement = new_placement
@@ -245,8 +270,6 @@ class Shape(object):
         self.max_y = max(y for x, y in self.members)
 
     def __str__(self):
-        # TODO: is odd rows case handled properly?
-
         extended_members = self.members + ((self.pivot_x, self.pivot_y),)
         min_x = min(x for x, y in extended_members)
         min_y = min(y for x, y in extended_members)
@@ -397,7 +420,7 @@ def main():
     g = Game(data, seeds[0])
 
     try:
-        g.execute_string('ei!' * 100)
+        g.execute_string('i5' * 100)
     except GameEnded as e:
         print(e)
 

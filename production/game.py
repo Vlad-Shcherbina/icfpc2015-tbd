@@ -61,6 +61,8 @@ class Game(object):
 
         self.lcg = iter(lcg(seed))
 
+        self.remaining_units = json_data['sourceLength']
+
         self.score = 0
 
         self.current_unit = None
@@ -79,14 +81,17 @@ class Game(object):
         return True
 
     def pick_next_unit(self):
-        # TODO: game ends when units are exhausted
+        if self.remaining_units == 0:
+            raise GameEnded(score=self.score, reason="no more units")
+        self.remaining_units -= 1
+
         x = next(self.lcg)
         self.current_unit = self.units[x % len(self.units)]
         self.current_placement = \
             self.current_unit.get_inital_placement(self.width)
         self.visited_placements = set()
         if not self.can_place(self.current_placement):
-            raise GameEnded(score=self.score, reason="can't spawn new piece")
+            raise GameEnded(score=self.score, reason="can't spawn new unit")
 
     def lock_unit(self):
         logger.info('locking unit in place:\n' + str(self))
@@ -102,6 +107,10 @@ class Game(object):
         new_placement = self.current_placement.apply_command(command)
         if self.can_place(new_placement):
             self.current_placement = new_placement
+
+            if new_placement in self.visited_placements:
+                raise GameEnded(score=0, reason='placement repeated')
+            self.visited_placements.add(new_placement)
         else:
             self.lock_unit()
 

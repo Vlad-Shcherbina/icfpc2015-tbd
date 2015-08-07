@@ -29,14 +29,20 @@ COMMAND_CHARS =[
 COMMAND_BY_CHAR = {char: cmd for chars, cmd in COMMAND_CHARS for char in chars}
 
 
+POWER_PHRASES = ['Ei!']
+POWER_PHRASES = [w.lower() for w in POWER_PHRASES]
+
 class GameEnded(Exception):
-    def __init__(self, score, reason):
-        self.score = score
+    def __init__(self, move_score, power_score, reason):
+        self.move_score = move_score
+        self.power_score = power_score
+        self.total_score = move_score + power_score
         self.reason = reason
 
     def __str__(self):
-        return 'GameEnded(score={}, reason={!r})'.format(
-            self.score, self.reason)
+        return 'GameEnded(score = {} + {} = {}, reason={!r})'.format(
+            self.move_score, self.power_score, self.total_score,
+            self.reason)
 
 
 class Game(object):
@@ -63,7 +69,11 @@ class Game(object):
 
         self.remaining_units = json_data['sourceLength']
 
-        self.score = 0
+        # list of chars (not a single string to avoid quadratic string
+        # building behavior)
+        self.history = []
+
+        self.move_score = 0
         self.ls_old = 0
 
         self.current_unit = None
@@ -83,7 +93,10 @@ class Game(object):
 
     def pick_next_unit(self):
         if self.remaining_units == 0:
-            raise GameEnded(score=self.score, reason="no more units")
+            raise GameEnded(
+                move_score=self.move_score,
+                power_score=self.power_score(),
+                reason="no more units")
         self.remaining_units -= 1
 
         x = next(self.lcg)
@@ -92,7 +105,10 @@ class Game(object):
             self.current_unit.get_inital_placement(self.width)
         self.visited_placements = set()
         if not self.can_place(self.current_placement):
-            raise GameEnded(score=self.score, reason="can't spawn new unit")
+            raise GameEnded(
+                move_score=self.move_score,
+                power_score=self.power_score(),
+                reason="can't spawn new unit")
 
     def lock_unit(self):
         logger.info('locking unit in place:\n' + str(self))
@@ -108,7 +124,7 @@ class Game(object):
             line_bouns = (self.ls_old - 1) * points // 10
         else:
             line_bouns = 0
-        self.score += points + line_bouns
+        self.move_score += points + line_bouns
         self.ls_old = ls
 
         self.pick_next_unit()
@@ -150,17 +166,32 @@ class Game(object):
             self.current_placement = new_placement
 
             if new_placement in self.visited_placements:
-                raise GameEnded(score=0, reason='placement repeated')
+                raise GameEnded(
+                    move_score=0, power_score=0,
+                    reason='placement repeated')
             self.visited_placements.add(new_placement)
         else:
             self.lock_unit()
 
     def execute_string(self, s):
         for c in s.lower():
+            self.history.append(c)
             assert c in COMMAND_BY_CHAR
             command = COMMAND_BY_CHAR[c]
             if command is not None:
                 self._execute_command(command)
+
+    def power_score(self):
+        s = ''.join(self.history)
+        assert s.lower() == s, s
+
+        result = 0
+        for p in POWER_PHRASES:
+            reps = utils.count_substrings(s, p)
+            power_bonus = 300 if reps > 0 else 0
+            result += 2 * len(p) * reps + power_bonus
+
+        return result
 
     def __str__(self):
         current_members = set(self.current_placement.get_members())

@@ -41,7 +41,7 @@ def test_blockage():
         assert False
     except game.GameEnded as e:
         assert "can't spawn" in e.reason
-        eq_(e.score, 2)
+        eq_(e.total_score, 2)
 
 
 def test_row_collapse():
@@ -60,7 +60,7 @@ def test_row_collapse():
 
     eq_(g.filled, set())
 
-    eq_(g.score, 102)
+    eq_(g.move_score, 102)
 
 
 def test_lcg():

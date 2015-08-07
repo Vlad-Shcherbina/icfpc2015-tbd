@@ -31,17 +31,17 @@ def test_blockage():
     g = get_2x2_game()
     eq_(g.remaining_units, 9)
 
-    g.execute_command(game.MOVE_SE)
-    g.execute_command(game.MOVE_W)
+    g._execute_command(game.MOVE_SE)
+    g._execute_command(game.MOVE_W)
 
     eq_(g.remaining_units, 8)
 
     try:
-        g.execute_command(game.MOVE_SE)
+        g._execute_command(game.MOVE_SE)
         assert False
     except game.GameEnded as e:
         assert "can't spawn" in e.reason
-        # TODO: check score
+        eq_(e.score, 2)
 
 
 def test_row_collapse():
@@ -49,16 +49,18 @@ def test_row_collapse():
 
     eq_(g.remaining_units, 9)
 
-    g.execute_command(game.MOVE_SE)
-    g.execute_command(game.MOVE_E)
-    g.execute_command(game.MOVE_E)
+    g._execute_command(game.MOVE_SE)
+    g._execute_command(game.MOVE_E)
+    g._execute_command(game.MOVE_E)
     eq_(g.remaining_units, 8)
 
-    g.execute_command(game.MOVE_SE)
-    g.execute_command(game.MOVE_SE)
+    g._execute_command(game.MOVE_SE)
+    g._execute_command(game.MOVE_SE)
     eq_(g.remaining_units, 7)
 
     eq_(g.filled, set())
+
+    eq_(g.score, 102)
 
 
 def test_lcg():

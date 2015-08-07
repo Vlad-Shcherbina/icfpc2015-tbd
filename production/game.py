@@ -64,6 +64,7 @@ class Game(object):
         self.remaining_units = json_data['sourceLength']
 
         self.score = 0
+        self.ls_old = 0
 
         self.current_unit = None
         self.current_placement = None
@@ -99,17 +100,23 @@ class Game(object):
         for x, y in self.current_placement.get_members():
             self.filled.add((x, y))
 
-        # TODO: collapse lines and update score
+        ls = self.collapse_rows()
 
-        self.collapse_rows()
+        size = len(self.current_placement.get_shape().members)
+        points = size + 100 * (1 + ls) * ls // 2
+        if self.ls_old > 1:
+            line_bouns = (self.ls_old - 1) * points // 10
+        else:
+            line_bouns = 0
+        self.score += points + line_bouns
+        self.ls_old = ls
+
         self.pick_next_unit()
 
     def collapse_rows(self):
         cnt_in_row = [0] * self.height
         for x, y in self.filled:
             cnt_in_row[y] += 1
-
-        print(cnt_in_row)
 
         updated_y = {}
         y1 = self.height - 1
@@ -128,11 +135,15 @@ class Game(object):
         assert cells_destroyed >= 0
         assert cells_destroyed % self.width == 0
 
-        logging.info('collapsing {} rows'.format(cells_destroyed // self.width))
+        rows_collapsed = cells_destroyed // self.width
+        logging.info('collapsing {} rows'.format(rows_collapsed))
 
         self.filled = new_filled
+        return rows_collapsed
 
-    def execute_command(self, command):
+    def _execute_command(self, command):
+        # not a public interface, because it does not keep track of
+        # phrases of power
         logging.info('execute_command {}'.format(command))
         new_placement = self.current_placement.apply_command(command)
         if self.can_place(new_placement):
@@ -149,7 +160,7 @@ class Game(object):
             assert c in COMMAND_BY_CHAR
             command = COMMAND_BY_CHAR[c]
             if command is not None:
-                self.execute_command(command)
+                self._execute_command(command)
 
     def __str__(self):
         current_members = set(self.current_placement.get_members())
@@ -428,7 +439,6 @@ def main():
         g.execute_string('i5' * 100)
     except GameEnded as e:
         print(e)
-
 
 
 if __name__ == '__main__':

@@ -42,9 +42,9 @@ def gamepad(phrase_mode=False):
             ch = sys.stdin.read(1)
             if phrase_mode:
                 yield ch
-        else:
-            if ch in ARROWS:
-                yield ARROWS[ch]
+            else:
+                if ch in ARROWS:
+                    yield ARROWS[ch]
     except KeyboardInterrupt:
         pass
     finally:
@@ -76,7 +76,6 @@ def dump_trace(game, tracedir):
 
 def main():
     args = parser.parse_args()
-    print(args)
 
     path = os.path.join(utils.get_data_dir(), args.problem)
     with open(path) as fin:

@@ -22,6 +22,7 @@ in
 , coverage        ? pkgs.python34Packages.coverage
 , hypothesis      ? hypothesisLatest
 , graphviz        ? pkgs.graphviz
+, httpie          ? pkgs.httpie
 }:
 stdenv.mkDerivation {
   name = "icfpc2015-tbd";
@@ -31,5 +32,6 @@ stdenv.mkDerivation {
                   nose
                   coverage
                   hypothesis
-                  graphviz ];
+                  graphviz
+                  httpie ];
 }

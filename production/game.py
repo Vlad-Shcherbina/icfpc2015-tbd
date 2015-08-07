@@ -3,6 +3,7 @@ import json
 import pprint
 import collections
 import logging
+import time
 
 from production import utils
 
@@ -173,13 +174,17 @@ class Game(object):
         else:
             self.lock_unit()
 
+    def execute_char(self, c):
+        c = c.lower()
+        self.history.append(c)
+        assert c in COMMAND_BY_CHAR
+        command = COMMAND_BY_CHAR[c]
+        if command is not None:
+            self._execute_command(command)
+
     def execute_string(self, s):
-        for c in s.lower():
-            self.history.append(c)
-            assert c in COMMAND_BY_CHAR
-            command = COMMAND_BY_CHAR[c]
-            if command is not None:
-                self._execute_command(command)
+        for c in s:
+          self.execute_char(c)
 
     def power_score(self):
         s = ''.join(self.history)
@@ -193,23 +198,25 @@ class Game(object):
 
         return result
 
-    def __str__(self):
+    def render_cell(self, x, y):
         current_members = set(self.current_placement.get_members())
+        if (x, y) in current_members:
+            assert (x, y) not in self.filled
+            return '?'
+        if (x, y) in self.filled:
+            return '*'
+        else:
+            return '.'
 
-        def cell_fn(x, y):
-            if (x, y) in current_members:
-                assert (x, y) not in self.filled
-                return '?'
-            if (x, y) in self.filled:
-                return '*'
-            else:
-                return '.'
+    def render_grid(self):
+        return render_hex_grid(self.width, self.height, self.render_cell)
 
+    def __str__(self):
         result = '{} units:\n'.format(len(self.units))
         for unit in self.units:
             result += str(unit)
             result += '---\n'
-        result += render_hex_grid(self.width, self.height, cell_fn)
+        result += render_hex_grid(self.width, self.height, self.render_cell)
         return result
 
 

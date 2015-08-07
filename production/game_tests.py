@@ -15,7 +15,7 @@ def smoke_test():
     with open(path) as fin:
         data = json.load(fin)
 
-    g = game.Game(data)
+    g = game.Game(data, data['sourceSeeds'][0])
     str(g)
 
 

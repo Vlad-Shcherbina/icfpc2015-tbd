@@ -13,17 +13,17 @@ from production import game
 
 ARROWS = {
     # W
-    'a': 'p',
+    'h': 'p',
     # E
-    's': 'b',
+    'j': 'b',
     # SW
-    'd': 'a',
+    'b': 'a',
     # SE
-    'f': 'l',
+    'm': 'l',
     # CW
-    'g': 'd',
+    'i': 'd',
     # CCW
-    'h': 'k',
+    'y': 'k',
 }
 
 
@@ -39,12 +39,14 @@ def gamepad(phrase_mode=False):
       else:
         if ch in ARROWS:
           yield ARROWS[ch]
+  except KeyboardInterrupt:
+    pass
   finally:
     termios.tcsetattr(fd, termios.TCSADRAIN, old_attr)
 
 
 def main():
-    path = os.path.join(utils.get_data_dir(), 'qualifier/problem_7.json')
+    path = os.path.join(utils.get_data_dir(), 'qualifier/problem_4.json')
     with open(path) as fin:
         data = json.load(fin)
         m = re.match('.*/problem_(\\d+)\\.json', path)
@@ -54,14 +56,21 @@ def main():
     seed = data['sourceSeeds'][0]
     g = game.Game(data, seed)
 
+    moves = gamepad()
+    delay = 0
+    if len(sys.argv) == 2:
+      delay = 0.05
+      moves = sys.argv[1]
+
     try:
-      moves = gamepad()
       sys.stdout.write("\x1b\x5b\x48\x1b\x5b\x4a")
       sys.stdout.write(g.render_grid())
       for ch in moves:
         g.execute_char(ch)
         sys.stdout.write("\x1b\x5b\x48\x1b\x5b\x4a")
         sys.stdout.write(g.render_grid())
+        if delay:
+          time.sleep(delay)
     except game.GameEnded as e:
       print(e)
       print(utils.gen_output(problem_id, seed, g.history))

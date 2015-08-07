@@ -15,7 +15,7 @@ def get_data_dir():
 
 def count_substrings(s, ss):
     '''
-    Counts overlapping occurences as well.
+    Counts overlapping occurrences as well.
 
     >>> count_substrings('ababa', 'aba')
     2

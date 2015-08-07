@@ -55,7 +55,7 @@ def gen_output(game, game_ended_excp):
     supplied, a tag will be generated from the submission time.
     '''
 
-    assert int(game.problem_id) >= 0, 'Missing problem id'
+    assert game.problem_id >= 0, 'Missing problem id'
     solution = "".join(game.history)
     tag = str((game.problem_id, game.seed, solution))
     tag = hashlib.md5(tag.encode('utf-8')).hexdigest()

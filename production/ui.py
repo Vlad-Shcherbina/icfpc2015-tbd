@@ -51,8 +51,7 @@ def main():
         data = json.load(fin)
         m = re.match('.*/problem_(\\d+)\\.json', path)
         assert m
-        data['problemId'] = m.group(1)
-
+        data['problemId'] = int(m.group(1))
 
     g = game.Game(data, data['sourceSeeds'][0])
 

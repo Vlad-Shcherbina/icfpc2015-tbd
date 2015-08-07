@@ -1,0 +1,5 @@
+ export API_TOKEN="FDNkwcESw/xyOt0x9NG89MsXgsZKLJQvS5zVIEZo78E="
+ export TEAM_ID="93"
+ curl --user :${API_TOKEN} -X "POST" -H "Content-Type: application/json" \
+     --data-binary @$1 \
+     "https://davar.icfpcontest.org/teams/${TEAM_ID}/solutions"

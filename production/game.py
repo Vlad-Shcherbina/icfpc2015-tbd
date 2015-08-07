@@ -14,16 +14,16 @@ MOVE_W = 'move_w'
 MOVE_E = 'move_e'
 MOVE_SW = 'move_sw'
 MOVE_SE = 'move_se'
-ROTATE_CW = 'rotate_cw'
-ROTATE_CCW = 'rotate_ccw'
+TURN_CW = 'turn_cw'
+TURN_CCW = 'turn_ccw'
 
 COMMAND_CHARS =[
     ("p'!.03", MOVE_W),
     ('bcefy2', MOVE_E),
     ('aghij4', MOVE_SW),
     ('lmno 5', MOVE_SE),
-    ('dqrvz1', ROTATE_CW),
-    ('kstuwx', ROTATE_CCW),
+    ('dqrvz1', TURN_CW),
+    ('kstuwx', TURN_CCW),
     ('\t\n\r', None),
 ]
 COMMAND_BY_CHAR = {char: cmd for chars, cmd in COMMAND_CHARS for char in chars}
@@ -103,7 +103,7 @@ class Game(object):
         self.current_unit = self.units[x % len(self.units)]
         self.current_placement = \
             self.current_unit.get_inital_placement(self.width)
-        self.visited_placements = set()
+        self.visited_placements = {self.current_placement}
         if not self.can_place(self.current_placement):
             raise GameEnded(
                 move_score=self.move_score,
@@ -247,14 +247,14 @@ class Placement(Placement):
             unit=self.unit,
             pivot_x=self.pivot_x,
             pivot_y=self.pivot_y,
-            angle=(self.angle + 1) % len(unit.even_shapes))
+            angle=(self.angle + 1) % len(self.unit.even_shapes))
 
     def turn_ccw(self):
         return Placement(
             unit=self.unit,
             pivot_x=self.pivot_x,
             pivot_y=self.pivot_y,
-            angle=(self.angle - 1) % len(unit.even_shapes))
+            angle=(self.angle - 1) % len(self.unit.even_shapes))
 
     def apply_command(self, command):
         return getattr(self, command)()

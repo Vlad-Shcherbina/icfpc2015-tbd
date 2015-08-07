@@ -63,6 +63,16 @@ def test_row_collapse():
     eq_(g.move_score, 102)
 
 
+def test_turn_leading_to_repetition():
+    g = get_2x2_game()
+
+    try:
+        g.execute_string('d')
+        print(g)
+    except game.GameEnded as e:
+        assert 'placement repeated' in e.reason
+
+
 def test_power_score():
     g = get_2x2_game()
 

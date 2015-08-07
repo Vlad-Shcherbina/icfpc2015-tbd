@@ -63,6 +63,19 @@ def test_row_collapse():
     eq_(g.move_score, 102)
 
 
+def test_power_score():
+    g = get_2x2_game()
+
+    g.execute_string('Ei!')
+
+    try:
+        while True:
+            g._execute_command(game.MOVE_SE)
+        assert False
+    except game.GameEnded as e:
+        eq_(e.power_score, 300 + 2 * 3 * 1)
+
+
 def test_lcg():
     eq_(list(itertools.islice(game.lcg(17), 10)),
         [0,24107,16552,12125,9427,13152,21440,3383,6873,16117])

@@ -1,4 +1,9 @@
 htmlcov
 .coverage
 .hypothesis
+.project
+.pydevproject
 __pycache__
+build
+*.pyd
+*.so

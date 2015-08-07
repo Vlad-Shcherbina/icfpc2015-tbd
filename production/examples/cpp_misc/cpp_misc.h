@@ -68,10 +68,10 @@ public:
         std::ostringstream out;
         out << "CppMisc(ip=" << ip << ", memory=[";
         bool first = true;
-        for (auto cell : memory) {
+        for (int i = 0; i < memory.size(); i++) {
             if (!first)
                 out << ", ";
-            out << cell;
+            out << memory[i];
             first = false;
         }
         out << "])";

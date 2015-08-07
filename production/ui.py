@@ -51,10 +51,10 @@ def main():
         data = json.load(fin)
         m = re.match('.*/problem_(\\d+)\\.json', path)
         assert m
-        problem_id = m.group(1)
+        data['problemId'] = m.group(1)
 
-    seed = data['sourceSeeds'][0]
-    g = game.Game(data, seed)
+
+    g = game.Game(data, data['sourceSeeds'][0])
 
     moves = gamepad()
     delay = 0
@@ -73,7 +73,7 @@ def main():
           time.sleep(delay)
     except game.GameEnded as e:
       print(e)
-      print(utils.gen_output(problem_id, seed, g.history))
+      print(utils.gen_output(g, e))
 
 
 if __name__ == '__main__':

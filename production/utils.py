@@ -41,7 +41,7 @@ def count_substrings(s, ss):
     return result
 
 
-def gen_output(problem_id, seed, history):
+def gen_output(game, game_ended_excp):
     '''
     [ { "problemId": number   /* The `id` of the game configuration */
       , "seed":      number   /* The seed for the particular game */
@@ -55,11 +55,16 @@ def gen_output(problem_id, seed, history):
     supplied, a tag will be generated from the submission time.
     '''
 
-    solution = "".join(history)
-    tag = hashlib.md5(str((problem_id, seed, solution)).encode('utf-8'))
+    assert int(game.problem_id) >= 0, 'Missing problem id'
+    solution = "".join(game.history)
+    tag = str((game.problem_id, game.seed, solution))
+    tag = hashlib.md5(tag.encode('utf-8')).hexdigest()
+    tag += ' %d:%d:%d' % (
+        game_ended_excp.move_score, game_ended_excp.power_score,
+        game_ended_excp.total_score)
     return json.dumps([{
-      'problemId': problem_id,
-      'seed': seed,
+      'problemId': game.problem_id,
+      'seed': game.seed,
       'solution': solution,
-      'tag': tag.hexdigest()
+      'tag': tag
     }])

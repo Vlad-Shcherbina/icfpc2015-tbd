@@ -51,6 +51,11 @@ class Game(object):
     # TODO: reduce initialization to primitive operations, so that C++
     # implementation does not have to deal with json.
     def __init__(self, json_data, seed):
+        # This is an attribute we add by hand so we have to make sure it
+        # exists.
+        self.problem_id = json_data['problemId'] \
+            if 'problemId' in json_data else -1
+
         self.width = json_data['width']
         self.height = json_data['height']
 
@@ -66,6 +71,7 @@ class Game(object):
 
         self.units = list(map(Unit, json_data['units']))
 
+        self.seed = seed
         self.lcg = iter(lcg(seed))
 
         self.remaining_units = json_data['sourceLength']

@@ -23,6 +23,7 @@ in
 , hypothesis      ? hypothesisLatest
 , graphviz        ? pkgs.graphviz
 , httpie          ? pkgs.httpie
+, sqlite          ? pkgs.sqlite
 }:
 stdenv.mkDerivation {
   name = "icfpc2015-tbd";
@@ -33,5 +34,6 @@ stdenv.mkDerivation {
                   coverage
                   hypothesis
                   graphviz
-                  httpie ];
+                  httpie
+                  sqlite ];
 }

@@ -73,6 +73,31 @@ def test_turn_leading_to_repetition():
         assert 'placement repeated' in e.reason
 
 
+def test_unit_exhaustion():
+    g = get_2x2_game()
+    n = 10
+
+    n -= 1
+    eq_(g.remaining_units, n)
+
+    try:
+        for _ in range(5):
+            g._execute_command(game.MOVE_SE)
+            g._execute_command(game.MOVE_E)
+            g._execute_command(game.MOVE_E)
+            n -= 1
+            eq_(g.remaining_units, n)
+
+            g._execute_command(game.MOVE_SE)
+            g._execute_command(game.MOVE_SE)
+            n -= 1
+            eq_(g.remaining_units, n)
+    except game.GameEnded as e:
+        eq_(n, 0)
+        assert 'no more units' in e.reason
+        # TODO: what the score should be?
+
+
 def test_power_score():
     g = get_2x2_game()
 

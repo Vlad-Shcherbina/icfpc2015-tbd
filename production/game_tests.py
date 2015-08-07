@@ -19,6 +19,48 @@ def smoke_test():
     str(g)
 
 
+def get_2x2_game():
+    path = os.path.join(utils.get_data_dir(), 'test_problems/2x2.json')
+    with open(path) as fin:
+        data = json.load(fin)
+
+    return game.Game(data, seed=0)
+
+
+def test_blockage():
+    g = get_2x2_game()
+    eq_(g.remaining_units, 9)
+
+    g.execute_command(game.MOVE_SE)
+    g.execute_command(game.MOVE_W)
+
+    eq_(g.remaining_units, 8)
+
+    try:
+        g.execute_command(game.MOVE_SE)
+        assert False
+    except game.GameEnded as e:
+        assert "can't spawn" in e.reason
+        # TODO: check score
+
+
+def test_row_collapse():
+    g = get_2x2_game()
+
+    eq_(g.remaining_units, 9)
+
+    g.execute_command(game.MOVE_SE)
+    g.execute_command(game.MOVE_E)
+    g.execute_command(game.MOVE_E)
+    eq_(g.remaining_units, 8)
+
+    g.execute_command(game.MOVE_SE)
+    g.execute_command(game.MOVE_SE)
+    eq_(g.remaining_units, 7)
+
+    eq_(g.filled, set())
+
+
 def test_lcg():
     eq_(list(itertools.islice(game.lcg(17), 10)),
         [0,24107,16552,12125,9427,13152,21440,3383,6873,16117])

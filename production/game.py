@@ -101,6 +101,7 @@ class Game(object):
 
         # TODO: collapse lines and update score
 
+        self.collapse_rows()
         self.pick_next_unit()
 
     def collapse_rows(self):
@@ -108,13 +109,15 @@ class Game(object):
         for x, y in self.filled:
             cnt_in_row[y] += 1
 
+        print(cnt_in_row)
+
         updated_y = {}
         y1 = self.height - 1
         for y in reversed(range(self.height)):
             if cnt_in_row[y] != self.width:
+                assert y1 >= 0
                 updated_y[y] = y1
                 y1 -= 1
-        assert y1 >= 0
 
         new_filled = set()
         for x, y in self.filled:
@@ -125,10 +128,12 @@ class Game(object):
         assert cells_destroyed >= 0
         assert cells_destroyed % self.width == 0
 
+        logging.info('collapsing {} rows'.format(cells_destroyed // self.width))
+
         self.filled = new_filled
 
     def execute_command(self, command):
-        logging.info('execut_command {}'.format(command))
+        logging.info('execute_command {}'.format(command))
         new_placement = self.current_placement.apply_command(command)
         if self.can_place(new_placement):
             self.current_placement = new_placement

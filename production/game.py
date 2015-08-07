@@ -185,6 +185,15 @@ def build_shape_cycle(start_shape):
     return result
 
 
+def lcg(seed):
+    x = seed
+    while True:
+        yield (x >> 16) % 2**15
+        x *= 1103515245
+        x += 12345
+        x %= 2**32
+
+
 def main():
     path = os.path.join(utils.get_data_dir(), 'qualifier/problem_4.json')
     with open(path) as fin:

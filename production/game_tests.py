@@ -1,8 +1,10 @@
 import os
 import json
 import sys
+import itertools
 
 import nose
+from nose.tools import eq_
 
 from production import game
 from production import utils
@@ -15,6 +17,11 @@ def smoke_test():
 
     g = game.Game(data)
     str(g)
+
+
+def test_lcg():
+    eq_(list(itertools.islice(game.lcg(17), 10)),
+        [0,24107,16552,12125,9427,13152,21440,3383,6873,16117])
 
 
 if __name__ == '__main__':

@@ -87,6 +87,7 @@ class Game(object):
         self.current_placement = None
         self.used_placements = None
         self.pick_next_unit()
+        self.game_ended = None
 
     def can_place(self, placement):
         for x, y in placement.get_members():
@@ -100,7 +101,7 @@ class Game(object):
 
     def pick_next_unit(self):
         if self.remaining_units == 0:
-            raise GameEnded(
+            self._end_game(
                 move_score=self.move_score,
                 power_score=self.power_score(),
                 reason="no more units")
@@ -112,7 +113,7 @@ class Game(object):
             self.current_unit.get_inital_placement(self.width)
         self.visited_placements = {self.current_placement}
         if not self.can_place(self.current_placement):
-            raise GameEnded(
+            self._end_game(
                 move_score=self.move_score,
                 power_score=self.power_score(),
                 reason="can't spawn new unit")
@@ -164,6 +165,11 @@ class Game(object):
         self.filled = new_filled
         return rows_collapsed
 
+    def _end_game(self, move_score, power_score, reason):
+        self.game_ended = GameEnded(
+            move_score=move_score, power_score=power_score, reason=reason)
+        raise self.game_ended
+
     def _execute_command(self, command):
         # not a public interface, because it does not keep track of
         # phrases of power
@@ -173,7 +179,7 @@ class Game(object):
             self.current_placement = new_placement
 
             if new_placement in self.visited_placements:
-                raise GameEnded(
+                self._end_game(
                     move_score=0, power_score=0,
                     reason='placement repeated')
             self.visited_placements.add(new_placement)
@@ -186,7 +192,7 @@ class Game(object):
         assert c in COMMAND_BY_CHAR
         command = COMMAND_BY_CHAR[c]
         if command is not None:
-            self._execute_command(command)
+          self._execute_command(command)
 
     def execute_string(self, s):
         for c in s:

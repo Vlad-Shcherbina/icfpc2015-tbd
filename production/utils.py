@@ -1,3 +1,4 @@
+import hashlib
 import json
 import os
 
@@ -54,8 +55,11 @@ def gen_output(problem_id, seed, history):
     supplied, a tag will be generated from the submission time.
     '''
 
+    solution = "".join(history)
+    tag = hashlib.md5(str((problem_id, seed, solution)).encode('utf-8'))
     return json.dumps([{
       'problemId': problem_id,
       'seed': seed,
-      'solution': "".join(history)
+      'solution': solution,
+      'tag': tag.hexdigest()
     }])

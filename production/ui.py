@@ -1,3 +1,14 @@
+"""
+Controls:
+
+  turn ccw     turn cw
+           W E
+    west  A   D  east
+           Z X
+south-west     south-east
+
+"""
+
 import argparse
 import json
 import logging
@@ -7,6 +18,7 @@ import re
 import termios
 import tty
 import time
+import random
 
 from production import utils
 from production import game
@@ -17,19 +29,15 @@ parser.add_argument('--tracedir', nargs='?', help='Directory where to store the 
 parser.add_argument('--moves', nargs='?', help='Moves to replay')
 
 
-ARROWS = {
-    # W
-    'h': 'p',
-    # E
-    'j': 'b',
-    # SW
-    'b': 'a',
-    # SE
-    'm': 'l',
-    # CW
-    'i': 'd',
-    # CCW
-    'y': 'k',
+CONTROLS = {
+    'w': game.TURN_CCW,
+    'e': game.TURN_CW,
+
+    'a': game.MOVE_W,
+    'd': game.MOVE_E,
+
+    'z': game.MOVE_SW,
+    'x': game.MOVE_SE,
 }
 
 
@@ -43,8 +51,8 @@ def gamepad(phrase_mode=False):
             if phrase_mode:
                 yield ch
             else:
-                if ch in ARROWS:
-                    yield ARROWS[ch]
+                if ch in CONTROLS:
+                    yield random.choice(game.CHARS_BY_COMMAND[CONTROLS[ch]])
     except KeyboardInterrupt:
         pass
     finally:
@@ -75,6 +83,7 @@ def dump_trace(game, tracedir):
 
 
 def main():
+    random.seed(42)
     args = parser.parse_args()
 
     path = os.path.join(utils.get_data_dir(), args.problem)

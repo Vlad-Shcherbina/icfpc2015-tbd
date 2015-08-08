@@ -28,7 +28,7 @@ COMMAND_CHARS =[
     ('\t\n\r', None),
 ]
 COMMAND_BY_CHAR = {char: cmd for chars, cmd in COMMAND_CHARS for char in chars}
-
+CHARS_BY_COMMAND = {cmd: chars for chars, cmd in COMMAND_CHARS if cmd}
 
 POWER_PHRASES = ['Ei!']
 POWER_PHRASES = [w.lower() for w in POWER_PHRASES]

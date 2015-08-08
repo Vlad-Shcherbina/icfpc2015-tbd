@@ -62,18 +62,18 @@ class FullDfa:
             transitions.append({})
             transition = transitions[-1]
             end_state.append(self.print_state(word,len(word)))
-            for character_index in range(1, len(word)):
+            for character_index in range(1, len(word) + 1):
                 for character in alphabet:
                     next_match = self.calculate_suffix_prefix(word[:character_index], character)
-                    if character == word[character_index]:
-                        next_match = character_index + 1
+                    if character_index != len(word):
+                        if character == word[character_index]:
+                            next_match = character_index + 1
                     self.set_transition(transition, self.print_state(word, character_index), character, self.print_state(word, next_match))
+            ## start transitions. Important
             for character in alphabet:
                 if character == word[0]:
-                    self.set_transition(transition, self.print_state(word, len(word)), character, self.print_state(word, 1))
                     self.set_transition(start_transition, self.start_state(), character, self.print_state(word, 1))
                 else:
-                    self.set_transition(transition, self.print_state(word, len(word)), character, self.start_state())
                     self.set_transition(start_transition, self.start_state(), character, self.start_state())
 
         #print(transitions)
@@ -84,7 +84,7 @@ class FullDfa:
     def get_dfa(self):
         return self._dfa
 
-    def add_leter(self, c):
+    def add_letter(self, c):
         self._current_state = self._dfa[self._current_state][c]
         if self._current_state in self._end_state_lookup:
             self._results += self._end_state_lookup[self._current_state]
@@ -176,7 +176,7 @@ class FullDfa:
         frozenset -> [power_phrase1, ...]
         """
         lookup = {}
-        #print(final_states)
+        # print(final_states)
         for frozenset_states in dfa.keys():
             for state in final_states:
                 if state in frozenset_states:
@@ -216,7 +216,7 @@ if __name__ == '__main__':
     alphabet = ['a','b','c','x']
     test_dfa = FullDfa(words, alphabet)
     test_value = "aabcabcabcxxabxabxaabx"
-    #test_dfa.print_dfa()
+    # test_dfa.print_dfa()
     for letter in test_value:
         test_dfa.add_leter(letter)
     assert(len(test_dfa.get_scores()) == 4)
@@ -225,12 +225,14 @@ if __name__ == '__main__':
     words = ["aa", 'aaaa']
     alphabet = ['a','b','c','x']
     test_dfa = FullDfa(words, alphabet)
+    # 14 'a's
     test_value = "aaaaaaaaaaaaaa"
-    #test_dfa.print_dfa()
+    # test_dfa.print_dfa()
     for letter in test_value:
         test_dfa.add_leter(letter)
-    print(test_dfa.get_scores())
-    assert(len(test_dfa.get_scores()) == 10)
+    # print(test_dfa.get_scores())
+    test_dfa.print_dfa()
+    assert(len(test_dfa.get_scores()) == 24)
 
     ##### STRESS TEST #####
     import string
@@ -245,5 +247,5 @@ if __name__ == '__main__':
     #print(new_words)
     #print(alphabet)
     #test_dfa.print_dfa()
-    print(len(test_dfa.get_dfa().keys()))
+    #print(len(test_dfa.get_dfa().keys()))
 

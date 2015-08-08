@@ -4,7 +4,7 @@ sys.path.append('.')
 import json
 import requests as req
 
-from storage import addSubmission, addResult, storeResultMaybe
+from storage import addSubmission, addResult, storeResultMaybe, getInterestingResults, getContradictingResults
 from utils   import unixTime, mUnixTime, randomSolution
 from api     import referenceResults
 import goldcfg
@@ -44,7 +44,8 @@ def run(s):
 def fetchDelayed():
     y = referenceResults()
     for i in y:
-        storeResultMaybe(i, "reference implementation")
+        if i['score'] != None:
+            storeResultMaybe(i, "reference implementation")
     return y
 
 #   main :: () -> IO ()
@@ -55,9 +56,10 @@ def main():
         for i in range(10):
             assert(run(sampleJSON(mUnixTime(), randomSolution())))
         addSubmission(sampleDict0(), 'Phony')
+        for x in referenceResults():
+            logger.info(x)
         logger.info(fetchDelayed())
-    for x in referenceResults():
-        logger.info(x)
+    logger.info(getInterestingResults())
 
 if __name__ == '__main__':
     main()

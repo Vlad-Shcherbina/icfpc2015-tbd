@@ -13,13 +13,14 @@ def one(q, a=()):
 def run(q, a=(), f=(lambda x: x.fetchall())):
     global db
     global logger
-    logger.info("<Query>\n%s\nwith\n%s" % (q, a))
     with db:
         e = db.cursor()
         e.execute(q, a)
         y = f(e)
-        logger.info("=> %s\n</Query>" % y)
-        return y
+        if not y:
+            return y
+        else:
+            return (list(map(lambda x: x[0], e.description)), y)
 
 def addSubmissionOld(submission, tag, description, kind, timestamp):
     return "???"
@@ -77,6 +78,34 @@ def storeResultMaybe(x, implementation):
           AND I.name  = :implementation
         """, x),
         run("""
-        UPDATE submissions AS S SET status = "Done" WHERE S.tag = :tag
+        UPDATE submissions SET status = "Done" WHERE tag = :tag
         """, x)
     )
+
+def getInterestingResults():
+    return run("""
+    SELECT I.name
+         , S.*
+         , C.score
+         , C.powerScore 
+    FROM ( implementations AS I
+         , submissions AS S
+         , scores AS C )
+    WHERE I.id = C.implementation
+      AND S.id = C.submission
+      AND C.score > 0
+    """)
+
+def getContradictingResults():
+    return run("""
+    SELECT I.name
+         , S.*
+         , C.score
+         , C.powerScore 
+    FROM ( implementations AS I
+         , submissions AS S
+         , scores AS C )
+    WHERE I.id = C.implementation
+      AND S.id = C.submission
+      AND C.score > 0
+    """)

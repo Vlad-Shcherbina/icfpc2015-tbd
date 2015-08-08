@@ -54,8 +54,7 @@ class BigStepGame(object):
         self._move_score = 0
 
         self.current_unit = None
-        self.current_placement = None
-        # self.used_placements = None
+        self.initial_placement = None
         self.pick_next_unit()
         # self.game_ended = None
 
@@ -78,10 +77,9 @@ class BigStepGame(object):
 
         x = self.lcg.pop(0)
         self.current_unit = self.units[x % len(self.units)]
-        self.current_placement = \
+        self.initial_placement = \
             self.current_unit.get_inital_placement(self.width)
-        self.visited_placements = {self.current_placement}
-        if not self.can_place(self.current_placement):
+        if not self.can_place(self.initial_placement):
             self._end_game(
                 move_score=self._move_score,
                 power_score=self.power_score(),
@@ -103,9 +101,9 @@ class BigStepGame(object):
     def get_placement_graph(self):
         num_placements = 1
         # <placement>: placement index
-        placements = {self.current_placement : 0}
+        placements = {self.initial_placement : 0}
 
-        worklist = [self.current_placement]
+        worklist = [self.initial_placement]
 
         transitions = {}
 
@@ -136,7 +134,17 @@ class BigStepGame(object):
         for (from_index, action_index), to_index in transitions.items():
             result.SetNext(from_index, action_index, to_index)
 
+        for p, idx in placements.items():
+            result.SetNodeMeaning(idx, p.pivot_x, p.pivot_y, p.angle)
+
         return result
+
+    def get_placement_by_node_index(self, placement_graph, index):
+        return game.Placement(
+            unit=self.current_unit,
+            pivot_x=placement_graph.GetNodeMeaningX(index),
+            pivot_y=placement_graph.GetNodeMeaningY(index),
+            angle=placement_graph.GetNodeMeaningAngle(index))
 
 
 def main():
@@ -147,12 +155,11 @@ def main():
         data = json.load(fin)
 
     seeds = data['sourceSeeds']
-    g = BigStepGame(data, seeds[0])
-    print(g)
+    bsg = BigStepGame(data, seeds[0])
+    print(bsg)
 
-    graph = g.get_placement_graph()
-    print(graph)
-    print(graph.GetNext(0, 0))
+    graph = bsg.get_placement_graph()
+    print(bsg.get_placement_by_node_index(graph, 0))
 
 
 if __name__ == '__main__':

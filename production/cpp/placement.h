@@ -4,7 +4,7 @@
 #include <vector>
 
 struct Graph {
-  Graph(int size) : tr(size) {}
+  Graph(int size) : tr(size), meaning(size) {}
 
   enum Command {
     W = 0,
@@ -20,10 +20,33 @@ struct Graph {
     UNINTERESTING = -2,
   };
 
+  struct Placement {
+    int x;
+    int y;
+    int angle;
+  };
+
   void SetNext(int src, Command command, int dst) { tr[src][command] = dst; }
   int GetNext(int src, Command command) { return tr[src][command]; }
 
+  void SetNodeMeaning(int node, int x, int y, int angle) {
+    meaning[node].x = x;
+    meaning[node].y = y;
+    meaning[node].angle = angle;
+  }
+
+  int GetNodeMeaningX(int node) {
+    return meaning[node].x;
+  }
+  int GetNodeMeaningY(int node) {
+    return meaning[node].y;
+  }
+  int GetNodeMeaningAngle(int node) {
+    return meaning[node].angle;
+  }
+
  private:
   std::vector<std::array<int, 6> > tr;
+  std::vector<Placement> meaning;
   int start_node;
 };

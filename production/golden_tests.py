@@ -2,6 +2,7 @@ import os
 import json
 import sys
 import itertools
+import re
 
 import nose
 from nose.tools import eq_
@@ -18,10 +19,13 @@ def read_json(filename):
 
 
 def extract_score(tag):
-    pass
+    # 8a4330144e5c06c3cf5d905e4c6f5d6e 602:0:602
+    m = re.match('.* (\d+):(\d+):(\d+)', tag)
+    assert(m)
+    return int(m.group(1))
 
 
-def run_test(test_filename):
+def run(test_filename):
     data = read_json('golden_tests/%s' % test_filename)[0]
     exppected_score = extract_score(data['tag']);
     solution = data['solution']
@@ -38,7 +42,7 @@ def run_test(test_filename):
 
 
 def test_something():
-    run_test('a.json')
+    run('a.json')
 
 
 if __name__ == '__main__':

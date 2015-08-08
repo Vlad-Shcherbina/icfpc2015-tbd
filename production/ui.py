@@ -17,10 +17,9 @@ import logging
 import os
 import sys
 import re
-import termios
-import tty
 import time
 import random
+from contextlib import contextmanager
 
 from production import utils
 from production import game
@@ -51,11 +50,30 @@ CONTROLS = {
 UNDO = '`'
 
 
-def gamepad(phrase_mode=False):
-    fd = sys.stdin.fileno()
+@contextmanager
+def intercept_cbreak(fd):
+    # mainly so that it still somewhat works on Windows 
+    try:
+        import termios, tty
+    except ImportError:
+        try:
+            yield
+        except KeyboardInterrupt:
+            pass
+        return
+    
     old_attr = termios.tcgetattr(fd)
     tty.setcbreak(sys.stdin.fileno())
     try:
+        yield
+    except KeyboardInterrupt:
+        pass
+    finally:
+        termios.tcsetattr(fd, termios.TCSADRAIN, old_attr)
+
+
+def gamepad(phrase_mode=False):
+    with intercept_cbreak(sys.stdin.fileno):
         while True:
             ch = sys.stdin.read(1)
             if phrase_mode:
@@ -65,10 +83,6 @@ def gamepad(phrase_mode=False):
                     yield ch
                 elif ch in CONTROLS:
                     yield random.choice(game.CHARS_BY_COMMAND[CONTROLS[ch]][:1])
-    except KeyboardInterrupt:
-        pass
-    finally:
-        termios.tcsetattr(fd, termios.TCSADRAIN, old_attr)
 
 
 def trace(game):

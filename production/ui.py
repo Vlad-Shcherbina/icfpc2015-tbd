@@ -27,10 +27,11 @@ from production import utils
 from production import game
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--delay', default=0.05, type=float, help='Delay between moves (0 requires keypress)')
+parser.add_argument('--delay', default=0.025, type=float, help='Delay between moves (0 requires keypress)')
 parser.add_argument('--problem', default='qualifier/problem_4.json', help='Problem to play')
 parser.add_argument('--tracedir', help='Directory where to store the execution traces')
 parser.add_argument('--moves', default='', help='Moves to replay')
+parser.add_argument('--seed', default=0, type=int, help='Ordinal of the seed to use (0 based)')
 parser.add_argument('--prompt_for_submit', action='store_true', help='Prompt for submit')
 
 
@@ -149,7 +150,6 @@ def display(g):
 def main():
     random.seed(42)
     args = parser.parse_args()
-    term_attr = setup_term()
 
     path = os.path.join(utils.get_data_dir(), args.problem)
     with open(path) as fin:
@@ -158,7 +158,10 @@ def main():
         assert m
         data['problemId'] = int(m.group(1))
 
-    g = game.Game(data, data['sourceSeeds'][0])
+    assert args.seed < len(data['sourceSeeds']), \
+        "There are only %d seeds" % len(data['sourceSeeds'])
+
+    g = game.Game(data, data['sourceSeeds'][args.seed])
 
     if args.moves:
         delay = 0.05
@@ -168,6 +171,7 @@ def main():
     moves = itertools.chain(args.moves, gamepad())
 
     try:
+        term_attr = setup_term()
         display(g)
         g.trace = []
         if args.tracedir:

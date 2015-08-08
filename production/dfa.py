@@ -1,10 +1,5 @@
-# NFAtoDFA.py :
-# This is Python code for representing finite automata, DFAs and NFAs, 
-# and for converting from an NFA into a DFA.  
-#
-# Ben Reichardt, 1/17/2011
-#
 import functools
+from collections import defaultdict
 
 class DFA:
     """Class that encapsulates a DFA."""
@@ -53,11 +48,12 @@ class NFA:
 class FullDfa:
 
     def __init__(self, words, alphabet):
-        self._results = []
+        self._results = defaultdict(int)
         transitions = [{}]
         start_transition = transitions[-1]
         end_state = []
         for word in words:
+            assert word != ''
             word = word.lower()
             transitions.append({})
             transition = transitions[-1]
@@ -87,7 +83,8 @@ class FullDfa:
     def add_letter(self, c):
         self._current_state = self._dfa[self._current_state][c]
         if self._current_state in self._end_state_lookup:
-            self._results += self._end_state_lookup[self._current_state]
+            for word in self._end_state_lookup[self._current_state]:
+                self._results[word] += 1
 
     def get_scores(self):
         return self._results

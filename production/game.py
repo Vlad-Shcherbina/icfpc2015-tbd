@@ -23,7 +23,7 @@ TURN_CW  = Action.cw
 TURN_CCW = Action.ccw
 
 
-class Game(object):
+class Game(IGame):
 
     # TODO: reduce initialization to primitive operations, so that C++
     # implementation does not have to deal with json.
@@ -33,8 +33,8 @@ class Game(object):
         self.problem_id = json_data['problemId'] \
             if 'problemId' in json_data else -1
 
-        self.width = json_data['width']
-        self.height = json_data['height']
+        self._width = json_data['width']
+        self._height = json_data['height']
 
         # (x, y) of all filled cells
         self.filled = set()
@@ -57,6 +57,7 @@ class Game(object):
         self.history = []
 
         self.move_score = 0
+        self._turn = 0
         self.ls_old = 0
 
         self.current_unit = None
@@ -150,6 +151,7 @@ class Game(object):
     def _execute_command(self, command):
         # not a public interface, because it does not keep track of
         # phrases of power
+        self._turn += 1
         logging.info('execute_command {}'.format(command))
         new_placement = self.current_placement.apply_command(command)
         if self.can_place(new_placement):
@@ -208,6 +210,24 @@ class Game(object):
             result += str(unit)
             result += '---\n'
         return result
+    
+    # IGame implementation
+    
+    @property
+    def width(self): return self._width
+    @property
+    def height(self): return self._height
+    @property
+    def score(self): return self.move_score + self.power_score()
+    @property
+    def turn(self): return self._turn
+    # methods
+    def get_filled(self):
+        return self.filled
+    def get_current_figure_cells(self):
+        return self.current_placement.get_members()
+    def get_current_figure_pivot(self):
+        return (self.current_placement.pivot_x, self.current_placement.pivot_y)
 
 
 Placement = collections.namedtuple(

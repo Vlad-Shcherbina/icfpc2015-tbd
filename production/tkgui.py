@@ -1,31 +1,4 @@
-from abc import ABCMeta, abstractmethod, abstractproperty
-
-class IGame:
-    __metaclass__ = ABCMeta
-    # properties
-    @abstractproperty
-    def width(self):
-        'The number of columns on the board'
-    @abstractproperty
-    def height(self):
-        'The number of rows on the board'
-    @abstractproperty
-    def score(self):
-        'Current score'
-    @abstractproperty
-    def turn(self):
-        'Current turn'
-    # methods
-    @abstractmethod
-    def get_filled(self):
-        'Return an iterable of (x, y) tuples representing filled cells' 
-    @abstractmethod
-    def get_current_figure_cells(self):
-        'Return an iterable of (x, y) tuples representing cells of the current figure (transformed to the field coordinates)' 
-    @abstractmethod
-    def get_current_figure_pivot(self):
-        'Return an (x, y) tuple representing the pivot of the current figure (transformed to the field coordinates)'
-        
+from production.interfaces import IGame        
 
 import tkinter
 from tkinter import Tk, Text, Frame, Label, Button

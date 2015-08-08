@@ -8,7 +8,7 @@ import time
 
 from production import utils
 from production.interfaces import CHARS_BY_COMMAND, COMMAND_BY_CHAR, COMMAND_CHARS, POWER_PHRASES
-from production.interfaces import GameEnded, Action, IGame 
+from production.interfaces import GameEnded, Action, IGame
 
 
 logger = logging.getLogger(__name__)
@@ -56,7 +56,7 @@ class Game(IGame):
         # building behavior)
         self.history = []
 
-        self.move_score = 0
+        self._move_score = 0
         self._turn = 0
         self.ls_old = 0
 
@@ -79,7 +79,7 @@ class Game(IGame):
     def pick_next_unit(self):
         if self.remaining_units == 0:
             self._end_game(
-                move_score=self.move_score,
+                move_score=self._move_score,
                 power_score=self.power_score(),
                 reason="no more units")
         self.remaining_units -= 1
@@ -92,7 +92,7 @@ class Game(IGame):
         self.visited_placements = {self.current_placement}
         if not self.can_place(self.current_placement):
             self._end_game(
-                move_score=self.move_score,
+                move_score=self._move_score,
                 power_score=self.power_score(),
                 reason="can't spawn new unit")
 
@@ -110,7 +110,7 @@ class Game(IGame):
             line_bouns = (self.ls_old - 1) * points // 10
         else:
             line_bouns = 0
-        self.move_score += points + line_bouns
+        self._move_score += points + line_bouns
         self.ls_old = ls
 
         self.pick_next_unit()
@@ -210,13 +210,15 @@ class Game(IGame):
             result += str(unit)
             result += '---\n'
         return result
-    
+
     # IGame implementation
-    
+
     @property
     def width(self): return self._width
     @property
     def height(self): return self._height
+    @property
+    def move_score(self): return self._move_score
     @property
     def score(self): return self.move_score + self.power_score()
     @property

@@ -21,24 +21,22 @@ def count_for_all(words, sentence):
     return {word : count_overlapping_occurences(word, sentence) for word in words
             if count_overlapping_occurences(word, sentence)}
 
-class MiscEquivalenceTests(unittest.TestCase):
+class DfaTests(unittest.TestCase):
 
     @hypothesis.given(
         phrase=st.text(alphabet="abcd", min_size=1, max_size=10),
         moves=st.text(alphabet="abcd", max_size=1000))
-    @testing_utils.isolate_process_failures()
     def dfa_with_single_phrase_test(self, phrase, moves):
         full_dfa = FullDfa([phrase], "abcd")
         for move in moves:
             full_dfa.add_letter(move)
         scores = full_dfa.get_scores()
-        
+
         eq_(scores[phrase], count_overlapping_occurences(phrase, moves))
 
     @hypothesis.given(
         phrases=st.lists(st.text(alphabet="abcd", min_size=1, max_size=10), min_size=1, max_size=18),
-        moves=st.text(alphabet="abcd", max_size=1000))
-    @testing_utils.isolate_process_failures()
+        moves=st.text(alphabet="abcd", max_size=200))
     def dfa_with_several_phrase_test(self, phrases, moves):
         # no repeated phrases of power
         phrases = set(phrases)
@@ -47,7 +45,7 @@ class MiscEquivalenceTests(unittest.TestCase):
         for move in moves:
             full_dfa.add_letter(move)
         scores = full_dfa.get_scores()
-        
+
         eq_(scores, count_for_all(phrases, moves))
 
 

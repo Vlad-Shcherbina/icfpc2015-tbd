@@ -24,6 +24,7 @@ in
 , graphviz        ? pkgs.graphviz
 , httpie          ? pkgs.httpie
 , sqlite          ? pkgs.sqlite
+, tornado         ? pkgs.python34Packages.tornado
 }:
 stdenv.mkDerivation {
   name = "icfpc2015-tbd";
@@ -35,5 +36,6 @@ stdenv.mkDerivation {
                   hypothesis
                   graphviz
                   httpie
-                  sqlite ];
+                  sqlite 
+                  tornado ];
 }

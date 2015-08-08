@@ -46,7 +46,7 @@ def run(s):
 def fetchDelayed():
     y = referenceResults()
     for i in y:
-        if i['score'] != None and i['createdAt] > '2015-08-08T20:13:03.146Z':
+        if i['score'] != None and i['createdAt'] > '2015-08-08T20:13:03.146Z':
             storeResultMaybe(i, "reference implementation", own=False)
     return y
 

@@ -100,15 +100,24 @@ class Gui(object):
             self.grid_width = game.width
             self.grid_height = game.height
             for y in range(self.grid_height):
+                column_offset = y % 2
                 for x in range(self.grid_width):
                     label = Label(self.grid_frame, bd=2, relief=tkinter.RAISED, width=1)
-                    label.grid(row=y, column=x, sticky='wens')
+                    label.grid(row=y, column=x * 2 + column_offset, columnspan=2, sticky='wens')
                     self.grid.append(label)
-                    if y == 0:
-                        self.grid_frame.columnconfigure(x, weight=1)
+                label = Label(self.grid_frame, bd=2, relief=tkinter.RAISED, width=0)
+                if column_offset:
+                    label.grid(row=y, column=0, columnspan=1, sticky='wens')
+                else:
+                    label.grid(row=y, column=self.grid_width * 2, columnspan=1, sticky='wens')
+                
+            for x in range(self.grid_width * 2 + 1):
+                self.grid_frame.columnconfigure(x, weight=1)
+            for y in range(self.grid_height):
                 self.grid_frame.rowconfigure(y, weight=1)
+                
             self.grid_frame.config(
-                    width=self.CELL_SIZE * self.grid_width,
+                    width=self.CELL_SIZE * (self.grid_width * 2 + 1) // 2,
                     height=self.CELL_SIZE * self.grid_height)
         
         filled = set(game.get_filled())

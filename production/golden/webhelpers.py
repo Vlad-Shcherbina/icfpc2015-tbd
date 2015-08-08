@@ -8,7 +8,7 @@ def interestingResults():
 
 def contradictingResults():
     rs = api.getContradictingResults()
-    return sqlToHTML(rs)
+    return sqlToHTML(rs, "contradicting")
 
 def sqlToHTML(rs, className=""):
     if not rs:
@@ -97,5 +97,8 @@ def cssBoilerplate():
     }
     th {
         text-transform: uppercase;
+    }
+    table.contradicting td {
+        background-color: red !important;
     }
     """

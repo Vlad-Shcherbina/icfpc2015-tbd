@@ -7,44 +7,20 @@ import logging
 import time
 
 from production import utils
+from production.interfaces import CHARS_BY_COMMAND, COMMAND_BY_CHAR, COMMAND_CHARS, POWER_PHRASES
+from production.interfaces import GameEnded, Action, IGame 
 
 
 logger = logging.getLogger(__name__)
 
 
-MOVE_W = 'move_w'
-MOVE_E = 'move_e'
-MOVE_SW = 'move_sw'
-MOVE_SE = 'move_se'
-TURN_CW = 'turn_cw'
-TURN_CCW = 'turn_ccw'
-
-COMMAND_CHARS =[
-    ("p'!.03", MOVE_W),
-    ('bcefy2', MOVE_E),
-    ('aghij4', MOVE_SW),
-    ('lmno 5', MOVE_SE),
-    ('dqrvz1', TURN_CW),
-    ('kstuwx', TURN_CCW),
-    ('\t\n\r', None),
-]
-COMMAND_BY_CHAR = {char: cmd for chars, cmd in COMMAND_CHARS for char in chars}
-CHARS_BY_COMMAND = {cmd: chars for chars, cmd in COMMAND_CHARS if cmd}
-
-POWER_PHRASES = ['Ei!']
-POWER_PHRASES = [w.lower() for w in POWER_PHRASES]
-
-class GameEnded(Exception):
-    def __init__(self, move_score, power_score, reason):
-        self.move_score = move_score
-        self.power_score = power_score
-        self.total_score = move_score + power_score
-        self.reason = reason
-
-    def __str__(self):
-        return 'GameEnded(score = {} + {} = {}, reason={!r})'.format(
-            self.move_score, self.power_score, self.total_score,
-            self.reason)
+# backward compatibility
+MOVE_W   = Action.w
+MOVE_E   = Action.e
+MOVE_SW  = Action.sw
+MOVE_SE  = Action.se
+TURN_CW  = Action.cw
+TURN_CCW = Action.ccw
 
 
 class Game(object):
@@ -190,14 +166,13 @@ class Game(object):
     def execute_char(self, c):
         c = c.lower()
         self.history.append(c)
-        assert c in COMMAND_BY_CHAR
         command = COMMAND_BY_CHAR[c]
         if command is not None:
-          self._execute_command(command)
+            self._execute_command(command)
 
     def execute_string(self, s):
         for c in s:
-          self.execute_char(c)
+            self.execute_char(c)
 
     def power_score(self):
         s = ''.join(self.history)
@@ -333,14 +308,14 @@ class Shape(object):
         assert self.pivot_y in [0, 1]
 
     def _compute_bounds(self):
-        self.min_x = min(x for x, y in self.members)
+        self.min_x = min(x for x, y in self.members)  # @UnusedVariable
         self.min_y = min(y for x, y in self.members)
         self.max_x = max(x for x, y in self.members)
         self.max_y = max(y for x, y in self.members)
 
     def __str__(self):
         extended_members = self.members + ((self.pivot_x, self.pivot_y),)
-        min_x = min(x for x, y in extended_members)
+        min_x = min(x for x, y in extended_members)  # @UnusedVariable
         min_y = min(y for x, y in extended_members)
         max_x = max(x for x, y in extended_members)
         max_y = max(y for x, y in extended_members)

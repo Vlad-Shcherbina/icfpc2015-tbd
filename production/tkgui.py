@@ -1,10 +1,11 @@
 from production.interfaces import IGame, Action       
 
+import math
 import tkinter
-from tkinter import Tk, Text, Frame, Label, Button
+from tkinter import Tk, Text, Frame, Label, Button, Canvas
 from tkinter.font import Font
 import logging
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 
 class GameMock(IGame):
@@ -54,12 +55,10 @@ class Gui(object):
         root.title('Iä! Shub-Niggurath! The Black Goat of the Woods with a Thousand Young!')
         root.protocol("WM_DELETE_WINDOW", self.close)
         
-        self.grid_frame = Frame(root, bd=5, relief=tkinter.SUNKEN)
-        self.grid_width = self.grid_height = None
-        self.grid = []
+        root.pack_propagate(True)
         
-        self.grid_frame.grid_propagate(False)
-        self.grid_frame.pack(expand=True, fill=tkinter.BOTH, side=tkinter.LEFT)
+        self.grid_canvas = Canvas(root, bd=5, relief=tkinter.SUNKEN)
+        self.grid_canvas.pack(expand=True, fill=tkinter.BOTH, side=tkinter.LEFT)
         
         button_frame = Frame(root)
         button_frame.pack(fill=tkinter.BOTH, side=tkinter.LEFT)
@@ -79,7 +78,7 @@ class Gui(object):
         for name, bindings, action in buttons:
             def callback(event, action=action):
                 if self.action is not None:
-                    logger.error('Action already set: %r when processing %r', self.action, action)
+                    log.error('Action already set: %r when processing %r', self.action, action)
                 self.action = action
                 root.quit()
             text = name + (' ({})'.format(bindings) if bindings else '')            
@@ -93,49 +92,49 @@ class Gui(object):
     
     
     def update(self, game):
-        if self.grid_width != game.width or self.grid_height != game.height:
-            for it in self.grid:
-                it.destroy()
-            self.grid = []
-            self.grid_width = game.width
-            self.grid_height = game.height
-            for y in range(self.grid_height):
-                column_offset = y % 2
-                for x in range(self.grid_width):
-                    label = Label(self.grid_frame, bd=2, relief=tkinter.RAISED, width=1)
-                    label.grid(row=y, column=x * 2 + column_offset, columnspan=2, sticky='wens')
-                    self.grid.append(label)
-                label = Label(self.grid_frame, bd=2, relief=tkinter.RAISED, width=0)
-                if column_offset:
-                    label.grid(row=y, column=0, columnspan=1, sticky='wens')
-                else:
-                    label.grid(row=y, column=self.grid_width * 2, columnspan=1, sticky='wens')
-                
-            for x in range(self.grid_width * 2 + 1):
-                self.grid_frame.columnconfigure(x, weight=1)
-            for y in range(self.grid_height):
-                self.grid_frame.rowconfigure(y, weight=1)
-                
-            self.grid_frame.config(
-                    width=self.CELL_SIZE * (self.grid_width * 2 + 1) // 2,
-                    height=self.CELL_SIZE * self.grid_height)
-        
+        tri_step_x = self.CELL_SIZE * 0.5
+        tri_step_y = self.CELL_SIZE * 0.5 * math.tan(math.pi / 6) 
+        def tri(x, y):
+            return tri_step_x * x, tri_step_y * y
+        def hex_center(x, y):
+            tri_x = 1 + 2 * x + (y & 1) 
+            tri_y = 2 + 3 * y
+            return tri_x, tri_y
+        def hexagon(x, y):
+            cx, cy = hex_center(x, y)
+            r = []
+            r.extend(tri(cx - 1, cy - 1))
+            r.extend(tri(cx    , cy - 2))
+            r.extend(tri(cx + 1, cy - 1))
+            r.extend(tri(cx + 1, cy + 1))
+            r.extend(tri(cx    , cy + 2))
+            r.extend(tri(cx - 1, cy + 1))
+            return r
+        def circle_bb(x, y, r):
+            cx, cy = tri(*hex_center(x, y))
+            r = r / 2
+            return ((cx - r, cy - r),
+                    (cx + r, cy + r))
+            
         filled = set(game.get_filled())
         figure_cells = set(game.get_current_figure_cells())
         pivot = game.get_current_figure_pivot()
         default_bg = self.root.cget('bg')
-        label_iter = iter(self.grid)
-        for y in range(self.grid_height):
-            for x in range(self.grid_width):
-                label = next(label_iter)
+        c = self.grid_canvas
+        c.delete(tkinter.ALL)
+        for y in range(game.height):
+            for x in range(game.width):
                 cell = (x, y)
                 assert not ((cell in filled) and (cell in figure_cells))  
                 bg_color = (
                         '#4040A0' if cell in filled else 
                         '#40A040' if cell in figure_cells else 
                         default_bg)
-                text = 'X' if cell == pivot else ''                
-                label.config(bg=bg_color, text=text)
+                c.create_polygon(*hexagon(x, y), fill=bg_color, outline='#000000', width=1)
+        c.create_oval(*circle_bb(*pivot, r=self.CELL_SIZE * 0.5), fill='#FF0000', outline='#FFFFFF', width=2)
+        c_bbox = c.bbox(tkinter.ALL)
+        c.config(scrollregion=c_bbox, width=c_bbox[2] - c_bbox[0], height=c_bbox[3] - c_bbox[1])
+        
                 
         for textbox in self.stat_textboxes:
             textbox.config(text=textbox.callback(game))

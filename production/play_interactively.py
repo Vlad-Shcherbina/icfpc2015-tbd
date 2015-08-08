@@ -2,6 +2,8 @@ from production.interfaces import CHARS_BY_COMMAND
 from production.tkgui import Gui
 from production.game import Game 
 from production import utils
+import logging
+log = logging.getLogger(__name__)
 
 import json, re, os, os.path
 
@@ -18,9 +20,9 @@ def main():
     
     while True:
         cmd = ui.wait_for_action()
-        print('{!r}'.format(cmd))
+        log.debug('{!r}'.format(cmd))
         if cmd is None:
-            print('done')
+            log.debug('done')
             break
         game.execute_char(CHARS_BY_COMMAND[cmd][0])
         ui.update(game)

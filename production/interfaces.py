@@ -5,6 +5,7 @@ from production import utils
 
 
 class IGame:
+    'Abstract base class for Game State'
     __metaclass__ = ABCMeta
     # properties
     @abstractproperty
@@ -29,6 +30,7 @@ class IGame:
     @abstractmethod
     def get_current_figure_pivot(self):
         'Return an (x, y) tuple representing the pivot of the current figure (transformed to the field coordinates)'
+        
 
 class Action(str, Enum):
     w = 'move_w'

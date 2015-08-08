@@ -26,9 +26,11 @@ from production import utils
 from production import game
 
 parser = argparse.ArgumentParser()
+parser.add_argument('--delay', default=0.05, type=float, help='Delay between moves (0 requires keypress)')
 parser.add_argument('--problem', default='qualifier/problem_4.json', help='Problem to play')
 parser.add_argument('--tracedir', help='Directory where to store the execution traces')
 parser.add_argument('--moves', help='Moves to replay')
+parser.add_argument('--prompt_for_submit', action='store_true', help='Prompt for submit')
 
 
 CONTROLS = {
@@ -73,17 +75,33 @@ def intercept_cbreak(fd):
         termios.tcsetattr(fd, termios.TCSADRAIN, old_attr)
 
 
+def setup_term():
+    try:
+        import termios, tty
+        old_attr = termios.tcgetattr(sys.stdin.fileno())
+        tty.setcbreak(sys.stdin.fileno())
+        return old_attr
+    except ImportError:
+        pass
+
+def restore_term(attr):
+    try:
+        import termios
+        termios.tcsetattr(sys.stdin.fileno(), termios.TCSADRAIN, attr)
+    except ImportError:
+        pass
+
+
 def gamepad(phrase_mode=False):
-    with intercept_cbreak(sys.stdin.fileno()):
-        while True:
-            ch = sys.stdin.read(1)
-            if phrase_mode:
+    while True:
+        ch = sys.stdin.read(1)
+        if phrase_mode:
+            yield ch
+        else:
+            if ch == UNDO:
                 yield ch
-            else:
-                if ch == UNDO:
-                    yield ch
-                elif ch in CONTROLS:
-                    yield random.choice(game.CHARS_BY_COMMAND[CONTROLS[ch]])
+            elif ch in CONTROLS:
+                yield random.choice(game.CHARS_BY_COMMAND[CONTROLS[ch]])
 
 
 def trace(game):
@@ -112,6 +130,8 @@ def dump_trace(game, tracedir):
 def main():
     random.seed(42)
     args = parser.parse_args()
+    term_attr = setup_term()
+
 
     path = os.path.join(utils.get_data_dir(), args.problem)
     with open(path) as fin:
@@ -127,7 +147,10 @@ def main():
     else:
         delay = 0
 
-    moves = itertools.chain(args.moves, gamepad())
+    if args.moves:
+      moves = itertools.chain(arg.moves, gamepad())
+    else:
+      moves = gamepad()
 
     try:
         sys.stdout.write("\x1b\x5b\x48\x1b\x5b\x4a")
@@ -159,13 +182,39 @@ def main():
             sys.stdout.write('Current unit:\n')
             sys.stdout.write(str(g.current_unit))
 
-            if delay:
-                time.sleep(delay)
+            if args.delay:
+                time.sleep(args.delay)
     except game.GameEnded as e:
+        restore_term(term_attr)
+        print('\n')
         print(e)
-        print(utils.gen_output(g, e))
+        solution = utils.gen_output(g, e)
+        print('Solution: %s' % json.dumps([solution]))
         if args.tracedir:
             dump_trace(g, args.tracedir)
+        if args.prompt_for_submit:
+            print('\nDo you want to submit this solution? [y/n] ', end='', flush=True),
+            if sys.stdin.read(1).lower() == 'y':
+                result = {
+                    'score': e.move_score,
+                    'powerScore': e.power_score,
+                    'tag': solution['tag'],
+                    'problemId': solution['problemId'],
+                    'seed': solution['seed'],
+                    'solution': solution['solution']
+                    }
+
+                from production.golden import api
+                if api.storeOwnResult(
+                    sys.argv[0] + '-' + os.getenv('USER'), result, solution,
+                    'Testing our implementation', submit_reference_test=True):
+                    print('\nSolution successfully submitted')
+                else:
+                    print('\nSolution already submitted')
+            else:
+                print('\n')
+    finally:
+        restore_term(term_attr)
 
 
 if __name__ == '__main__':

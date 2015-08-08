@@ -62,9 +62,9 @@ def gen_output(game, game_ended_excp):
     tag += ' %d:%d:%d' % (
         game_ended_excp.move_score, game_ended_excp.power_score,
         game_ended_excp.total_score)
-    return json.dumps([{
+    return {
       'problemId': game.problem_id,
       'seed': game.seed,
       'solution': solution,
       'tag': tag
-    }])
+    }

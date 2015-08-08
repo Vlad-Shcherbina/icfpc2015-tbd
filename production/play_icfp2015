@@ -2,7 +2,13 @@
 
 import argparse
 import json
+import logging
+import os
 import pprint
+import resource
+import signal
+
+logger = logging.getLogger(__name__)
 
 parser = argparse.ArgumentParser()
 # The parameter -f may be provided multiple times, which means that the program
@@ -53,20 +59,45 @@ parser.add_argument('-p', action='append', default=[],
 # with specific submitted solutions. If no tag field is supplied, a tag will be
 # generated from the submission time.
 
+
+MEM_USAGE = 0
+
+def update_memory_usage():
+    pagesize = os.sysconf('SC_PAGE_SIZE')
+    with open("/proc/%d/statm" % os.getpid()) as statm:
+        # vms | rss | ... (sizes are in pages)
+        global MEM_USAGE
+        MEM_USAGE = int(statm.readline().split()[1]) * pagesize
+
+
+def alarm_handler(*args):
+    update_memory_usage()
+    try:
+        import humanize
+        mem_usage = humanize.naturalsize(MEM_USAGE)
+    except ImportError:
+        mem_usage = '%.2fMb' % (MEM_USAGE / float(2 ** 20))
+    logging.info('Current memory usage %s', mem_usage)
+    signal.alarm(1)
+
 def load_problem(path):
-  with open(path) as problem:
-    return json.load(problem)
+    with open(path) as problem:
+        logging.info('Loading %s', path)
+        return json.load(problem)
 
 
 def main():
+    logging.basicConfig(level=logging.DEBUG)
     args = parser.parse_args()
-    print(args)
 
     problems = [load_problem(f) for f in args.f]
     power_phrases = [p for p in args.p]
     timeout = args.t
     memlimit = args.m
 
+    signal.signal(signal.SIGALRM, alarm_handler)
+    signal.alarm(1)
+    input()
 
 
 if __name__ == '__main__':

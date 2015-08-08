@@ -100,12 +100,12 @@ def trace(game):
 
 def dump_trace(game, tracedir):
     if not os.path.exists(tracedir):
-      os.mkdir(path)
+        os.mkdir(tracedir)
     path = os.path.join(
         tracedir, 'play_%08d-%08d-%d.json' % (
             game.problem_id, game.seed, time.time()))
     with open(path, "w") as f:
-      json.dump(game.trace, f)
+        json.dump(game.trace, f)
 
 
 def main():
@@ -122,47 +122,47 @@ def main():
     g = game.Game(data, data['sourceSeeds'][0])
 
     if args.moves:
-      moves = args.moves
-      delay = 0.05
+        moves = args.moves
+        delay = 0.05
     else:
-      delay = 0
-      moves = gamepad()
+        delay = 0
+        moves = gamepad()
 
 
     try:
-      sys.stdout.write("\x1b\x5b\x48\x1b\x5b\x4a")
-      sys.stdout.write(g.render_grid())
-      sys.stdout.write('\nCurrent move score: {}\n'.format(g.move_score))
-      sys.stdout.write('Current unit:\n')
-      sys.stdout.write(str(g.current_unit))
-
-      g.trace = []
-      trace(g)
-      prev_states = [copy.deepcopy(g)]
-
-      for ch in moves:
-        if ch == UNDO:
-            if len(prev_states) > 1:
-                g = prev_states[-1]
-                prev_states.pop()
-        else:
-            prev_states.append(copy.deepcopy(g))
-            g.execute_char(ch)
-            trace(g)
-
         sys.stdout.write("\x1b\x5b\x48\x1b\x5b\x4a")
         sys.stdout.write(g.render_grid())
-        sys.stdout.write('\nCurrent move score {}:\n'.format(g.move_score))
+        sys.stdout.write('\nCurrent move score: {}\n'.format(g.move_score))
         sys.stdout.write('Current unit:\n')
         sys.stdout.write(str(g.current_unit))
-
-        if delay:
-          time.sleep(delay)
+        
+        g.trace = []
+        trace(g)
+        prev_states = [copy.deepcopy(g)]
+        
+        for ch in moves:
+            if ch == UNDO:
+                if len(prev_states) > 1:
+                    g = prev_states[-1]
+                    prev_states.pop()
+            else:
+                prev_states.append(copy.deepcopy(g))
+                g.execute_char(ch)
+                trace(g)
+    
+            sys.stdout.write("\x1b\x5b\x48\x1b\x5b\x4a")
+            sys.stdout.write(g.render_grid())
+            sys.stdout.write('\nCurrent move score {}:\n'.format(g.move_score))
+            sys.stdout.write('Current unit:\n')
+            sys.stdout.write(str(g.current_unit))
+    
+            if delay:
+                time.sleep(delay)
     except game.GameEnded as e:
-      print(e)
-      print(utils.gen_output(g, e))
-      if args.tracedir:
-        dump_trace(g, args.tracedir)
+        print(e)
+        print(utils.gen_output(g, e))
+        if args.tracedir:
+            dump_trace(g, args.tracedir)
 
 
 if __name__ == '__main__':

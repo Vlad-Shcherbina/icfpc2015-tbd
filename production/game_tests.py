@@ -2,6 +2,7 @@ import os
 import json
 import sys
 import itertools
+import unittest
 
 import nose
 from nose.tools import eq_
@@ -11,119 +12,126 @@ from production import utils
 from production.interfaces import CHARS_BY_COMMAND, Action
 
 
-def smoke_test():
-    path = os.path.join(utils.get_data_dir(), 'qualifier/problem_0.json')
-    with open(path) as fin:
-        data = json.load(fin)
+class CommonGameTests(object):
+    def make_game(self, json_data, seed):
+        raise NotImplemented
 
-    g = game.Game(data, data['sourceSeeds'][0])
-    str(g)
+    def get_2x2_game(self):
+        path = os.path.join(utils.get_data_dir(), 'test_problems/2x2.json')
+        with open(path) as fin:
+            data = json.load(fin)
 
+        return self.make_game(data, seed=0)
 
-def smoke_test_with_nonempty_board():
-    path = os.path.join(utils.get_data_dir(), 'qualifier/problem_2.json')
-    with open(path) as fin:
-        data = json.load(fin)
+    def smoke_test(self):
+        path = os.path.join(utils.get_data_dir(), 'qualifier/problem_0.json')
+        with open(path) as fin:
+            data = json.load(fin)
 
-    g = game.Game(data, data['sourceSeeds'][0])
-    str(g)
-
-
-def get_2x2_game():
-    path = os.path.join(utils.get_data_dir(), 'test_problems/2x2.json')
-    with open(path) as fin:
-        data = json.load(fin)
-
-    return game.Game(data, seed=0)
+        g = self.make_game(data, data['sourceSeeds'][0])
+        str(g)
 
 
-def test_blockage():
-    g = get_2x2_game()
-    eq_(g.remaining_units, 9)
+    def smoke_test_with_nonempty_board(self):
+        path = os.path.join(utils.get_data_dir(), 'qualifier/problem_2.json')
+        with open(path) as fin:
+            data = json.load(fin)
 
-    g.execute_char(CHARS_BY_COMMAND[Action.se][0])
-    g.execute_char(CHARS_BY_COMMAND[Action.w][0])
+        g = self.make_game(data, data['sourceSeeds'][0])
+        str(g)
 
-    eq_(g.remaining_units, 8)
+    def test_blockage(self):
+        g = self.get_2x2_game()
+        eq_(g.remaining_units, 9)
 
-    try:
         g.execute_char(CHARS_BY_COMMAND[Action.se][0])
-        assert False
-    except game.GameEnded as e:
-        assert "can't spawn" in e.reason
-        eq_(e.total_score, 2)
+        g.execute_char(CHARS_BY_COMMAND[Action.w][0])
 
+        eq_(g.remaining_units, 8)
 
-def test_row_collapse():
-    g = get_2x2_game()
-
-    eq_(g.remaining_units, 9)
-
-    g.execute_char(CHARS_BY_COMMAND[Action.se][0])
-    g.execute_char(CHARS_BY_COMMAND[Action.e][0])
-    g.execute_char(CHARS_BY_COMMAND[Action.e][0])
-    eq_(g.remaining_units, 8)
-
-    g.execute_char(CHARS_BY_COMMAND[Action.se][0])
-    g.execute_char(CHARS_BY_COMMAND[Action.se][0])
-    eq_(g.remaining_units, 7)
-
-    eq_(g.filled, set())
-
-    eq_(g.move_score, 102)
-
-
-def test_turn_leading_to_repetition():
-    g = get_2x2_game()
-
-    try:
-        g.execute_string('d')
-        print(g)
-    except game.GameEnded as e:
-        assert 'placement repeated' in e.reason
-
-
-def test_unit_exhaustion():
-    g = get_2x2_game()
-    n = 10
-
-    n -= 1
-    eq_(g.remaining_units, n)
-
-    try:
-        for _ in range(5):
+        try:
             g.execute_char(CHARS_BY_COMMAND[Action.se][0])
-            g.execute_char(CHARS_BY_COMMAND[Action.e][0])
-            g.execute_char(CHARS_BY_COMMAND[Action.e][0])
-            n -= 1
-            eq_(g.remaining_units, n)
-
-            g.execute_char(CHARS_BY_COMMAND[Action.se][0])
-            g.execute_char(CHARS_BY_COMMAND[Action.se][0])
-            n -= 1
-            eq_(g.remaining_units, n)
-
-    except game.GameEnded as e:
-        eq_(n, 0)
-        assert 'no more units' in e.reason
-        # We used all ten 1-cell units, and we collapsed 5 rows.
-        eq_(e.move_score, 510)
-    else:
-        assert False
+            assert False
+        except game.GameEnded as e:
+            assert "can't spawn" in e.reason
+            eq_(e.total_score, 2)
 
 
-def test_power_score():
-    g = get_2x2_game()
+    def test_row_collapse(self):
+        g = self.get_2x2_game()
 
-    g.execute_string('Ei!')
+        eq_(g.remaining_units, 9)
 
-    try:
-        while True:
-            g.execute_char(CHARS_BY_COMMAND[Action.se][0])
-    except game.GameEnded as e:
-        eq_(e.power_score, 300 + 2 * 3 * 1)
-    else:
-        assert False
+        g.execute_char(CHARS_BY_COMMAND[Action.se][0])
+        g.execute_char(CHARS_BY_COMMAND[Action.e][0])
+        g.execute_char(CHARS_BY_COMMAND[Action.e][0])
+        eq_(g.remaining_units, 8)
+
+        g.execute_char(CHARS_BY_COMMAND[Action.se][0])
+        g.execute_char(CHARS_BY_COMMAND[Action.se][0])
+        eq_(g.remaining_units, 7)
+
+        eq_(g.filled, set())
+
+        eq_(g.move_score, 102)
+
+
+    def test_turn_leading_to_repetition(self):
+        g = self.get_2x2_game()
+
+        try:
+            g.execute_string('d')
+            print(g)
+        except game.GameEnded as e:
+            assert 'placement repeated' in e.reason
+
+
+    def test_unit_exhaustion(self):
+        g = self.get_2x2_game()
+        n = 10
+
+        n -= 1
+        eq_(g.remaining_units, n)
+
+        try:
+            for _ in range(5):
+                g.execute_char(CHARS_BY_COMMAND[Action.se][0])
+                g.execute_char(CHARS_BY_COMMAND[Action.e][0])
+                g.execute_char(CHARS_BY_COMMAND[Action.e][0])
+                n -= 1
+                eq_(g.remaining_units, n)
+
+                g.execute_char(CHARS_BY_COMMAND[Action.se][0])
+                g.execute_char(CHARS_BY_COMMAND[Action.se][0])
+                n -= 1
+                eq_(g.remaining_units, n)
+
+        except game.GameEnded as e:
+            eq_(n, 0)
+            assert 'no more units' in e.reason
+            # We used all ten 1-cell units, and we collapsed 5 rows.
+            eq_(e.move_score, 510)
+        else:
+            assert False
+
+
+    def test_power_score(self):
+        g = self.get_2x2_game()
+
+        g.execute_string('Ei!')
+
+        try:
+            while True:
+                g.execute_char(CHARS_BY_COMMAND[Action.se][0])
+        except game.GameEnded as e:
+            eq_(e.power_score, 300 + 2 * 3 * 1)
+        else:
+            assert False
+
+
+class PyGameTests(unittest.TestCase, CommonGameTests):
+    def make_game(self, json_data, seed):
+        return game.Game(json_data, seed)
 
 
 def test_lcg():

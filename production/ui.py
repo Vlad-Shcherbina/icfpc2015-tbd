@@ -29,7 +29,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--delay', default=0.05, type=float, help='Delay between moves (0 requires keypress)')
 parser.add_argument('--problem', default='qualifier/problem_4.json', help='Problem to play')
 parser.add_argument('--tracedir', help='Directory where to store the execution traces')
-parser.add_argument('--moves', help='Moves to replay')
+parser.add_argument('--moves', default='', help='Moves to replay')
 parser.add_argument('--prompt_for_submit', action='store_true', help='Prompt for submit')
 
 
@@ -147,10 +147,7 @@ def main():
     else:
         delay = 0
 
-    if args.moves:
-      moves = itertools.chain(arg.moves, gamepad())
-    else:
-      moves = gamepad()
+    moves = itertools.chain(args.moves, gamepad())
 
     try:
         sys.stdout.write("\x1b\x5b\x48\x1b\x5b\x4a")

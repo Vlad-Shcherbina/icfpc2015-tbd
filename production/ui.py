@@ -172,7 +172,7 @@ def main():
         g.trace = []
         if args.tracedir:
           trace(g)
-        prev_states = collections.deque(maxlen=5)
+        prev_states = collections.deque(maxlen=25)
         prev_states.append(copy.deepcopy(g))
 
         for ch in moves:

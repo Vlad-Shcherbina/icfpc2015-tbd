@@ -25,6 +25,9 @@ MAX_UNIT_COUNT = 100
 MAX_BOARD_SIZE = 10
 MAX_GAMES = 5
 
+BOARD_FILL_MAX_DENSITY = 0.2
+UNIT_FILL_MAX_DENSITY = 0.8
+
 def gen_cell(max_x, max_y):
     x = random.randint(0, max_x)
     y = random.randint(0, max_y)
@@ -34,7 +37,7 @@ def gen_unit():
     size_x = random.randint(1, MAX_UNIT_SIZE)
     size_y = random.randint(1, MAX_UNIT_SIZE)
     pivot = gen_cell(size_x, size_y)
-    cell_count = random.randint(1, size_x * size_y)
+    cell_count = random.randint(1, int(UNIT_FILL_MAX_DENSITY * size_x * size_y))
     cells = [gen_cell(size_x, size_y) for _ in range(cell_count)]
     return {
         'pivot': pivot,
@@ -52,10 +55,9 @@ def gen_game():
         random.randint(0, 2^31)
         for _ in range(random.randint(1, MAX_GAMES))
     ]
-    fileld_cells = [
-        gen_cell(size_x, size_y)
-        for _ in range(random.randint(0, size_x * size_y))
-    ]
+    num_filled_cells = random.randint(
+        0, int(size_x * size_y * BOARD_FILL_MAX_DENSITY))
+    fileld_cells = [gen_cell(size_x, size_y) for _ in range(num_filled_cells)]
 
     return {
         'id': id,

@@ -224,11 +224,13 @@ class Game(object):
         return render_hex_grid(self.width, self.height, self.render_cell)
 
     def __str__(self):
+        return self.render_grid()
+
+    def show_units(self):
         result = '{} units:\n'.format(len(self.units))
         for unit in self.units:
             result += str(unit)
             result += '---\n'
-        result += render_hex_grid(self.width, self.height, self.render_cell)
         return result
 
 

@@ -4,8 +4,9 @@ sys.path.append('.')
 import json
 import requests as req
 
-from storage import addSubmission, addResult
+from storage import addSubmission, addResult, storeResultMaybe
 from utils   import unixTime, mUnixTime, randomSolution
+from api     import referenceResults
 import goldcfg
 
 import logging
@@ -39,21 +40,24 @@ def run(s):
     r   = req.post(goldcfg.url(), auth=('', goldcfg.token()), data=s, headers=hdr)
     return r.text == 'created'
 
-#   getReferenceResults :: () -> SQL StringJSON
-def referenceResults():
-    r = req.get(goldcfg.url(), auth=('', goldcfg.token()))
-    j = json.loads(r.text)
-    for x in j:
-        logger.info(x)
+#   fetchDelayed :: () -> SQL StringJSON
+def fetchDelayed():
+    y = referenceResults()
+    for i in y:
+        storeResultMaybe(i, "reference implementation")
+    return y
 
 #   main :: () -> IO ()
 def main():
     global logger
+    logging.basicConfig(level=logging.INFO) 
     if False:
         for i in range(10):
             assert(run(sampleJSON(mUnixTime(), randomSolution())))
-    addSubmission(sampleDict0(), 'Phony')
-    referenceResults()
+        addSubmission(sampleDict0(), 'Phony')
+        logger.info(fetchDelayed())
+    for x in referenceResults():
+        logger.info(x)
 
 if __name__ == '__main__':
     main()

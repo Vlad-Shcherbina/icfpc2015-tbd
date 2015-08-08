@@ -23,4 +23,5 @@ CREATE TABLE IF NOT EXISTS scores (
    ,implementation  INTEGER         NOT NULL        REFERENCES implementations(id)
    ,score           TEXT
    ,powerScore      TEXT
+   ,PRIMARY KEY (submission, implementation)
 );

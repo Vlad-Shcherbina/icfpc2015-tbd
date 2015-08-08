@@ -42,7 +42,7 @@ def runReferenceJSON(x, k="Unknown purpose"):
 #  + solution
 #
 # You SHOULD provide ``kind`` argument which will articulate intention
-# of storing a particular result. 
+# of storing a particular result.
 # For instance, @graphite will use "Power phrases" as kind.
 #
 # NB! Here result and submission aren't lists of dicts, but just one dicts!
@@ -81,3 +81,8 @@ def getContradictingResults(orderBy="timestamp", desc=True):
     if desc:
         orderClause += " DESC"
     return storage.getContradictingResults(orderClause)
+
+def getSubmission(tag_id):
+    data = storage.run("SELECT * FROM submissions WHERE tag = :tag",
+        {'tag': tag_id})
+    return json.dumps(data)

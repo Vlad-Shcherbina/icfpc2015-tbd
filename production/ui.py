@@ -127,11 +127,28 @@ def dump_trace(game, tracedir):
         json.dump(game.trace, f)
 
 
+def read_yn(msg):
+    while True:
+        print(msg, end='', flush=True),
+        yn = sys.stdin.read(1).lower()
+        if yn == 'y':
+            return True
+        elif yn == 'n':
+            return False
+
+
+def display(g):
+    sys.stdout.write("\x1b\x5b\x48\x1b\x5b\x4a")
+    sys.stdout.write(g.render_grid())
+    sys.stdout.write('\nCurrent move score {}:\n'.format(g.move_score))
+    sys.stdout.write('Units left to place: {0}\n'.format(g.remaining_units))
+    sys.stdout.write('Current unit:\n')
+    sys.stdout.write(str(g.current_unit))
+
 def main():
     random.seed(42)
     args = parser.parse_args()
     term_attr = setup_term()
-
 
     path = os.path.join(utils.get_data_dir(), args.problem)
     with open(path) as fin:
@@ -150,14 +167,7 @@ def main():
     moves = itertools.chain(args.moves, gamepad())
 
     try:
-        sys.stdout.write("\x1b\x5b\x48\x1b\x5b\x4a")
-        sys.stdout.write(g.render_grid())
-        sys.stdout.write('\nCurrent move score: {}\n'.format(g.move_score))
-        sys.stdout.write('Units left to place: {0}\n'.format(g.remaining_units))
-        sys.stdout.write('Current unit:\n')
-        sys.stdout.write(str(g.current_unit))
-
-
+        display(g)
         g.trace = []
         trace(g)
         prev_states = [copy.deepcopy(g)]
@@ -172,12 +182,7 @@ def main():
                 g.execute_char(ch)
                 trace(g)
 
-            sys.stdout.write("\x1b\x5b\x48\x1b\x5b\x4a")
-            sys.stdout.write(g.render_grid())
-            sys.stdout.write('\nCurrent move score {}:\n'.format(g.move_score))
-            sys.stdout.write('Units left to place: {0}\n'.format(g.remaining_units))
-            sys.stdout.write('Current unit:\n')
-            sys.stdout.write(str(g.current_unit))
+            display(g)
 
             if args.delay:
                 time.sleep(args.delay)
@@ -190,8 +195,8 @@ def main():
         if args.tracedir:
             dump_trace(g, args.tracedir)
         if args.prompt_for_submit:
-            print('\nDo you want to submit this solution? [y/n] ', end='', flush=True),
-            if sys.stdin.read(1).lower() == 'y':
+            print('\n')
+            if read_yn('Do you want to submit this solution? [y/n] '):
                 result = {
                     'score': e.move_score,
                     'powerScore': e.power_score,
@@ -206,8 +211,6 @@ def main():
                     sys.argv[0] + '-' + os.getenv('USER'), result, solution,
                     '%s playing' % os.getenv('USER'))
                 api.runReference(solution, 'Testing our implementation')
-            else:
-                print('\n')
     finally:
         restore_term(term_attr)
 

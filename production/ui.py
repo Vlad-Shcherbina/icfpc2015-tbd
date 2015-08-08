@@ -13,6 +13,7 @@ Undo: `
 import argparse
 import copy
 import json
+import itertools
 import logging
 import os
 import sys
@@ -122,12 +123,11 @@ def main():
     g = game.Game(data, data['sourceSeeds'][0])
 
     if args.moves:
-        moves = args.moves
         delay = 0.05
     else:
         delay = 0
-        moves = gamepad()
 
+    moves = itertools.chain(args.moves, gamepad())
 
     try:
         sys.stdout.write("\x1b\x5b\x48\x1b\x5b\x4a")

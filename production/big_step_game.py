@@ -5,6 +5,8 @@ import pprint
 import collections
 import logging
 import time
+import copy
+import random
 
 from production import utils
 from production import game
@@ -25,38 +27,87 @@ class BigStepGame(object):
     Incompatible with IGame.
     '''
 
-    def __init__(self, json_data, seed):
-        # This is an attribute we add by hand so we have to make sure it
-        # exists.
-        self.problem_id = json_data['problemId'] \
-            if 'problemId' in json_data else -1
+    @staticmethod
+    def from_json(json_data, seed):
+        bsg = BigStepGame()
 
-        self.width = json_data['width']
-        self.height = json_data['height']
+        bsg.problem_id = json_data['problemId'] \
+            if 'problemId' in json_data else -1
+        bsg.remaining_units = json_data['sourceLength']
+        bsg.seed = seed
+        bsg.lcg = list(
+            itertools.islice(game.lcg(seed), 0, bsg.remaining_units))
+
+        bsg.width = json_data['width']
+        bsg.height = json_data['height']
 
         # (x, y) of all filled cells
-        self.filled = set()
+        bsg.filled = set()
 
         for pt in json_data['filled']:
             x, y = xy = pt['x'], pt['y']
-            assert 0 <= x < self.width, x
-            assert 0 <= y < self.height, y
-            assert xy not in self.filled
-            self.filled.add(xy)
+            assert 0 <= x < bsg.width, x
+            assert 0 <= y < bsg.height, y
+            assert xy not in bsg.filled
+            bsg.filled.add(xy)
 
-        self.units = list(map(game.Unit, json_data['units']))
-        self.remaining_units = json_data['sourceLength']
+        bsg.units = list(map(game.Unit, json_data['units']))
 
-        self.seed = seed
-        self.lcg = list(
-            itertools.islice(game.lcg(seed), 0, self.remaining_units))
+        bsg.move_score = 0
+        bsg.ls_old = 0
+        bsg.game_ended = False
+        bsg.reason = None
 
-        self._move_score = 0
+        bsg.current_unit = None
+        bsg.initial_placement = None
+        bsg.pick_next_unit()
 
-        self.current_unit = None
-        self.initial_placement = None
-        self.pick_next_unit()
-        # self.game_ended = None
+        return bsg
+
+    def lock_unit(self, locked_placement):
+        #logger.info('locking unit in place:\n' + str(self))
+        assert self.can_place(locked_placement)
+
+        bsg = BigStepGame()
+        bsg.problem_id = self.problem_id
+        bsg.remaining_units = self.remaining_units
+        bsg.seed = self.seed
+        bsg.lcg = copy.copy(self.lcg)
+
+        bsg.width = self.width
+        bsg.height = self.height
+
+        bsg.filled = copy.copy(self.filled)
+
+        bsg.units = self.units  # no need in deep copy because they don't change
+
+        bsg.move_score = self.move_score
+        bsg.ls_old = self.ls_old
+        bsg.game_ended = self.game_ended
+        bsg.reason = self.reason
+
+        bsg.current_unit = self.current_unit
+        bsg.initial_placement = self.initial_placement
+
+        # From now on it's ok to modify in place, because we do it on
+        # a copy. Consider it part of the construction process.
+
+        for x, y in locked_placement.get_members():
+            bsg.filled.add((x, y))
+
+        ls = bsg.collapse_rows()
+
+        size = len(locked_placement.get_shape().members)
+        points = size + 100 * (1 + ls) * ls // 2
+        if bsg.ls_old > 1:
+            line_bouns = (bsg.ls_old - 1) * points // 10
+        else:
+            line_bouns = 0
+        bsg.move_score += points + line_bouns
+        bsg.ls_old = ls
+
+        bsg.pick_next_unit()
+        return bsg
 
     def __str__(self):
         def cell_fn(x, y):
@@ -64,15 +115,21 @@ class BigStepGame(object):
                 return '*'
             else:
                 return '.'
-        return game.render_hex_grid(self.width, self.height, cell_fn) + \
-            'Current unit:\n' + str(self.current_unit)
+        result = game.render_hex_grid(self.width, self.height, cell_fn)
+        if self.game_ended:
+            result += 'Game ended ({}), move_score = {}'.format(
+                self.reason, self.move_score)
+        else:
+            result += 'Current unit:\n' + str(self.current_unit)
+        return result
+
 
     def pick_next_unit(self):
         if self.remaining_units == 0:
-            self._end_game(
-                move_score=self._move_score,
-                power_score=self.power_score(),
-                reason="no more units")
+            self.game_ended = True
+            self.reason = "no more units"
+            return
+
         self.remaining_units -= 1
 
         x = self.lcg.pop(0)
@@ -80,10 +137,36 @@ class BigStepGame(object):
         self.initial_placement = \
             self.current_unit.get_inital_placement(self.width)
         if not self.can_place(self.initial_placement):
-            self._end_game(
-                move_score=self._move_score,
-                power_score=self.power_score(),
-                reason="can't spawn new unit")
+            self.game_ended = True
+            self.reason = "can't spawn new unit"
+
+    def collapse_rows(self):
+        cnt_in_row = [0] * self.height
+        for x, y in self.filled:
+            cnt_in_row[y] += 1
+
+        updated_y = {}
+        y1 = self.height - 1
+        for y in reversed(range(self.height)):
+            if cnt_in_row[y] != self.width:
+                assert y1 >= 0
+                updated_y[y] = y1
+                y1 -= 1
+
+        new_filled = set()
+        for x, y in self.filled:
+            if y in updated_y:
+                new_filled.add((x, updated_y[y]))
+
+        cells_destroyed = len(self.filled) - len(new_filled)
+        assert cells_destroyed >= 0
+        assert cells_destroyed % self.width == 0
+
+        rows_collapsed = cells_destroyed // self.width
+        #logging.info('collapsing {} rows'.format(rows_collapsed))
+
+        self.filled = new_filled
+        return rows_collapsed
 
     def can_place(self, placement):
         for x, y in placement.get_members():
@@ -119,13 +202,13 @@ class BigStepGame(object):
                         placements[new_p] = num_placements
                         num_placements += 1
                         worklist.append(new_p)
-                    logging.debug('  {} --{}({})--> {}'.format(
-                        placements[p], a, a_idx, placements[new_p]))
+                    #logging.debug('  {} --{}({})--> {}'.format(
+                    #    placements[p], a, a_idx, placements[new_p]))
                     transitions[placements[p], a_idx] = placements[new_p]
                 else:
-                    logging.debug('  {} --{}({})--> {}'.format(
-                        placements[p], a, a_idx, Graph.LOCKED))
-                    transitions[placements[p], a_idx] = Graph.LOCKED
+                    #logging.debug('  {} --{}({})--> {}'.format(
+                    #    placements[p], a, a_idx, Graph.COLLISION))
+                    transitions[placements[p], a_idx] = Graph.COLLISION
                     continue
 
         logging.debug('{} nodes in a graph'.format(num_placements))
@@ -148,6 +231,7 @@ class BigStepGame(object):
 
 
 def main():
+    random.seed(42)
     logging.basicConfig(level=logging.DEBUG)
 
     path = os.path.join(utils.get_data_dir(), 'qualifier/problem_0.json')
@@ -155,11 +239,17 @@ def main():
         data = json.load(fin)
 
     seeds = data['sourceSeeds']
-    bsg = BigStepGame(data, seeds[0])
+    bsg = BigStepGame.from_json(data, seeds[0])
     print(bsg)
 
-    graph = bsg.get_placement_graph()
-    print(bsg.get_placement_by_node_index(graph, 0))
+    while not bsg.game_ended:
+        graph = bsg.get_placement_graph()
+        print('locked nodes:', graph.GetLockedNodes())
+        placement = bsg.get_placement_by_node_index(
+            graph, random.choice(graph.GetLockedNodes()))
+        print(placement)
+        bsg = bsg.lock_unit(placement)
+        print(bsg)
 
 
 if __name__ == '__main__':

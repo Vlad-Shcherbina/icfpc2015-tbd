@@ -26,9 +26,9 @@ from production import utils
 from production import game
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--problem', nargs='?', default='qualifier/problem_4.json', help='Problem to play')
-parser.add_argument('--tracedir', nargs='?', help='Directory where to store the execution traces')
-parser.add_argument('--moves', nargs='?', help='Moves to replay')
+parser.add_argument('--problem', default='qualifier/problem_4.json', help='Problem to play')
+parser.add_argument('--tracedir', help='Directory where to store the execution traces')
+parser.add_argument('--moves', help='Moves to replay')
 
 
 CONTROLS = {

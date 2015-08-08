@@ -63,7 +63,7 @@ def intercept_cbreak(fd):
         return
     
     old_attr = termios.tcgetattr(fd)
-    tty.setcbreak(sys.stdin.fileno())
+    tty.setcbreak(fd)
     try:
         yield
     except KeyboardInterrupt:
@@ -73,7 +73,7 @@ def intercept_cbreak(fd):
 
 
 def gamepad(phrase_mode=False):
-    with intercept_cbreak(sys.stdin.fileno):
+    with intercept_cbreak(sys.stdin.fileno()):
         while True:
             ch = sys.stdin.read(1)
             if phrase_mode:

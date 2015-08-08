@@ -1,13 +1,9 @@
-import sys
-sys.path.append('.')
-
 import json
 import requests as req
 
-import storage
-import goldcfg
-import runner
-import json
+from production.golden import storage
+from production.golden import goldcfg
+from production.golden import runner
 
 import logging
 logger = logging.getLogger(__name__)

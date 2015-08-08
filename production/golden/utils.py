@@ -1,6 +1,3 @@
-import sys
-sys.path.append('.')
-
 import calendar
 import time
 import json

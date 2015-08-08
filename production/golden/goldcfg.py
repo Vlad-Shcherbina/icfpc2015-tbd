@@ -1,6 +1,3 @@
-import sys
-sys.path.append('.')
-
 def token():
     return 'FDNkwcESw/xyOt0x9NG89MsXgsZKLJQvS5zVIEZo78E='
 

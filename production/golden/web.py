@@ -1,10 +1,6 @@
-import sys
-sys.path.append('.')
-
 import tornado
 import tornado.ioloop
 import tornado.web
-import sys
 
 import webhelpers as wh
 

@@ -1,7 +1,4 @@
-import sys
-sys.path.append('.')
-
-import api
+from production.golden import api
 
 def interestingResults():
     rs = api.getInterestingResults()

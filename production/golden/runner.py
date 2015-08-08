@@ -1,12 +1,9 @@
-import sys
-sys.path.append('.')
-
 import json
 import requests as req
 
-from storage import addSubmission, storeResultMaybe, getInterestingResults, getContradictingResults
-from utils   import unixTime, mUnixTime, randomSolution
-import goldcfg
+from production.golden.storage import addSubmission, storeResultMaybe, getInterestingResults, getContradictingResults
+from production.golden.utils import unixTime, mUnixTime, randomSolution
+from production.golden import goldcfg
 
 import logging
 logger = logging.getLogger(__name__)

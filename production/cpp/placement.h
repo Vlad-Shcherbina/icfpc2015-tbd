@@ -29,6 +29,9 @@ struct Graph {
     int angle;
   };
 
+  void SetStartNode(int x) { start_node = x; }
+  int GetStartNode() const { return start_node; }
+
   void SetNext(int src, Command command, int dst) { tr[src][command] = dst; }
   int GetNext(int src, Command command) const { return tr[src][command]; }
 

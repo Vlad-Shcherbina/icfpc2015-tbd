@@ -10,6 +10,7 @@ import random
 
 from production import utils
 from production import game
+from production import interfaces
 from production.interfaces import GameEnded, Action
 from production.cpp.placement import Graph
 
@@ -220,6 +221,8 @@ class BigStepGame(object):
         for p, idx in placements.items():
             result.SetNodeMeaning(idx, p.pivot_x, p.pivot_y, p.angle)
 
+        result.SetStartNode(placements[self.initial_placement])
+
         return result
 
     def get_placement_by_node_index(self, placement_graph, index):
@@ -228,6 +231,69 @@ class BigStepGame(object):
             pivot_x=placement_graph.GetNodeMeaningX(index),
             pivot_y=placement_graph.GetNodeMeaningY(index),
             angle=placement_graph.GetNodeMeaningAngle(index))
+
+
+class StepGameAdapter(interfaces.IGame):
+
+    def __init__(self, json_data, seed):
+        self.history = []
+        self._update_bsg(BigStepGame.from_json(json_data, seed))
+
+    def _update_bsg(self, new_bsg):
+        self.bsg = new_bsg
+        if self.bsg.game_ended:
+            raise interfaces.GameEnded(
+                move_score=self.bsg.move_score,
+                power_score=self.power_score(),
+                reason=self.bsg.reason)
+        self.graph = self.bsg.get_placement_graph()
+        self.current_node = self.graph.GetStartNode()
+
+    @property
+    def filled(self):
+        return frozenset(self.bsg.filled)
+
+    @property
+    def move_score(self):
+        return self.bsg.move_score
+
+    @property
+    def remaining_units(self):
+        return self.bsg.remaining_units
+
+    def execute_string(self, s):
+        for c in s:
+            self.execute_char(c)
+
+    def execute_char(self, c):
+        c = c.lower()
+        self.history.append(c)
+
+        command = interfaces.COMMAND_BY_CHAR[c]
+        assert command is not None
+        command_index = INDEXED_ACTIONS.index(command)
+
+        new_node = self.graph.GetNext(self.current_node, command_index)
+        if new_node != self.graph.COLLISION:
+            self.current_node = new_node
+            return
+
+        placement = self.bsg.get_placement_by_node_index(
+            self.graph, self.current_node)
+
+        self._update_bsg(self.bsg.lock_unit(placement))
+
+    def power_score(self):
+        s = ''.join(self.history)
+        assert s.lower() == s, s
+
+        result = 0
+        for p in interfaces.POWER_PHRASES:
+            reps = utils.count_substrings(s, p)
+            power_bonus = 300 if reps > 0 else 0
+            result += 2 * len(p) * reps + power_bonus
+
+        return result
 
 
 def main():

@@ -8,6 +8,7 @@ import nose
 from nose.tools import eq_
 
 from production import game
+from production import big_step_game
 from production import utils
 from production.interfaces import CHARS_BY_COMMAND, Action
 
@@ -132,6 +133,11 @@ class CommonGameTests(object):
 class PyGameTests(unittest.TestCase, CommonGameTests):
     def make_game(self, json_data, seed):
         return game.Game(json_data, seed)
+
+
+class StepGameAdapterTests(unittest.TestCase, CommonGameTests):
+    def make_game(self, json_data, seed):
+        return big_step_game.StepGameAdapter(json_data, seed)
 
 
 def test_lcg():

@@ -4,7 +4,7 @@ sys.path.append('.')
 import json
 import requests as req
 
-from storage import addSubmission, addResult, storeResultMaybe, getInterestingResults, getContradictingResults
+from storage import addSubmission, storeResultMaybe, getInterestingResults, getContradictingResults
 from utils   import unixTime, mUnixTime, randomSolution
 from api     import referenceResults
 import goldcfg
@@ -58,9 +58,9 @@ def main():
         addSubmission(sampleDict0(), 'Phony')
         for x in referenceResults():
             logger.info(x)
-        logger.info(getInterestingResults())
         logger.info(fetchDelayed())
-    logger.info(getContradictingResults())
+        logger.info(getContradictingResults())
+    logger.info(getInterestingResults())
 
 if __name__ == '__main__':
     main()

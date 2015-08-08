@@ -4,7 +4,7 @@ sys.path.append('.')
 import json
 import requests as req
 
-from storage import addSubmission, addResult
+from storage import addSubmission
 from utils   import unixTime, mUnixTime, randomSolution
 import goldcfg
 
@@ -17,4 +17,3 @@ def mkDict(problem, seed, tag, solution):
 def referenceResults():
     r = req.get(goldcfg.url(), auth=('', goldcfg.token()))
     return json.loads(r.text)
-    

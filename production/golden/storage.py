@@ -22,11 +22,9 @@ def run(q, a=(), f=(lambda x: x.fetchall())):
         else:
             return (list(map(lambda x: x[0], e.description)), y)
 
-def addSubmissionOld(submission, tag, description, kind, timestamp):
-    return "???"
-
-def addResult(submissionId, implementationId, score):
-    return "???"
+def valueArray(xs):
+    xs1 = list(map(lambda x: str(x), xs))
+    return '(' + ','.join(xs1) + ')'
 
 def ensureKind(x):
     return run("""
@@ -50,6 +48,20 @@ def qSubmission(insertMode=""):
     FROM ( kinds AS K )
     WHERE K.name = :kind
     """ % insertMode
+
+def qResults(andClause=""):
+    return """
+    SELECT I.name
+         , S.*
+         , C.score
+         , C.powerScore 
+    FROM ( implementations AS I
+         , submissions AS S
+         , scores AS C )
+    WHERE I.id = C.implementation
+      AND S.id = C.submission
+      %s
+    """ % andClause
 
 def ensureSubmission(x, kind):
     ensureKind(kind)
@@ -83,20 +95,9 @@ def storeResultMaybe(x, implementation):
     )
 
 def getInterestingResults():
-    return run("""
-    SELECT I.name
-         , S.*
-         , C.score
-         , C.powerScore 
-    FROM ( implementations AS I
-         , submissions AS S
-         , scores AS C )
-    WHERE I.id = C.implementation
-      AND S.id = C.submission
-      AND C.score > 0
-    """)
+    return run(qResults("AND C.score > 0"))
 
-# I'm sleepy and I give up with writing idiomatic SQL here
+# I was sleepy and I gave up writing idiomatic SQL here
 def getContradictingResults():
     submissions = run("""
     SELECT S.id
@@ -114,4 +115,4 @@ def getContradictingResults():
         (invScore, invPowerScore) = candidates[sid]
         if (invScore != score) or (invPowerScore != powerScore):
             contradictions.append(sid)
-    return contradictions
+    return run(qResults("AND S.id in %s" % valueArray(contradictions)))

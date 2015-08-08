@@ -8,6 +8,7 @@ from nose.tools import eq_
 
 from production import game
 from production import utils
+from production.interfaces import CHARS_BY_COMMAND, Action
 
 
 def smoke_test():
@@ -40,13 +41,13 @@ def test_blockage():
     g = get_2x2_game()
     eq_(g.remaining_units, 9)
 
-    g._execute_command(game.MOVE_SE)
-    g._execute_command(game.MOVE_W)
+    g.execute_char(CHARS_BY_COMMAND[Action.se][0])
+    g.execute_char(CHARS_BY_COMMAND[Action.w][0])
 
     eq_(g.remaining_units, 8)
 
     try:
-        g._execute_command(game.MOVE_SE)
+        g.execute_char(CHARS_BY_COMMAND[Action.se][0])
         assert False
     except game.GameEnded as e:
         assert "can't spawn" in e.reason
@@ -58,13 +59,13 @@ def test_row_collapse():
 
     eq_(g.remaining_units, 9)
 
-    g._execute_command(game.MOVE_SE)
-    g._execute_command(game.MOVE_E)
-    g._execute_command(game.MOVE_E)
+    g.execute_char(CHARS_BY_COMMAND[Action.se][0])
+    g.execute_char(CHARS_BY_COMMAND[Action.e][0])
+    g.execute_char(CHARS_BY_COMMAND[Action.e][0])
     eq_(g.remaining_units, 8)
 
-    g._execute_command(game.MOVE_SE)
-    g._execute_command(game.MOVE_SE)
+    g.execute_char(CHARS_BY_COMMAND[Action.se][0])
+    g.execute_char(CHARS_BY_COMMAND[Action.se][0])
     eq_(g.remaining_units, 7)
 
     eq_(g.filled, set())
@@ -91,20 +92,24 @@ def test_unit_exhaustion():
 
     try:
         for _ in range(5):
-            g._execute_command(game.MOVE_SE)
-            g._execute_command(game.MOVE_E)
-            g._execute_command(game.MOVE_E)
+            g.execute_char(CHARS_BY_COMMAND[Action.se][0])
+            g.execute_char(CHARS_BY_COMMAND[Action.e][0])
+            g.execute_char(CHARS_BY_COMMAND[Action.e][0])
             n -= 1
             eq_(g.remaining_units, n)
 
-            g._execute_command(game.MOVE_SE)
-            g._execute_command(game.MOVE_SE)
+            g.execute_char(CHARS_BY_COMMAND[Action.se][0])
+            g.execute_char(CHARS_BY_COMMAND[Action.se][0])
             n -= 1
             eq_(g.remaining_units, n)
+
     except game.GameEnded as e:
         eq_(n, 0)
         assert 'no more units' in e.reason
-        # TODO: what the score should be?
+        # We used all ten 1-cell units, and we collapsed 5 rows.
+        eq_(e.move_score, 510)
+    else:
+        assert False
 
 
 def test_power_score():
@@ -114,10 +119,11 @@ def test_power_score():
 
     try:
         while True:
-            g._execute_command(game.MOVE_SE)
-        assert False
+            g.execute_char(CHARS_BY_COMMAND[Action.se][0])
     except game.GameEnded as e:
         eq_(e.power_score, 300 + 2 * 3 * 1)
+    else:
+        assert False
 
 
 def test_lcg():

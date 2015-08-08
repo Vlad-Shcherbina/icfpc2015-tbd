@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS submissions (
     id              INTEGER         NOT NULL        PRIMARY KEY      AUTOINCREMENT
    ,tag             TEXT            NOT NULL UNIQUE
    ,problem         INTEGER         NOT NULL
+   ,seed            INTEGER         NOT NULL
    ,solution        TEXT            NOT NULL
    ,status          TEXT            NOT NULL DEFAULT "In progress"
    ,kind            INTEGER         NOT NULL        REFERENCES           kinds(id)

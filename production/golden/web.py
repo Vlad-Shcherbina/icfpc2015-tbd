@@ -11,6 +11,7 @@ import webhelpers as wh
 class Main(tornado.web.RequestHandler):
     def get(self):
         self.set_header("Content-Type", "text/html")
+        self.write(wh.prelude())
         self.write("<style>%s</style>" % wh.css())
         self.write("<script>%s</script>" % wh.js())
         self.write("<h1>ICFPC TBD 2015</h1>")

@@ -38,13 +38,14 @@ def ensureImplementation(x):
 
 def qSubmission(insertMode=""):
     return """
-    INSERT %s INTO submissions (tag, problem, solution, status, kind, timestamp)
+    INSERT %s INTO submissions (tag, problem, seed, solution, status, kind, timestamp)
     SELECT :tag                                AS tag
          , :problemId                          AS problem
+         , :seed                               AS seed
          , :solution                           AS solution
          , (SELECT "In progress"               AS status)
          , K.id                                AS kind
-         , (SELECT strftime('%%s', 'now')       AS timestamp)
+         , (SELECT strftime('%%s', 'now')      AS timestamp)
     FROM ( kinds AS K )
     WHERE K.name = :kind
     """ % insertMode

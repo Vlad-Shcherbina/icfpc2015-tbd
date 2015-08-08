@@ -12,6 +12,8 @@ def contradictingResults():
     return sqlToHTML(rs)
 
 def sqlToHTML(rs, className=""):
+    if not rs:
+        return '<div class="empty">∅</div>'
     (th, trs) = rs
     html  = ''
     row   = ''
@@ -29,6 +31,16 @@ def sqlToHTML(rs, className=""):
         tbody += '<tr>' + row + '</tr>'
     html += '<tbody>' + tbody + '</tbody>'
     return '<table class="%s">' % className + html + '</table>'
+
+def prelude():
+    return """
+    <!doctype html>
+    <html>
+    <head>
+        <meta charset="utf-8" />
+    </head>
+    <body>
+    """
 
 def css():
     return """

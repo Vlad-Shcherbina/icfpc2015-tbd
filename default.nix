@@ -22,9 +22,9 @@ in
 , coverage        ? pkgs.python34Packages.coverage
 , hypothesis      ? hypothesisLatest
 , graphviz        ? pkgs.graphviz
-, httpie          ? pkgs.httpie
 , sqlite          ? pkgs.sqlite
 , tornado         ? pkgs.python34Packages.tornado
+, requests        ? pkgs.python34Packages.requests2
 }:
 stdenv.mkDerivation {
   name = "icfpc2015-tbd";
@@ -35,7 +35,7 @@ stdenv.mkDerivation {
                   coverage
                   hypothesis
                   graphviz
-                  httpie
                   sqlite 
-                  tornado ];
+                  tornado
+                  requests ];
 }

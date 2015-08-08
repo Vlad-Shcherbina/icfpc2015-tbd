@@ -2,6 +2,7 @@ import calendar
 import time
 import json
 from random import randrange, choice
+import requests
 
 def unixTime():
     return calendar.timegm(time.gmtime())
@@ -29,3 +30,12 @@ def randomSolution(n=None):
     for i in range(n):
         solution += choice( ms[ choice(list(ms)) ] )
     return solution
+
+
+def http_submit(user, result, solution):
+    req = {
+        'user': user,
+        'result': result,
+        'solution': solution
+        }
+    requests.get('http://127.0.0.1:55315/submit/%s' % json.dumps(req))

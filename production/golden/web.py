@@ -1,6 +1,7 @@
 import tornado
 import tornado.ioloop
 import tornado.web
+import json
 
 from production.golden import webhelpers as wh
 
@@ -14,7 +15,22 @@ class Main(tornado.web.RequestHandler):
         self.write("<h2>Contradictions</h2>"      + wh.contradictingResults())
         self.write("<h2>Scoring submissions</h2>" + wh.interestingResults())
 
-application = tornado.web.Application([ (r"/", Main) ])
+class Submit(tornado.web.RequestHandler):
+    def get(self, req):
+        self.set_header("Content-Type", "text/html")
+        req = json.loads(req)
+        from production.golden import api
+        api.storeOwnResult(
+            req['user'], req['result'], req['solution'],
+            '%s playing' % req['user'])
+        api.runReference(req['solution'], 'Testing our implementation')
+        self.write("Thanks!")
+
+
+application = tornado.web.Application([
+  (r"/", Main),
+  (r"/submit/(.*)", Submit),
+  ])
 
 if __name__ == "__main__":
     port = 55315

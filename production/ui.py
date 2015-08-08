@@ -213,12 +213,9 @@ def main():
                     'seed': solution['seed'],
                     'solution': solution['solution']
                     }
+                from production.golden.utils import http_submit
+                http_submit(os.getenv('USER'), result, solution)
 
-                from production.golden import api
-                api.storeOwnResult(
-                    sys.argv[0] + '-' + os.getenv('USER'), result, solution,
-                    '%s playing' % os.getenv('USER'))
-                api.runReference(solution, 'Testing our implementation')
     finally:
         restore_term(term_attr)
 

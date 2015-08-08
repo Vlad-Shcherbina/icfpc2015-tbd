@@ -6,6 +6,7 @@
 struct Graph {
   Graph(int size) : tr(size), meaning(size) {}
 
+  // Order should be in sync with INDEXED_ACTIONS in big_step_game.py!
   enum Command {
     W = 0,
     E = 1,

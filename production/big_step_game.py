@@ -12,11 +12,11 @@ from production.interfaces import GameEnded, Action
 from production.cpp.placement import Graph
 
 
-# TODO
-# Order matters, it will be the same one that will be used in c++
-# implementation in the future.
+# Order should be in sync with enum Command in placements.h!
 INDEXED_ACTIONS = [
-    Action.cw, Action.ccw, Action.e, Action.w, Action.se, Action.sw]
+    Action.w, Action.e,
+    Action.sw, Action.se,
+    Action.cw, Action.ccw]
 
 
 class BigStepGame(object):

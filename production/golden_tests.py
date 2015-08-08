@@ -9,6 +9,7 @@ import nose
 from nose.tools import eq_
 
 from production import game
+from production import big_step_game
 from production import utils
 from production import interfaces
 
@@ -27,7 +28,8 @@ def extract_score(tag):
     return int(m.group(1))
 
 
-def validate_solution(test_file):
+
+def validate_solution(make_game, test_file):
     data = read_json('golden_tests/%s' % test_file)[0]
     exppected_score = extract_score(data['tag']);
     solution = data['solution']
@@ -35,7 +37,7 @@ def validate_solution(test_file):
     seed = data['seed']
 
     problem = read_json('qualifier/problem_%d.json' % problem_id)
-    g = game.Game(problem, seed)
+    g = make_game(problem, seed)
     try:
         g.execute_string(solution)
     except interfaces.GameEnded as e:
@@ -43,11 +45,22 @@ def validate_solution(test_file):
     eq_(g.score, exppected_score)
 
 
+
+def make_py_game(json_data, seed):
+    return game.Game(json_data, seed)
+
+
+# TODO
+# currently not used for testing because implementation has bugs
+def make_step_adapter_game(json_data, seed):
+    return big_step_game.StepGameAdapter(json_data, seed)
+
+
 def test_all_solution():
     files = os.listdir(os.path.join(utils.get_data_dir(), 'golden_tests'))
-    for f in files:
-        logger.info('Running test %s' % f)
-        validate_solution(f)
+    for make_game in [make_py_game]:
+        for f in files:
+            yield validate_solution, make_game, f
 
 
 if __name__ == '__main__':

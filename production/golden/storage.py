@@ -1,7 +1,10 @@
 import sqlite3 as s
 import logging
+import os
 
-db = s.connect('sshfs-db/tbd.db')
+from production import utils
+
+db = s.connect(os.path.join(utils.get_project_root(), 'production', 'golden', 'sshfs-db', 'tbd.db'))
 logger = logging.getLogger(__name__)
 
 def one(q, a=()):
@@ -33,19 +36,19 @@ def ensureImplementation(x):
     INSERT OR IGNORE INTO implementations (name) VALUES (?)
     """, (x,)) 
 
-def qSubmission(insertMode=""):
+def qSubmission(insertMode="", status="Not submitted"):
     return """
     INSERT %s INTO submissions (tag, problem, seed, solution, status, kind, timestamp)
     SELECT :tag                                AS tag
          , :problemId                          AS problem
          , :seed                               AS seed
          , :solution                           AS solution
-         , (SELECT "In progress"               AS status)
+         , (SELECT "%s"                        AS status)
          , K.id                                AS kind
          , (SELECT strftime('%%s', 'now')      AS timestamp)
     FROM ( kinds AS K )
     WHERE K.name = :kind
-    """ % insertMode
+    """ % (insertMode, status)
 
 def qResults(andClause=""):
     return """
@@ -69,14 +72,17 @@ def ensureSubmission(x, kind):
 def addSubmission(x, kind):
     ensureKind(kind)
     x['kind'] = kind
-    return run(qSubmission(), x)
+    status = run("""SELECT status FROM submissions WHERE tag = :tag""", x)
+    if status and status[1][0][0] != 'In progress' and status[1][0][0] != 'Done':
+        run("""UPDATE submissions SET status = "In progress" WHERE tag = :tag""", x)
+        return
+    return run(qSubmission("OR IGNORE", "In progress"), x)
 
-def storeResultMaybe(x, implementation):
+def storeResultMaybe(x, implementation, own=True):
     ensureImplementation(implementation)
     ensureSubmission(x, "Old one")
     x['implementation'] = implementation
-    return (
-        run("""
+    run("""
         INSERT OR REPLACE INTO scores (submission, implementation, score, powerScore)
         SELECT S.id                 AS submission
              , I.id                 AS implementation
@@ -86,11 +92,11 @@ def storeResultMaybe(x, implementation):
              , implementations AS I )
         WHERE S.tag   = :tag
           AND I.name  = :implementation
-        """, x),
+    """, x),
+    if not own:
         run("""
-        UPDATE submissions SET status = "Done" WHERE tag = :tag
+            UPDATE submissions SET status = "Done" WHERE tag = :tag
         """, x)
-    )
 
 def getInterestingResults(orderClause=""):
     return run(qResults("AND (C.score > 0 OR C.powerScore > 0)" + orderClause))

@@ -19,6 +19,15 @@ def smoke_test():
     str(g)
 
 
+def smoke_test_with_nonempty_board():
+    path = os.path.join(utils.get_data_dir(), 'qualifier/problem_2.json')
+    with open(path) as fin:
+        data = json.load(fin)
+
+    g = game.Game(data, data['sourceSeeds'][0])
+    str(g)
+
+
 def get_2x2_game():
     path = os.path.join(utils.get_data_dir(), 'test_problems/2x2.json')
     with open(path) as fin:

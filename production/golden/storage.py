@@ -1,7 +1,7 @@
 import sqlite3 as s
 import logging
 
-db = s.connect('tbd.db')
+db = s.connect('sshfs-db/tbd.db')
 logger = logging.getLogger(__name__)
 
 def one(q, a=()):

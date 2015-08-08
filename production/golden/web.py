@@ -2,7 +2,7 @@ import tornado
 import tornado.ioloop
 import tornado.web
 
-import webhelpers as wh
+from production.golden import webhelpers as wh
 
 class Main(tornado.web.RequestHandler):
     def get(self):

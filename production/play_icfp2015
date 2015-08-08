@@ -22,7 +22,13 @@ parser.add_argument('-t', type=int, default=0,
 # run it on) is imposed on the program.
 parser.add_argument('-m', type=int, default=0,
                     help='Memory limit, in megabytes, to produce output')
-# If provided, the parameter -p is a quoted phrase of power (for example, "Ei!"
+# If provided, the parameter -m indicates the maximum amount of memory that the
+# program is allowed to use at any time. Programs that try to allocate more
+# than this amount of memory will be killed. If -m is not provided, no memory
+# limit (other than the hard memory limit of the system the judges choose to
+# run it on) is imposed on the program.
+parser.add_argument('-c', type=int, default=1,
+                    help='How many processor cores are available')
 # - including the quotation marks - for the phrase given above). The parameter
 # -p may be provided multiple times, once for each phrase of power the program
 # should attempt to invoke in its output. As you discover more phrases of

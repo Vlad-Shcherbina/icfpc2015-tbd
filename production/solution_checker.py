@@ -26,7 +26,15 @@ def main():
     except game.GameEnded as e:
         print('*' * 50)
         print(e)
-        assert ''.join(g.history) == solution['solution']
+
+        actual_history = ''.join(g.history)
+        supplied_history = solution['solution']
+        if actual_history != supplied_history:
+            print('it seems game ended prematurely')
+            print('moves that happened:      {!r} ({})'.format(
+                actual_history, len(actual_history)))
+            print('moves that were supplied: {!r} ({})'.format(
+                supplied_history, len(supplied_history)))
     else:
         print(g)
         print('Game have not ended yet')

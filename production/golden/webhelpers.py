@@ -64,7 +64,7 @@ def js():
     }
 
     function deobfuscate(phrase) {
-      return phrase.replace(/./g, function(m){console.log(m, " : ", lookup[m]); return lookup[m];});
+      return phrase.replace(/./g, function(m){return lookup[m];});
     }
 
     function simplify_solution() {
@@ -73,6 +73,8 @@ def js():
         solutions[i].textContent = deobfuscate(solutions[i].textContent);
       }
     }
+
+    setTimeout(function() {location.reload()}, 1000 * 120);
     """
 
 def cssBoilerplate():

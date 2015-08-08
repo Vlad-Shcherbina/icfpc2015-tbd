@@ -58,8 +58,9 @@ def main():
         addSubmission(sampleDict0(), 'Phony')
         for x in referenceResults():
             logger.info(x)
+        logger.info(getInterestingResults())
         logger.info(fetchDelayed())
-    logger.info(getInterestingResults())
+    logger.info(getContradictingResults())
 
 if __name__ == '__main__':
     main()

@@ -96,16 +96,22 @@ def getInterestingResults():
       AND C.score > 0
     """)
 
+# I'm sleepy and I give up with writing idiomatic SQL here
 def getContradictingResults():
-    return run("""
-    SELECT I.name
-         , S.*
+    submissions = run("""
+    SELECT S.id
          , C.score
-         , C.powerScore 
-    FROM ( implementations AS I
-         , submissions AS S
-         , scores AS C )
-    WHERE I.id = C.implementation
-      AND S.id = C.submission
-      AND C.score > 0
-    """)
+         , C.powerScore
+    FROM ( submissions AS S
+         , scores      AS C )
+    WHERE C.submission = S.id
+    """)[1]
+    candidates = {}
+    contradictions = []
+    for (sid, score, powerScore) in submissions:
+        if sid not in candidates:
+            candidates[sid] = (score, powerScore)
+        (invScore, invPowerScore) = candidates[sid]
+        if (invScore != score) or (invPowerScore != powerScore):
+            contradictions.append(sid)
+    return contradictions

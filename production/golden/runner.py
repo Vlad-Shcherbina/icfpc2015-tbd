@@ -6,11 +6,15 @@ import requests as req
 
 from storage import addSubmission, storeResultMaybe, getInterestingResults, getContradictingResults
 from utils   import unixTime, mUnixTime, randomSolution
-from api     import referenceResults
 import goldcfg
 
 import logging
 logger = logging.getLogger(__name__)
+
+#   referenceResults :: () -> Dict
+def referenceResults():
+    r = req.get(goldcfg.url(), auth=('', goldcfg.token()))
+    return json.loads(r.text)
 
 #   sampleJSON :: StringJSON
 def sampleJSON(t, s):
@@ -24,15 +28,16 @@ def sampleDict(problem, seed, tag, solution):
 def sampleDict0():
     return sampleDict(0, 0, mUnixTime(), randomSolution())
 
-#   runJSON :: SubmissionJSON -> Tag -> Description -> Kind -> SQL ()
-def runJSON(s, t, d, k):
-    assert(run(s))
-    addSubmissionOld(s, t, d, k, unixTime())
-
 #   runDict :: SubmissionDict -> Kind -> SQL ()
 def runDict(x, k):
-    assert(run(json.dumps([x])))
-    addSubmission(x, k)
+    return runDicts([x], k)
+
+#   runDicts :: [SubmissionDict] -> Kind -< SQL ()
+def runDicts(xs, k):
+    assert(run(json.dumps(xs)))
+    for x in xs:
+        addSubmission(x, k)
+    return True
 
 #   run :: SubmissionJSON -> HTTPRequest
 def run(s):

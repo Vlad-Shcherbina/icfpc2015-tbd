@@ -40,14 +40,13 @@ class GetSubmission(tornado.web.RequestHandler):
         self.set_header("Content-Type", "text/json")
         req = json.loads(req)
         from production.golden import api
-        json = api.getSubmission(req)
-        self.write(json)
+        self.write(api.getSubmission(req))
 
 application = tornado.web.Application([
   (r"/", Main),
   (r"/submit/(.*)", Submit),
   (r"/run/(.*)", Run),
-  (r"/get_submission/(.*)", GetSubmission)
+  (r"/submission/(.*)", GetSubmission)
   ])
 
 if __name__ == "__main__":

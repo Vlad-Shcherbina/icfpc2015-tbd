@@ -83,6 +83,6 @@ def getContradictingResults(orderBy="timestamp", desc=True):
     return storage.getContradictingResults(orderClause)
 
 def getSubmission(tag_id):
-    data = storage.run("SELECT * FROM submissions WHERE tag = :tag",
+    data = storage.run("SELECT seed, tag, problem, solution FROM submissions WHERE tag = :tag",
         {'tag': tag_id})
     return json.dumps(data)

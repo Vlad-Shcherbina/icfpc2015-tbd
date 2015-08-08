@@ -11,6 +11,7 @@ Undo: `
 """
 
 import argparse
+import collections
 import copy
 import json
 import itertools
@@ -169,8 +170,10 @@ def main():
     try:
         display(g)
         g.trace = []
-        trace(g)
-        prev_states = [copy.deepcopy(g)]
+        if args.tracedir:
+          trace(g)
+        prev_states = collections.deque(maxlen=5)
+        prev_states.append(copy.deepcopy(g))
 
         for ch in moves:
             if ch == UNDO:
@@ -180,7 +183,8 @@ def main():
             else:
                 prev_states.append(copy.deepcopy(g))
                 g.execute_char(ch)
-                trace(g)
+                if args.tracedir:
+                  trace(g)
 
             display(g)
 

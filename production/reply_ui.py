@@ -7,6 +7,7 @@ Controls (one move per command):
 
 import argparse
 import copy
+import collections
 import json
 import itertools
 import os
@@ -66,7 +67,8 @@ def main():
 
   try:
     display(g)
-    prev_states = [copy.deepcopy(g)]
+    prev_states = collections.deque(maxlen=10)
+    prev_states.append(copy.deepcopy(g))
 
     i = 0
     for cmd in gamepad(args.delay):

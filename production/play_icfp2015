@@ -1,0 +1,67 @@
+#!/usr/bin/env python3
+
+import argparse
+import json
+import pprint
+
+parser = argparse.ArgumentParser()
+# The parameter -f may be provided multiple times, which means that the program
+# should produce results for all of the given inputs.
+parser.add_argument('-f', action='append', default=[],
+                    help='File containing JSON encoded input')
+# If provided, the parameter -t indicates the execution time to produce the
+# output for all problems. If it has not finished, the program will be killed
+# after that many seconds. If -t is not provided, no time limit is imposed on
+# the program.
+parser.add_argument('-t', type=int, default=0,
+                    help='Time limit, in seconds, to produce output')
+# If provided, the parameter -m indicates the maximum amount of memory that the
+# program is allowed to use at any time. Programs that try to allocate more
+# than this amount of memory will be killed. If -m is not provided, no memory
+# limit (other than the hard memory limit of the system the judges choose to
+# run it on) is imposed on the program.
+parser.add_argument('-m', type=int, default=0,
+                    help='Memory limit, in megabytes, to produce output')
+# If provided, the parameter -p is a quoted phrase of power (for example, "Ei!"
+# - including the quotation marks - for the phrase given above). The parameter
+# -p may be provided multiple times, once for each phrase of power the program
+# should attempt to invoke in its output. As you discover more phrases of
+# power, you can re-run the program with additional -p command line options;
+# during judging (except for the lightning division), the program will be
+# passed all the phrases of power.
+parser.add_argument('-p', action='append', default=[],
+                    help='Phrase of power, as quoted string')
+
+
+# The output of the program should be a JSON list, containing one entry per
+# problem and seed, using the following schema:
+#
+# [ { "problemId": number   /* The `id` of the game configuration */
+#  , "seed":      number   /* The seed for the particular game */
+#  , "tag":       string   /* A tag for this solution. */
+#  , "solution":  Commands
+#  }
+# ]
+#
+# The tag field is meant to allow teams to associate scores on the leaderboards
+# with specific submitted solutions. If no tag field is supplied, a tag will be
+# generated from the submission time.
+
+def load_problem(path):
+  with open(path) as problem:
+    return json.load(problem)
+
+
+def main():
+    args = parser.parse_args()
+    print(args)
+
+    problems = [load_problem(f) for f in args.f]
+    power_phrases = [p for p in args.p]
+    timeout = args.t
+    memlimit = args.m
+
+
+
+if __name__ == '__main__':
+    main()

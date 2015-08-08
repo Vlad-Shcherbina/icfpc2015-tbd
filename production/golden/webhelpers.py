@@ -50,6 +50,25 @@ def css():
 
 def js():
     return """
+    lookup = {
+      "p":"p", "'":"p", "!":"p", ".":"p", "0":"p", "3":"p",
+      "b":"b", "c":"b", "e":"b", "f":"b", "y":"b", "2":"b",
+      "a":"a", "g":"a", "h":"a", "i":"a", "j":"a", "4":"a",
+      "l":"l", "m":"l", "n":"l", "o":"l", " ":"l", "5":"l",
+      "d":"d", "q":"d", "r":"d", "v":"d", "z":"d", "1":"d",
+      "k":"k", "s":"k", "t":"k", "u":"k", "w":"k", "x":"k"
+    }
+
+    function deobfuscate(phrase) {
+      return phrase.replace(/./g, function(m){console.log(m, " : ", lookup[m]); return lookup[m];});
+    }
+
+    function simplify_solution() {
+      solutions = document.getElementsByClassName('solution');
+      for (i=1; i < solutions.length; ++i) {
+        solutions[i].textContent = deobfuscate(solutions[i].textContent);
+      }
+    }
     """
 
 def cssBoilerplate():

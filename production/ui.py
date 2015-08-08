@@ -92,7 +92,7 @@ def trace(game):
         'problemId': game.problem_id,
         'seed': game.seed,
         'boardState': game.render_grid(),
-        'history': game.history,
+        'history': game.history[:],
         'gameEnded': game.game_ended,
         }
     game.trace.append(state)

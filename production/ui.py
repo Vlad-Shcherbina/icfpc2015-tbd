@@ -133,8 +133,10 @@ def main():
         sys.stdout.write("\x1b\x5b\x48\x1b\x5b\x4a")
         sys.stdout.write(g.render_grid())
         sys.stdout.write('\nCurrent move score: {}\n'.format(g.move_score))
+        sys.stdout.write('Units left to place: {0}\n'.format(g.remaining_units))
         sys.stdout.write('Current unit:\n')
         sys.stdout.write(str(g.current_unit))
+
 
         g.trace = []
         trace(g)
@@ -153,6 +155,7 @@ def main():
             sys.stdout.write("\x1b\x5b\x48\x1b\x5b\x4a")
             sys.stdout.write(g.render_grid())
             sys.stdout.write('\nCurrent move score {}:\n'.format(g.move_score))
+            sys.stdout.write('Units left to place: {0}\n'.format(g.remaining_units))
             sys.stdout.write('Current unit:\n')
             sys.stdout.write(str(g.current_unit))
 

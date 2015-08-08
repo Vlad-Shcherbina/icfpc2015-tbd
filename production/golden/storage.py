@@ -67,7 +67,7 @@ def qResults(andClause=""):
 def ensureSubmission(x, kind):
     ensureKind(kind)
     x['kind'] = kind
-    return run(qSubmission("OR REPLACE"), x)
+    return run(qSubmission("OR IGNORE"), x)
 
 def addSubmission(x, kind):
     ensureKind(kind)

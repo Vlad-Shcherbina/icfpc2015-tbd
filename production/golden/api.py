@@ -24,8 +24,39 @@ def runReference(x, k="Unknown purpose"):
     return runner.runDict(x, k)
 
 # Ditto
-def runJSONReference(x, k="Unknown purpose"):
+def runReferenceJSON(x, k="Unknown purpose"):
     return runner.runDict(json.loads(x), k)
+
+# Stores result, computed by one of our own implementation.
+# For submission and result is similar to reference API except
+# it doesn't require result to contain meta-fields such as
+# ``team``.
+# Just to re-iterate, ``submission`` MUST have the following fields:
+#  + tag
+#  + problemId
+#  + seed
+#  + solution
+#
+# result MUST have the following fields:
+#  + score
+#  + powerScore
+#  + tag (matching the one in submission)
+#  + problemId
+#  + seed
+#  + solution
+#
+# You SHOULD provide ``kind`` argument which will articulate intention
+# of storing a particular result. 
+# For instance, @graphite will use "Power phrases" as kind.
+#
+# NB! Here result and submission aren't lists of dicts, but just one dicts!
+def storeOwnResult(implementationName, result, submission, kind="Unknown purpose"):
+    storage.ensureSubmission(submission, kind)
+    return storage.storeResultMaybe(result, implementationName)
+
+# Ditto
+def storeOwnResultJSON(implementationName, result, submission, kind="Unknown purpose"):
+    return storeOwnResult(implementationName, json.loads(result), json.loads(submission), kind)
 
 # Returns all the reference results of our team
 # and stores newly fetched ones in SQLite

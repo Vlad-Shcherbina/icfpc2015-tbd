@@ -7,9 +7,11 @@ Controls:
            Z X
 south-west     south-east
 
+Undo: `
 """
 
 import argparse
+import copy
 import json
 import logging
 import os
@@ -39,6 +41,7 @@ CONTROLS = {
     'z': game.MOVE_SW,
     'x': game.MOVE_SE,
 }
+UNDO = '`'
 
 
 def gamepad(phrase_mode=False):
@@ -51,8 +54,10 @@ def gamepad(phrase_mode=False):
             if phrase_mode:
                 yield ch
             else:
-                if ch in CONTROLS:
-                    yield random.choice(game.CHARS_BY_COMMAND[CONTROLS[ch]])
+                if ch == UNDO:
+                    yield ch
+                elif ch in CONTROLS:
+                    yield random.choice(game.CHARS_BY_COMMAND[CONTROLS[ch]][:1])
     except KeyboardInterrupt:
         pass
     finally:
@@ -102,7 +107,6 @@ def main():
       delay = 0
       moves = gamepad()
 
-    g.trace = []
 
     try:
       sys.stdout.write("\x1b\x5b\x48\x1b\x5b\x4a")
@@ -111,17 +115,26 @@ def main():
       sys.stdout.write('Current unit:\n')
       sys.stdout.write(str(g.current_unit))
 
+      g.trace = []
       trace(g)
+      prev_states = [copy.deepcopy(g)]
 
       for ch in moves:
-        g.execute_char(ch)
+        if ch == UNDO:
+            if len(prev_states) > 1:
+                g = prev_states[-1]
+                prev_states.pop()
+        else:
+            prev_states.append(copy.deepcopy(g))
+            g.execute_char(ch)
+            trace(g)
+
         sys.stdout.write("\x1b\x5b\x48\x1b\x5b\x4a")
         sys.stdout.write(g.render_grid())
         sys.stdout.write('\nCurrent move score {}:\n'.format(g.move_score))
         sys.stdout.write('Current unit:\n')
         sys.stdout.write(str(g.current_unit))
 
-        trace(g)
         if delay:
           time.sleep(delay)
     except game.GameEnded as e:

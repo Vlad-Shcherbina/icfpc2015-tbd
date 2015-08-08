@@ -1,3 +1,4 @@
+import itertools
 import os
 import json
 import pprint
@@ -72,7 +73,7 @@ class Game(object):
         self.units = list(map(Unit, json_data['units']))
 
         self.seed = seed
-        self.lcg = iter(lcg(seed))
+        self.lcg = list(itertools.islice(lcg(seed), 0, len(self.units)))
 
         self.remaining_units = json_data['sourceLength']
 
@@ -107,7 +108,8 @@ class Game(object):
                 reason="no more units")
         self.remaining_units -= 1
 
-        x = next(self.lcg)
+        x = self.lcg[0]
+        self.lcg.pop(0)
         self.current_unit = self.units[x % len(self.units)]
         self.current_placement = \
             self.current_unit.get_inital_placement(self.width)

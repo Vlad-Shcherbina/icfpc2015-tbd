@@ -39,7 +39,14 @@ class GetSubmission(tornado.web.RequestHandler):
     def get(self, req):
         self.set_header("Content-Type", "text/json")
         from production.golden import api
-        self.write(api.getSubmission(req))
+        data = api.getSubmission(req)
+        if not data:
+            raise tornado.web.HTTPError(404)
+        self.write([{'seed': data[1][0][0],
+                     'tag': data[1][0][1],
+                     'problemId': data[1][0][2],
+                     'solution': data[1][0][3]}
+                   ])
 
 application = tornado.web.Application([
   (r"/", Main),

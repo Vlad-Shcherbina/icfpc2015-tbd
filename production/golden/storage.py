@@ -94,11 +94,11 @@ def storeResultMaybe(x, implementation):
         """, x)
     )
 
-def getInterestingResults():
-    return run(qResults("AND (C.score > 0 OR C.powerScore > 0)"))
+def getInterestingResults(orderClause=""):
+    return run(qResults("AND (C.score > 0 OR C.powerScore > 0)" + orderClause))
 
 # I was sleepy and I gave up writing idiomatic SQL here
-def getContradictingResults():
+def getContradictingResults(orderClause=""):
     submissions = run("""
     SELECT S.id
          , C.score
@@ -115,4 +115,4 @@ def getContradictingResults():
         (invScore, invPowerScore) = candidates[sid]
         if (invScore != score) or (invPowerScore != powerScore):
             contradictions.append(sid)
-    return run(qResults("AND S.id in %s" % valueArray(contradictions)))
+    return run(qResults(("AND S.id in %s" + orderClause) % valueArray(contradictions)))

@@ -41,10 +41,16 @@ def justGetReferenceResults():
 # Provides data from several tables with columns
 # 'name', 'id', 'tag', 'problem', 'solution', 'status', 'kind', 'timestamp', 'score', 'powerScore'
 # Returns tuple ([column], [(value)])
-def getInterestingResults():
-    return storage.getInterestingResults()
+def getInterestingResults(orderBy="timestamp", desc=True):
+    orderClause = "ORDER BY " + orderBy
+    if desc:
+        orderClause += " DESC"
+    return storage.getInterestingResults(orderClause)
 
 # Gets results that have score deviation between implementations.
 # Return value the same as in getInterestingResults
-def getContradictingResults():
-    return storage.getContradictingResults()
+def getContradictingResults(orderBy="timestamp", desc=True):
+    orderClause = "ORDER BY " + orderBy
+    if desc:
+        orderClause += " DESC"
+    return storage.getContradictingResults(orderClause)

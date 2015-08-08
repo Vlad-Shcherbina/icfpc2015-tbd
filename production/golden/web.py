@@ -12,6 +12,7 @@ class Main(tornado.web.RequestHandler):
     def get(self):
         self.set_header("Content-Type", "text/html")
         self.write("<h1>ICFPC TBD 2015</h1>")
+        self.write(wh.contradictingResults())
         self.write(wh.interestingResults())
 
 application = tornado.web.Application([ (r"/", Main) ])

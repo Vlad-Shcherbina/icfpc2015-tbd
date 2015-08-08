@@ -7,16 +7,23 @@ def interestingResults():
     rs = api.getInterestingResults()
     return sqlToHTML(rs)
 
-def sqlToHTML(rs):
+def contradictingResults():
+    rs = api.getContradictingResults()
+    return sqlToHTML(rs)
+
+def sqlToHTML(rs, className=""):
     (th, trs) = rs
-    html  = ""
-    row   = ""
+    html  = ''
+    row   = ''
     for h in th:
-        row += "<th>" + str(h) + "</th>"
-    html += "<tr>" + row + "</tr>"
+        h1 = str(h)
+        row += '<th class="%s">' % h1 + h1 + '</th>'
+    html += '<tr>' + row + '</tr>'
     for tr in trs:
-        row = ""
-        for d in tr:
-            row += "<td>" + str(d) + "</td>"
-        html += "<tr>" + row + "</tr>"
-    return "<table>" + html + "</table>"
+        row = ''
+        for n, d in enumerate(tr):
+            d1 = str(d)
+            c  = str(th[n])
+            row += '<td class="%s">' % c + d1 + '</td>'
+        html += '<tr>' + row + '</tr>'
+    return '<table class="%s">' % className + html + '</table>'

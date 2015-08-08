@@ -27,10 +27,18 @@ class Submit(tornado.web.RequestHandler):
         api.runReference(req['solution'], 'Testing our implementation')
         self.write("Thanks!")
 
+class Run(tornado.web.RequestHandler):
+    def get(self, req):
+        self.set_header("Content-Type", "text/html")
+        req = json.loads(req)
+        from production.golden import api
+        api.runReference(req, 'Testing our implementation')
+        self.write("Thanks!")
 
 application = tornado.web.Application([
   (r"/", Main),
   (r"/submit/(.*)", Submit),
+  (r"/run/(.*)", Run),
   ])
 
 if __name__ == "__main__":

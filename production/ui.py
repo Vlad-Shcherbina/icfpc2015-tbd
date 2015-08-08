@@ -107,12 +107,18 @@ def main():
     try:
       sys.stdout.write("\x1b\x5b\x48\x1b\x5b\x4a")
       sys.stdout.write(g.render_grid())
+      sys.stdout.write('\nCurrent unit:\n')
+      sys.stdout.write(str(g.current_unit))
+
       trace(g)
 
       for ch in moves:
         g.execute_char(ch)
         sys.stdout.write("\x1b\x5b\x48\x1b\x5b\x4a")
         sys.stdout.write(g.render_grid())
+        sys.stdout.write('\nCurrent unit:\n')
+        sys.stdout.write(str(g.current_unit))
+
         trace(g)
         if delay:
           time.sleep(delay)

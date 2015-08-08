@@ -11,9 +11,11 @@ import webhelpers as wh
 class Main(tornado.web.RequestHandler):
     def get(self):
         self.set_header("Content-Type", "text/html")
+        self.write("<style>%s</style>" % wh.css())
+        self.write("<script>%s</script>" % wh.js())
         self.write("<h1>ICFPC TBD 2015</h1>")
-        self.write(wh.contradictingResults())
-        self.write(wh.interestingResults())
+        self.write("<h2>Contradictions</h2>"      + wh.contradictingResults())
+        self.write("<h2>Scoring submissions</h2>" + wh.interestingResults())
 
 application = tornado.web.Application([ (r"/", Main) ])
 

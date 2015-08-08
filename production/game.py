@@ -71,11 +71,10 @@ class Game(object):
             self.filled.add(xy)
 
         self.units = list(map(Unit, json_data['units']))
+        self.remaining_units = json_data['sourceLength']
 
         self.seed = seed
         self.lcg = list(itertools.islice(lcg(seed), 0, len(self.units)))
-
-        self.remaining_units = json_data['sourceLength']
 
         # list of chars (not a single string to avoid quadratic string
         # building behavior)

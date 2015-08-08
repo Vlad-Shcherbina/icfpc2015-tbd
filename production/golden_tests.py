@@ -2,6 +2,7 @@ import os
 import json
 import sys
 import itertools
+import logging
 import re
 
 import nose
@@ -11,6 +12,7 @@ from production import game
 from production import utils
 from production import interfaces
 
+logger = logging.getLogger(__name__)
 
 def read_json(filename):
     path = os.path.join(utils.get_data_dir(), filename)
@@ -19,14 +21,14 @@ def read_json(filename):
 
 
 def extract_score(tag):
-    # 8a4330144e5c06c3cf5d905e4c6f5d6e 602:0:602
+    # Example tag value: 8a4330144e5c06c3cf5d905e4c6f5d6e 602:0:602
     m = re.match('.* (\d+):(\d+):(\d+)', tag)
     assert(m)
     return int(m.group(1))
 
 
-def run(test_filename):
-    data = read_json('golden_tests/%s' % test_filename)[0]
+def validate_solution(test_file):
+    data = read_json('golden_tests/%s' % test_file)[0]
     exppected_score = extract_score(data['tag']);
     solution = data['solution']
     problem_id = data['problemId']
@@ -41,12 +43,15 @@ def run(test_filename):
     eq_(g.score, exppected_score)
 
 
-def test_something():
-    run('a.json')
+def test_all_solution():
+    files = os.listdir(os.path.join(utils.get_data_dir(), 'golden_tests'))
+    for f in files:
+        logger.info('Running test %s' % f)
+        validate_solution(f)
 
 
 if __name__ == '__main__':
     nose.run_exit(argv=[
         sys.argv[0], __file__,
-        '--verbose', '--with-doctest', '--logging-level=FATAL'
+        '--verbose', '--with-doctest', '--logging-level=DEBUG'
     ])

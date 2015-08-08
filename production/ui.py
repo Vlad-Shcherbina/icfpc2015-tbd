@@ -202,12 +202,10 @@ def main():
                     }
 
                 from production.golden import api
-                if api.storeOwnResult(
+                api.storeOwnResult(
                     sys.argv[0] + '-' + os.getenv('USER'), result, solution,
-                    'Testing our implementation', submit_reference_test=True):
-                    print('\nSolution successfully submitted')
-                else:
-                    print('\nSolution already submitted')
+                    '%s playing' % os.getenv('USER'))
+                api.runReference(solution, 'Testing our implementation')
             else:
                 print('\n')
     finally:

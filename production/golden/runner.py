@@ -47,7 +47,7 @@ def fetchDelayed():
     y = referenceResults()
     for i in y:
         if i['score'] != None:
-            storeResultMaybe(i, "reference implementation")
+            storeResultMaybe(i, "reference implementation", own=False)
     return y
 
 #   main :: () -> IO ()

@@ -52,7 +52,7 @@ UNDO = '`'
 
 @contextmanager
 def intercept_cbreak(fd):
-    # mainly so that it still somewhat works on Windows 
+    # mainly so that it still somewhat works on Windows
     try:
         import termios, tty
     except ImportError:
@@ -61,7 +61,7 @@ def intercept_cbreak(fd):
         except KeyboardInterrupt:
             pass
         return
-    
+
     old_attr = termios.tcgetattr(fd)
     tty.setcbreak(fd)
     try:
@@ -82,7 +82,7 @@ def gamepad(phrase_mode=False):
                 if ch == UNDO:
                     yield ch
                 elif ch in CONTROLS:
-                    yield random.choice(game.CHARS_BY_COMMAND[CONTROLS[ch]][:1])
+                    yield random.choice(game.CHARS_BY_COMMAND[CONTROLS[ch]])
 
 
 def trace(game):
@@ -135,11 +135,11 @@ def main():
         sys.stdout.write('\nCurrent move score: {}\n'.format(g.move_score))
         sys.stdout.write('Current unit:\n')
         sys.stdout.write(str(g.current_unit))
-        
+
         g.trace = []
         trace(g)
         prev_states = [copy.deepcopy(g)]
-        
+
         for ch in moves:
             if ch == UNDO:
                 if len(prev_states) > 1:
@@ -149,13 +149,13 @@ def main():
                 prev_states.append(copy.deepcopy(g))
                 g.execute_char(ch)
                 trace(g)
-    
+
             sys.stdout.write("\x1b\x5b\x48\x1b\x5b\x4a")
             sys.stdout.write(g.render_grid())
             sys.stdout.write('\nCurrent move score {}:\n'.format(g.move_score))
             sys.stdout.write('Current unit:\n')
             sys.stdout.write(str(g.current_unit))
-    
+
             if delay:
                 time.sleep(delay)
     except game.GameEnded as e:

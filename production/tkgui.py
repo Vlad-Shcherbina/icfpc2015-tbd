@@ -1,4 +1,4 @@
-from production.interfaces import IGame        
+from production.interfaces import IGame, Action       
 
 import tkinter
 from tkinter import Tk, Text, Frame, Label, Button
@@ -34,8 +34,18 @@ class Gui(object):
             ('Score', lambda game: game.score),
             ('Turn', lambda game: game.turn),
             ]
+    
     DEFAULT_BUTTONS_CONTINUE=[
             ('Continue', '<space>', 'continue'),
+            ]
+    
+    DEFAULT_BUTTONS_INTERACTIVE=[
+            ('Turn CCW', 'w', Action.ccw),
+            ('Turn CW', 'e', Action.cw),
+            ('Move west', 'a', Action.w),
+            ('Move east', 'd', Action.e),
+            ('Move south-west', 'z', Action.sw),
+            ('Move south-east', 'x', Action.se),
             ]
     
     def __init__(self, game, stats=DEFAULT_STATS, buttons=DEFAULT_BUTTONS_CONTINUE):

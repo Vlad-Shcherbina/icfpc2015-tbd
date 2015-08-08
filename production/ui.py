@@ -40,6 +40,13 @@ CONTROLS = {
 
     'z': game.MOVE_SW,
     'x': game.MOVE_SE,
+
+    # alternative keymap
+    'k': game.MOVE_W,
+    'l': game.MOVE_E,
+
+    'm': game.MOVE_SW,
+    '.': game.MOVE_SE,
 }
 UNDO = '`'
 

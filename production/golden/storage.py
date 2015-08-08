@@ -43,7 +43,7 @@ def qSubmission(insertMode="", status="Not submitted"):
          , :problemId                          AS problem
          , :seed                               AS seed
          , :solution                           AS solution
-         , (SELECT "%s"                         AS status)
+         , (SELECT "%s"                        AS status)
          , K.id                                AS kind
          , (SELECT strftime('%%s', 'now')      AS timestamp)
     FROM ( kinds AS K )
@@ -73,7 +73,8 @@ def addSubmission(x, kind):
     ensureKind(kind)
     x['kind'] = kind
     status = run("""SELECT status FROM submissions WHERE tag = :tag""", x)
-    if status and (status[1][0][0] == 'In progress' or status[1][0][0] == 'Done'):
+    if status and status[1][0][0] != 'In progress' and status[1][0][0] != 'Done':
+        run("""UPDATE submissions SET status = "In progress" WHERE tag = :tag""", x)
         return
     return run(qSubmission("OR IGNORE", "In progress"), x)
 

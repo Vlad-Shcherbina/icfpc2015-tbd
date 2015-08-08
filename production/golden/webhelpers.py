@@ -24,6 +24,8 @@ def sqlToHTML(rs, className=""):
         for n, d in enumerate(tr):
             d1 = str(d)
             c  = str(th[n])
+            if c == 'solution':
+                d1 = '<pre>' + d1 + '</pre>'
             row += '<td class="%s">' % c + d1 + '</td>'
         tbody += '<tr>' + row + '</tr>'
     html += '<tbody>' + tbody + '</tbody>'

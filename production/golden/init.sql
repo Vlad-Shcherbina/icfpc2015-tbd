@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS scores (
 );
 
 CREATE TABLE IF NOT EXISTS power_phrases (
-    id              INTEGER         NOT NULL
+    id              INTEGER         NOT NULL        PRIMARY KEY       AUTOINCREMENT
    ,phrase          TEXT            NOT NULL
    ,submission      INTEGER                         REFERENCES     submissions(id)
    ,status          TEXT            NOT NULL DEFAULT "Not verified"

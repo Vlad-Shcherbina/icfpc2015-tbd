@@ -38,7 +38,6 @@ class Run(tornado.web.RequestHandler):
 class GetSubmission(tornado.web.RequestHandler):
     def get(self, req):
         self.set_header("Content-Type", "text/json")
-        req = json.loads(req)
         from production.golden import api
         self.write(api.getSubmission(req))
 

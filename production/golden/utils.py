@@ -38,4 +38,4 @@ def http_submit(user, result, solution):
         'result': result,
         'solution': solution
         }
-    requests.get('http://127.0.0.1:55315/submit/%s' % json.dumps(req))
+    return requests.get('http://127.0.0.1:55315/submit/%s' % json.dumps(req))

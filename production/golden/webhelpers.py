@@ -20,8 +20,14 @@ def contradictingResults():
     return sqlToHTML(rs, "contradicting", rewriteSolutionTags)
 
 def rewriteSolutionTags(d, c):
-    if c in ('solution', 'tag'):
+    if c in ('solution',):
         return '<input class="clickable" onclick="this.select()" value="%s" />' % d
+    if c in ('tag',):
+        return """
+            <span class="clickable" 
+                   onclick="document.execCommand('selectAll',false,null)"
+                   contenteditable="true">%s</span>
+            """ % d
     return d
 
 def sqlToHTML(rs, className="", rewrite=lambda x: x):

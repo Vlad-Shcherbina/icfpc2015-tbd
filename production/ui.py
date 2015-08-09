@@ -214,7 +214,11 @@ def main():
                     'solution': solution['solution']
                     }
                 from production.golden.utils import http_submit
-                http_submit(os.getenv('USER'), result, solution)
+                ok = http_submit(os.getenv('USER'), result, solution)
+                if (200, 'Thanks!') == (ok.status_code, ok.text):
+                    print("Submission accepted")
+                else:
+                    print("Submission rejected")
 
     finally:
         restore_term(term_attr)

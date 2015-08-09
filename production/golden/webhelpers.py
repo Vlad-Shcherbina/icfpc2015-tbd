@@ -74,6 +74,17 @@ def css():
 
 def js():
     return """
+    function toggle(className, visibleMode) {
+        if (!visibleMode)
+            visibleMode = 'table'
+        var el = document.querySelectorAll('.' + className)[0]
+        if (el.style.display === visibleMode || el.style.display === '') {
+            el.style.display = 'none'
+        } else {
+            el.style.display = visibleMode
+        }
+
+    }
     setTimeout(function() {location.reload()}, 1000 * 120);
     """
 

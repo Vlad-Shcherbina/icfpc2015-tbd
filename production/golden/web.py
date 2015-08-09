@@ -12,8 +12,12 @@ class Main(tornado.web.RequestHandler):
         self.write("<style>%s</style>" % wh.css())
         self.write("<script>%s</script>" % wh.js())
         self.write("<h1>ICFPC TBD 2015</h1>")
-        self.write("<h2>Contradictions</h2>"      + wh.contradictingResults())
-        self.write("<h2>Scoring submissions</h2>" + wh.interestingResults())
+        self.write("""
+        <h2 onclick="toggle('contradicting')">Contradictions<sup>click to toggle</sup></h2>%s
+        """ % wh.contradictingResults())
+        self.write("""
+        <h2 onclick="toggle('interesting')">Scoring submissions<sup>click to toggle</sup></h2>%s
+        """ % wh.interestingResults())
 
 class Submit(tornado.web.RequestHandler):
     def get(self, req):

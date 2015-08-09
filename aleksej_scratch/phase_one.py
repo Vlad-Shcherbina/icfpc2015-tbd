@@ -16,6 +16,12 @@ from production import interfaces
 from production.golden import goldcfg
 from production.golden import api
 
+from aleksej_scratch import solved_cmp
+from peluche_scratch import phase_one as peluche_scratch
+
+
+
+LOOK_DISTANCE = 1
 
 def get_possible_placements(bsg):
     graph = bsg.get_placement_graph()
@@ -28,11 +34,14 @@ def score_game_pos(game, last_move):
         return 10*9
     heigh_score = min([y for x, y in last_move.get_members()])
 
+    if LOOK_DISTANCE == 0:
+        return heigh_score
+
     density_score = 0
     density_check = 0
     for x, y in last_move.get_members():
-        xx = [x + i for i in range(-2, 2)]
-        yy = [y + i for i in range(-2, 2)]
+        xx = [x + i for i in range(-LOOK_DISTANCE, LOOK_DISTANCE)]
+        yy = [y + i for i in range(-LOOK_DISTANCE, LOOK_DISTANCE)]
         has_neibour = [(a, b) in game.filled for a in xx for b in yy]
         density_check += len(has_neibour)
         density_score += sum(has_neibour)
@@ -43,7 +52,6 @@ def score_game_pos(game, last_move):
 def find_next_placement(game):
     placements = get_possible_placements(game)
     assert(len(placements) > 0)
-    #return random.choice(placements)
 
     result = None
     max_score = -10 ** 9;
@@ -70,7 +78,6 @@ def phase_one(game):
     return game, result
 
 
-
 def print_game_result(problem_id, games, comment=''):
     file_name = '%02d.txt' % problem_id
     path = os.path.join('/tmp/', 'phase_one_solver', file_name)
@@ -86,23 +93,43 @@ def read_json(filename):
     with open(path) as f:
         return json.load(f)
 
-#def generated_seeds():
-#    pass
 
 def main():
-    problem_id = 2
+    problem_id = 3
     problem_file_name = 'problem_%d.json' % problem_id
     path = os.path.join(utils.get_data_dir(), 'qualifier', problem_file_name)
     game_data = read_json(path)
-    all_games = dict()
-    for seed in game_data['sourceSeeds']:
-        game = big_step_game.BigStepGame.from_json(game_data, seed)
-        game, moves = phase_one(game)
-        all_games[seed] = game
-        print(game)
 
-    #print_game_result(problem_id, all_games, 'more_area_to_analyse')
-    #print_game_result(problem_id, all_games, 'neighbor analysis')
+#    d = {}
+#    for seed in game_data['sourceSeeds']:
+#        game = big_step_game.BigStepGame.from_json(game_data, seed)
+#        game, moves = phase_one(game)
+#        d[seed] = game
+#        print(game)
+#    print_game_result(problem_id, d, 'random_run')
+
+    def play_dist1_games():
+        while True:
+            print('playing game 1')
+            LOOK_DISTANCE = 1
+            seed = random.randint(0, 100000)
+            game = big_step_game.BigStepGame.from_json(game_data, seed)
+            game, moves = phase_one(game)
+            print(game)
+            yield game.move_score
+
+    def play_dist2_games():
+        while True:
+            print('playing game 2')
+            LOOK_DISTANCE = 0
+            seed = random.randint(0, 100000)
+            game = big_step_game.BigStepGame.from_json(game_data, seed)
+            game, moves = peluche_scratch.phase_one(game)
+            print(game)
+            yield game.move_score
+
+    result = solved_cmp.compare_solver(play_dist1_games(), play_dist2_games())
+    print(result)
 
 
 if __name__ == '__main__':

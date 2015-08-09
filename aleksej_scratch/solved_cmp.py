@@ -25,7 +25,7 @@ def find_interval(values):
     variance = sum([(x - average) ** 2 for x in values]) / (len(values) - 1)
     stddev = math.sqrt(variance)
     interval = stddev / math.sqrt(len(values))
-    return (average - 3 * interval, average + 3 * interval)
+    return (average - 2 * interval, average + 2 * interval)
 
 
 def compare_solver(gen1, gen2):
@@ -41,16 +41,17 @@ def compare_solver(gen1, gen2):
             return 0, (a, b), (c, d)
         a, b = find_interval(data1)
         c, d = find_interval(data2)
+        print(max(len(data1), len(data2)), (a, b), (c, d))
         if b < c:
             return -1, (a, b), (c, d)
         if a > d:
             return 1, (a, b), (c, d)
         if b - a > d - c:
             data1.append(next(gen1))
-            print('extract point 1')
+#            print('extract point 1')
         else:
             data2.append(next(gen2))
-            print('extract point 2')
+#            print('extract point 2')
 
 def main():
     random.seed(42)

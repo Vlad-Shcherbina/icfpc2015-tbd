@@ -119,7 +119,7 @@ def number_contacts(placement, bsg, filled):
             if (x + 1, y - 1): contacts += 1
             if (x + 1, y + 1): contacts += 1
     return contacts
-    
+
 def how_much_collapse(bsg, filled):
     line_has = defaultdict(lambda: bsg.width)
     for x, y in filled:
@@ -137,7 +137,7 @@ def count_collapse(placement, line_has):
         if line_has[y] == val:
             collapse += 1
     return collapse
-    
+
 def score_placement_v2(placement, bsg, filled, line_has):
     sum_height = sum_height_placement(placement)
     nb_contacts = number_contacts(placement, bsg, filled)
@@ -163,11 +163,11 @@ def phase_one(initial_bsg):
         placement = chose_move_v2(bsg)
         result.append(placement)
         bsg = bsg.lock_unit(placement)
-        print(clr + str(bsg))
+        #print(clr + str(bsg))
     return bsg, result
 
 
-def main():    
+def main():
     results = []
     for j in range(2, 3):
         output_file = 'result__' + str(j)

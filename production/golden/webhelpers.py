@@ -44,12 +44,23 @@ def sqlToHTML(rs, className="", rewrite=lambda x: x):
         row += '<th class="%s">' % h1 + h1 + '</th>'
     html += '<thead><tr>' + row + '</tr></thead>'
     for tr in trs:
+        # dirty-dirty hack for highlighting non-matching results
+        impl, score, wrong = '', '', False
         row = ''
         for n, d in enumerate(tr):
             d1 = str(d)
             c  = str(th[n])
+            # 2nd part of a dirty-dirty hack
+            if c == 'name':
+                impl = d1
+            elif c == 'tag':
+                if ':' in d1 and impl == 'reference implementation':
+                    score = d1.split(':')[-1]
+            elif c == 'score':
+                if score and score != d1:
+                    wrong = True
             row += '<td class="%s">' % c + rewrite(d1, c) + '</td>'
-        tbody += '<tr>' + row + '</tr>'
+        tbody += ('<tr class="wrong">' if wrong else '<tr>') + row + '</tr>'
     html += '<tbody>' + tbody + '</tbody>'
     return '<table class="%s">' % className + html + '</table>'
 
@@ -114,7 +125,7 @@ def cssBoilerplate():
     input.clickable {
         background: #FFC !important;
     }
-    table.contradicting td {
+    table.contradicting td, tr.wrong td {
         background-color: #FCC !important;
     }
     table.contradicting input.clickable {

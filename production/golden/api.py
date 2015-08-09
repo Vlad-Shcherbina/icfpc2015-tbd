@@ -27,10 +27,11 @@ def httpSubmit(user, solution):
                                                          , 'solution': solution }))
 
 # Submits solution to organizers and stores it on central server.
-def httpSubmitOwn(user, result, solution):
-    return req.get(goldcfg.us() + '/submit/%s' % json.dumps({ 'user':      user
-                                                            , 'result':    result
-                                                            , 'solution':  solution }))
+def httpSubmitOwn(user, result, solution, reasons=None):
+    payload = { 'user': user, 'result': result, 'solution': solution }
+    if reasons:
+        payload['reasons'] = reasons
+    return req.get(goldcfg.us() + '/submit/%s' % json.dumps(payload))
 
 # Runs a solution against reference implementation,
 # stores promise to provide score in SQLite.

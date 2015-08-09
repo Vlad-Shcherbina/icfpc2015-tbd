@@ -39,10 +39,10 @@ class Submit(tornado.web.RequestHandler):
     def get(self, req):
         self.set_header("Content-Type", "text/html")
         req = json.loads(req)
+        reason_own, reason_ref = req['reasons'] if 'reasons' in req else ('%s playing' % req['user'], 'Testing our implementation')
         api.storeOwnResult(
-            req['user'], req['result'], req['solution'],
-            '%s playing' % req['user'])
-        api.runReference(req['solution'], 'Testing our implementation')
+            req['user'], req['result'], req['solution'], reason_own)
+        api.runReference(req['solution'], reason_ref)
         self.write("Thanks!")
 
 class Run(tornado.web.RequestHandler):

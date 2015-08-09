@@ -8,6 +8,7 @@ import itertools
 import logging
 import multiprocessing
 import os
+import psutil
 import resource
 import signal
 import sys
@@ -70,25 +71,28 @@ parser.add_argument('-p', action='append', default=[],
 # generated from the submission time.
 
 
-MEM_USAGE = 0
-
-def update_memory_usage():
-    pagesize = os.sysconf('SC_PAGE_SIZE')
-    with open("/proc/%d/statm" % os.getpid()) as statm:
-        # vms | rss | ... (sizes are in pages)
-        global MEM_USAGE
-        MEM_USAGE = int(statm.readline().split()[1]) * pagesize
+def memory_usage():
+    proc = psutil.Process(os.getpid())
+    kids = proc.get_children(recursive=True)
+    return [proc.get_memory_info()[0]] + \
+        [kid.get_memory_info()[0] for kid in kids]
 
 
 def alarm_handler(*args):
-    update_memory_usage()
     try:
-        import humanize
-        mem_usage = humanize.naturalsize(MEM_USAGE)
-    except ImportError:
-        mem_usage = '%.2fMb' % (MEM_USAGE / float(2 ** 20))
-    logging.info('Current memory usage %s', mem_usage)
-    signal.alarm(1)
+        mem_usage = memory_usage()
+        try:
+            import humanize
+            mem_usage = humanize.naturalsize(sum(mem_usage))
+        except ImportError:
+            mem_usage = '%.2fMb' % (sum(mem_usage) / float(2 ** 20))
+        logging.info(
+            'Current memory usage %s (%d processes)',
+            mem_usage, len(mem_usage))
+        signal.alarm(1)
+    except Exception:
+        # Just in case something goes wrong
+        pass
 
 
 def load_problems(path):

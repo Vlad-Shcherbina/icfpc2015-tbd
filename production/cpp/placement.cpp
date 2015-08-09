@@ -80,3 +80,23 @@ public:
 std::vector<std::vector<int> > StronglyConnectedComponents(const Graph &graph) {
   return TarjanSCC(graph).GetResult();
 }
+
+
+class DpSolver {
+public:
+  const DFA &dfa;
+  const Graph &graph;
+
+  DpSolver(const DFA &dfa, const Graph &graph) : dfa(dfa), graph(graph) {
+
+  }
+
+  vector<int> GetResult() const {
+    return {42};
+  }
+};
+
+
+std::vector<int> DFA::FindBestPath(const Graph &graph, int destination) const {
+  return DpSolver(*this, graph).GetResult();
+}

@@ -110,7 +110,5 @@ std::vector<std::vector<int> > StronglyConnectedComponents(const Graph &graph);
 
 class DFA {
 public:
-  std::vector<int> FindBestPath(const Graph &graph) const {
-    return {};
-  }
+  std::vector<int> FindBestPath(const Graph &graph, int destination) const;
 };

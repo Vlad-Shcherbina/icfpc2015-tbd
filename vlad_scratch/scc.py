@@ -27,7 +27,7 @@ def main():
     #print(cpp_placement.StronglyConnectedComponents(graph))
 
     dfa = cpp_placement.DFA()
-    print(dfa.FindBestPath(graph))
+    print(dfa.FindBestPath(graph, graph.GetSize()))
 
     print('done')
 

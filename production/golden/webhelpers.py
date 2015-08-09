@@ -2,12 +2,21 @@ import json
 
 from production.golden import api
 
+def rearrangeSubmissionTable(rs):
+    def rearrangeRow(xs):
+        (name, id, tag, problem, seed, solution, status, kind, timestamp, score, powerScore) = xs
+        return (name, id, tag, score, powerScore, problem, seed, status, kind, timestamp, solution)
+    # was ['name', 'id', 'tag', 'problem', 'seed', 'solution', 'status', 'kind', 'timestamp', 'score', 'powerScore']
+    cells = ['name', 'id', 'tag', 'score', 'powerScore', 'problem', 'seed', 'status', 'kind', 'timestamp', 'solution']
+    data  = map(rearrangeRow, rs[1])
+    return (cells, data)
+
 def interestingResults():
-    rs = api.getInterestingResults()
+    rs = rearrangeSubmissionTable(api.getInterestingResults())
     return sqlToHTML(rs)
 
 def contradictingResults():
-    rs = api.getContradictingResults()
+    rs = rearrangeSubmissionTable(api.getContradictingResults())
     return sqlToHTML(rs, "contradicting")
 
 def sqlToHTML(rs, className=""):

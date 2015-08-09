@@ -66,6 +66,7 @@ class BigStepGame(object):
         return bsg
 
     def lock_unit(self, locked_placement):
+        assert not self.game_ended
         #logger.info('locking unit in place:\n' + str(self))
         assert self.can_place(locked_placement)
 
@@ -290,14 +291,7 @@ class StepGameAdapter(interfaces.IGame):
     def power_score(self):
         s = ''.join(self.history)
         assert s.lower() == s, s
-
-        result = 0
-        for p in interfaces.POWER_PHRASES:
-            reps = utils.count_substrings(s, p)
-            power_bonus = 300 if reps > 0 else 0
-            result += 2 * len(p) * reps + power_bonus
-
-        return result
+        return interfaces.compute_power_score(s)
 
 
 def main():

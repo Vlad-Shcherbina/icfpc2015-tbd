@@ -7,6 +7,7 @@ import logging
 import time
 
 from production import utils
+from production import interfaces
 from production.interfaces import CHARS_BY_COMMAND, COMMAND_BY_CHAR, COMMAND_CHARS, POWER_PHRASES
 from production.interfaces import GameEnded, Action, IGame
 
@@ -179,14 +180,7 @@ class Game(IGame):
     def power_score(self):
         s = ''.join(self.history)
         assert s.lower() == s, s
-
-        result = 0
-        for p in POWER_PHRASES:
-            reps = utils.count_substrings(s, p)
-            power_bonus = 300 if reps > 0 else 0
-            result += 2 * len(p) * reps + power_bonus
-
-        return result
+        return interfaces.compute_power_score(s)
 
     def render_cell(self, x, y):
         current_members = set(self.current_placement.get_members())

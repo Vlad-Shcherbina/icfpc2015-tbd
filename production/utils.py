@@ -41,6 +41,7 @@ def count_substrings(s, ss):
     return result
 
 
+# TODO: just call gen_output_raw
 def gen_output(game, game_ended_excp):
     '''
     [ { "problemId": number   /* The `id` of the game configuration */
@@ -66,5 +67,33 @@ def gen_output(game, game_ended_excp):
       'problemId': game.problem_id,
       'seed': game.seed,
       'solution': solution,
+      'tag': tag
+    }
+
+
+def gen_output_raw(id, seed, commands, move_score, power_score):
+    '''
+    [ { "problemId": number   /* The `id` of the game configuration */
+      , "seed":      number   /* The seed for the particular game */
+      , "tag":       string   /* A tag for this solution. */
+      , "solution":  Commands
+      }
+    ]
+
+    The tag field is meant to allow teams to associate scores on the
+    leaderboards with specific submitted solutions. If no tag field is
+    supplied, a tag will be generated from the submission time.
+    '''
+
+    assert id >= 0, 'Missing problem id'
+    tag = str((id, seed, commands))
+    tag = hashlib.md5(tag.encode('utf-8')).hexdigest()
+    tag += ' %d:%d:%d' % (
+        move_score, power_score,
+        move_score + power_score)
+    return {
+      'problemId': id,
+      'seed': seed,
+      'solution': commands,
       'tag': tag
     }

@@ -1,6 +1,9 @@
 from abc import ABCMeta, abstractmethod, abstractproperty
 from enum import Enum
 
+from production import utils
+
+
 class IGame:
     __metaclass__ = ABCMeta
     # properties
@@ -19,14 +22,14 @@ class IGame:
     # methods
     @abstractmethod
     def get_filled(self):
-        'Return an iterable of (x, y) tuples representing filled cells' 
+        'Return an iterable of (x, y) tuples representing filled cells'
     @abstractmethod
     def get_current_figure_cells(self):
-        'Return an iterable of (x, y) tuples representing cells of the current figure (transformed to the field coordinates)' 
+        'Return an iterable of (x, y) tuples representing cells of the current figure (transformed to the field coordinates)'
     @abstractmethod
     def get_current_figure_pivot(self):
         'Return an (x, y) tuple representing the pivot of the current figure (transformed to the field coordinates)'
-        
+
 class Action(str, Enum):
     w = 'move_w'
     e = 'move_e'
@@ -64,3 +67,14 @@ class GameEnded(Exception):
             self.move_score, self.power_score, self.total_score,
             self.reason)
 
+
+def compute_power_score(s):
+    assert s.lower() == s, s
+
+    result = 0
+    for p in POWER_PHRASES:
+        reps = utils.count_substrings(s, p)
+        power_bonus = 300 if reps > 0 else 0
+        result += 2 * len(p) * reps + power_bonus
+
+    return result

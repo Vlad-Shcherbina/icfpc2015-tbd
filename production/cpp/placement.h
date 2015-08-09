@@ -29,6 +29,11 @@ struct Graph {
     int angle;
   };
 
+  int GetSize() const {
+    assert(tr.size() == meaning.size());
+    return tr.size();
+  }
+
   void SetStartNode(int x) { start_node = x; }
   int GetStartNode() const { return start_node; }
 
@@ -49,6 +54,14 @@ struct Graph {
   }
   int GetNodeMeaningAngle(int node) const {
     return meaning[node].angle;
+  }
+
+  int FindNodeByMeaning(int x, int y, int angle) const {
+    for (int i = 0; i < meaning.size(); i++) {
+      if (meaning[i].x == x && meaning[i].y == y && meaning[i].angle == angle)
+        return i;
+    }
+    return -1;
   }
 
   // Return list of all nodes that immediately precede state COLLISION, and

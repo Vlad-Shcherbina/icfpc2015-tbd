@@ -50,7 +50,7 @@ def dummy_phase_two(initial_bsg, locking_placements):
         graph = bsg.get_placement_graph()
         dst_node = graph.FindNodeByMeaning(
             placement.pivot_x, placement.pivot_y, placement.angle)
-        print(dst_node)
+#         print(dst_node)
 
         exit_node = graph.AddNewNode()
 
@@ -63,14 +63,14 @@ def dummy_phase_two(initial_bsg, locking_placements):
 
         path = path_in_graph(graph, graph.GetStartNode(), exit_node)
 
-        print(path)
+#         print(path)
         for cmd in path:
             cmd = big_step_game.INDEXED_ACTIONS[cmd]
             result.append(random.choice(interfaces.CHARS_BY_COMMAND[cmd]))
 
         bsg = bsg.lock_unit(placement)
 
-    print(bsg)
+#     print(bsg)
 
     assert bsg.game_ended
     return bsg, ''.join(result)
@@ -121,12 +121,13 @@ def get_all_problem_instances():
 def solve(problem_instance, tag_prefix='solve '):
     bsg = big_step_game.BigStepGame.from_json(
         problem_instance.json_data, problem_instance.seed)
-    print(bsg)
+#     print(bsg)
 
     _, locking_placements = bronze.phase_one(bsg)
-    print(locking_placements)
+#     print(locking_placements)
 
     end_bsg, commands = dummy_phase_two(bsg, locking_placements)
+    print(end_bsg)
 
     return utils.gen_output_raw(
         id=problem_instance.json_data['id'],
@@ -154,14 +155,14 @@ def main():
     all_instances = list(get_all_problem_instances())
     print(len(all_instances), 'problem instances total')
 
-    instances = [i for i in all_instances if i.json_data['id'] in range(15, 20)]
+    instances = [i for i in all_instances if i.json_data['id'] in range(25)]
     print(len(instances), 'instances to solve')
 
     solutions = list(map(solve, instances))
 
     print(solutions)
 
-    # fucking_send(solutions)
+    fucking_send(solutions)
 
 
 if __name__ == '__main__':

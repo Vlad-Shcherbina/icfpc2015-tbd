@@ -33,6 +33,7 @@ parser.add_argument('--tracedir', help='Directory where to store the execution t
 parser.add_argument('--moves', default='', help='Moves to replay')
 parser.add_argument('--seed', default=0, type=int, help='Ordinal of the seed to use (0 based)')
 parser.add_argument('--prompt_for_submit', action='store_true', help='Prompt for submit')
+parser.add_argument('--no_gui', action='store_true', help='Disable graphic UI')
 
 
 CONTROLS = {
@@ -172,7 +173,8 @@ def main():
 
     try:
         term_attr = setup_term()
-        display(g)
+        if not args.no_gui:
+            display(g)
         g.trace = []
         if args.tracedir:
           trace(g)
@@ -190,7 +192,8 @@ def main():
                 if args.tracedir:
                   trace(g)
 
-            display(g)
+            if not args.no_gui:
+                display(g)
 
             if args.delay:
                 time.sleep(args.delay)

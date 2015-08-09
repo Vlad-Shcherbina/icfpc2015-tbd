@@ -33,12 +33,15 @@ class BigStepGame(object):
     def from_json(json_data, seed):
         bsg = BigStepGame()
 
+        bsg.dfa = cpp_placement.DFA()
+
         bsg.problem_id = json_data['problemId'] \
             if 'problemId' in json_data else -1
         bsg.remaining_units = json_data['sourceLength']
         bsg.seed = seed
         bsg.lcg = list(
             itertools.islice(game.lcg(seed), 0, bsg.remaining_units))
+
 
         bsg.width = json_data['width']
         bsg.height = json_data['height']
@@ -72,6 +75,8 @@ class BigStepGame(object):
         assert self.can_place(locked_placement)
 
         bsg = BigStepGame()
+        bsg.dfa = self.dfa
+
         bsg.problem_id = self.problem_id
         bsg.remaining_units = self.remaining_units
         bsg.seed = self.seed

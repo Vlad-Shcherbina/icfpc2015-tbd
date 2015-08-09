@@ -106,3 +106,11 @@ struct Graph {
 
 
 std::vector<std::vector<int> > StronglyConnectedComponents(const Graph &graph);
+
+
+class DFA {
+public:
+  std::vector<int> FindBestPath(const Graph &graph) const {
+    return {};
+  }
+};

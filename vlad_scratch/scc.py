@@ -11,7 +11,7 @@ import glob
 from production import big_step_game
 from production import utils
 from production import interfaces
-from production.cpp import placement
+from production.cpp import placement as cpp_placement
 
 
 def main():
@@ -24,7 +24,10 @@ def main():
     print(bsg)
 
     graph = bsg.get_placement_graph()
-    print(placement.StronglyConnectedComponents(graph))
+    #print(cpp_placement.StronglyConnectedComponents(graph))
+
+    dfa = cpp_placement.DFA()
+    print(dfa.FindBestPath(graph))
 
     print('done')
 

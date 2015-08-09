@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import contextlib
 import json
 import itertools
 import logging
@@ -118,20 +119,23 @@ def main():
         len(problems), len(problem_instances), len(power_phrases))
     logging.info(
         'Time limit: %s, memory limit: %s, cores: %s',
-        prettify_limit(max_runtime, '%ds'), 
+        prettify_limit(max_runtime, '%ds'),
         prettify_limit(max_memory, '%dMB'),
         prettify_limit(cores_available, '%d'))
 
     signal.signal(signal.SIGALRM, alarm_handler)
     signal.alarm(1)
 
-    with interfaces.with_custom_power_phrases(power_phrases):
-        solutions = []
-        for problem_instance in problem_instances:
-            solutions.append(solver.solve(problem_instance))
+    # This is to prevent print()s in the code to pollute stdout and corrupt the
+    # solution.
+    with contextlib.redirect_stdout(sys.stderr):
+        with interfaces.with_custom_power_phrases(power_phrases):
+            solutions = []
+            for problem_instance in problem_instances:
+                solutions.append(solver.solve(problem_instance))
 
     json.dump(solutions, sys.stdout)
 
 
 if __name__ == '__main__':
-    main()
+      main()

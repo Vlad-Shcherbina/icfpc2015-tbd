@@ -129,6 +129,8 @@ def main():
     logging.basicConfig(level=logging.DEBUG)
     args = parser.parse_args()
 
+    logging.info('Cmdline: %s', sys.argv)
+
     problems = [load_problems(f) for f in args.f]
     problem_instances = list(itertools.chain.from_iterable(problems))
     power_phrases = [p for p in args.p]

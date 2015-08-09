@@ -70,7 +70,9 @@ application = tornado.web.Application([
   (r"/", Main),
   (r"/submit/(.*)", Submit),
   (r"/run/(.*)", Run),
-  (r"/submission/(.*)", GetSubmission)
+  (r"/submission/(.*)", GetSubmission),
+  (r"/snd/(.*)", Snd),
+  (r"/own/(.*)", Own)
   ])
 
 if __name__ == "__main__":

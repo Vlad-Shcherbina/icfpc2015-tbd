@@ -10,6 +10,7 @@ import resource
 import signal
 import sys
 
+from production import interfaces
 from production import solver
 
 logger = logging.getLogger(__name__)
@@ -41,12 +42,12 @@ parser.add_argument('-m', type=int, default=NO_LIMIT,
 # run it on) is imposed on the program.
 parser.add_argument('-c', type=int, default=NO_LIMIT,
                     help='How many processor cores are available')
-# - including the quotation marks - for the phrase given above). The parameter
-# -p may be provided multiple times, once for each phrase of power the program
-# should attempt to invoke in its output. As you discover more phrases of
-# power, you can re-run the program with additional -p command line options;
-# during judging (except for the lightning division), the program will be
-# passed all the phrases of power.
+# Phrase of power, as quoted string - including the quotation marks. The
+# parameter -p may be provided multiple times, once for each phrase of power
+# the program should attempt to invoke in its output. As you discover more
+# phrases of power, you can re-run the program with additional -p command line
+# options; during judging (except for the lightning division), the program will
+# be passed all the phrases of power.
 parser.add_argument('-p', action='append', default=[],
                     help='Phrase of power, as quoted string')
 
@@ -124,9 +125,10 @@ def main():
     signal.signal(signal.SIGALRM, alarm_handler)
     signal.alarm(1)
 
-    solutions = []
-    for problem_instance in problem_instances:
-        solutions.append(solver.solve(problem_instance))
+    with interfaces.with_custom_power_phrases(power_phrases):
+        solutions = []
+        for problem_instance in problem_instances:
+            solutions.append(solver.solve(problem_instance))
 
     json.dump(solutions, sys.stdout)
 

@@ -251,11 +251,27 @@ class StepGameAdapter(interfaces.IGame):
         self.graph = self.bsg.get_placement_graph()
         self.current_node = self.graph.GetStartNode()
 
-        # Sanity check for SCC
-        scc = cpp_placement.StronglyConnectedComponents(self.graph)
-        assert sum(map(len, scc)) == self.graph.GetSize()
+        self._sanity_check_scc(self.graph)
+
+    def _sanity_check_scc(self, graph):
+        scc = cpp_placement.StronglyConnectedComponents(graph)
+        assert sum(map(len, scc)) == graph.GetSize()
         xs = sum(scc, ())
         assert len(xs) == len(set(xs))
+
+        scc_by_node = {}
+        for i, cc in enumerate(scc):
+            for node in cc:
+                assert node not in scc_by_node
+                scc_by_node[node] = i
+
+        for v in range(graph.GetSize()):
+            for c in range(6):
+                w = graph.GetNext(v, c)
+                if w == graph.COLLISION:
+                    continue
+                assert scc_by_node[v] <= scc_by_node[w], (
+                    "SCCs should be topologically sorted")
 
     @property
     def filled(self):

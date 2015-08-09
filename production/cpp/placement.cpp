@@ -2,6 +2,7 @@
 
 #include <map>
 #include <iostream>
+#include <algorithm>
 
 using namespace std;
 
@@ -31,6 +32,8 @@ public:
       if (v_index[v] == UNDEFINED)
         StrongConnect(v);
     }
+
+    reverse(result.begin(), result.end());
   }
 
   void StrongConnect(int v) {

@@ -209,7 +209,7 @@ class BigStepGame(object):
         raise NotImplementedError()
 
     def get_placement_graph(self):
-      return self.get_placement_graph_twice()
+      return self.get_placement_graph_cpp()
 
     def get_placement_graph_twice(self):
       cpp_graph = self.get_placement_graph_cpp()

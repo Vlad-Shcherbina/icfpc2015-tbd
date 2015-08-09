@@ -95,41 +95,18 @@ def read_json(filename):
 
 
 def main():
-    problem_id = 3
+    problem_id = 7
     problem_file_name = 'problem_%d.json' % problem_id
     path = os.path.join(utils.get_data_dir(), 'qualifier', problem_file_name)
     game_data = read_json(path)
 
-#    d = {}
-#    for seed in game_data['sourceSeeds']:
-#        game = big_step_game.BigStepGame.from_json(game_data, seed)
-#        game, moves = phase_one(game)
-#        d[seed] = game
-#        print(game)
-#    print_game_result(problem_id, d, 'random_run')
-
-    def play_dist1_games():
-        while True:
-            print('playing game 1')
-            LOOK_DISTANCE = 1
-            seed = random.randint(0, 100000)
-            game = big_step_game.BigStepGame.from_json(game_data, seed)
-            game, moves = phase_one(game)
-            print(game)
-            yield game.move_score
-
-    def play_dist2_games():
-        while True:
-            print('playing game 2')
-            LOOK_DISTANCE = 0
-            seed = random.randint(0, 100000)
-            game = big_step_game.BigStepGame.from_json(game_data, seed)
-            game, moves = peluche_scratch.phase_one(game)
-            print(game)
-            yield game.move_score
-
-    result = solved_cmp.compare_solver(play_dist1_games(), play_dist2_games())
-    print(result)
+    d = {}
+    for seed in game_data['sourceSeeds']:
+        game = big_step_game.BigStepGame.from_json(game_data, seed)
+        game, moves = phase_one(game)
+        d[seed] = game
+        print(game)
+   #print_game_result(problem_id, d, 'random_run')
 
 
 if __name__ == '__main__':

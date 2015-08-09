@@ -115,6 +115,7 @@ def getContradictingResults(orderClause=""):
     candidates = {}
     contradictions = []
     for (sid, score, powerScore, implementation) in submissions:
+        score, powerScore = int(score), int(powerScore)
         if implementation != 'reference implementation':
             score = score + powerScore
         if sid not in candidates:

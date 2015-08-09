@@ -63,7 +63,7 @@ def score_placement_v2(placement, bsg, filled, line_has):
     sum_height = sum_height_placement(placement)
     nb_contacts = number_contacts(placement, bsg, filled)
     nb_collapse = count_collapse(placement, line_has)
-    return (1 * sum_height +
+    return (4 * sum_height +
             3 * nb_contacts +
             8 * nb_collapse ** 2)
 
@@ -84,16 +84,13 @@ def phase_one(initial_bsg):
         placement = chose_move_v2(bsg)
         result.append(placement)
         bsg = bsg.lock_unit(placement)
-#         print(clr + str(bsg))
+        print(clr + str(bsg))
     return bsg, result
 
 
 def main():
     results = []
     for j in range(25):
-        output_file = 'result__' + str(j)
-        with open(output_file, "w") as fout:
-            fout.write('')
         input_file = 'qualifier/problem_' + str(j) + '.json'
         path = os.path.join(utils.get_data_dir(), input_file)
         with open(path) as fin:

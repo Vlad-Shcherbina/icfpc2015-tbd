@@ -50,15 +50,13 @@ def make_py_game(json_data, seed):
     return game.Game(json_data, seed)
 
 
-# TODO
-# currently not used for testing because implementation has bugs
 def make_step_adapter_game(json_data, seed):
     return big_step_game.StepGameAdapter(json_data, seed)
 
 
 def test_all_solution():
     files = os.listdir(os.path.join(utils.get_data_dir(), 'golden_tests'))
-    for make_game in [make_py_game]:
+    for make_game in [make_py_game, make_step_adapter_game]:
         for f in files:
             yield validate_solution, make_game, f
 

@@ -258,6 +258,10 @@ class StepGameAdapter(interfaces.IGame):
         return self.bsg.move_score
 
     @property
+    def score(self):
+        return self.move_score + self.power_score()
+
+    @property
     def remaining_units(self):
         return self.bsg.remaining_units
 

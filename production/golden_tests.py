@@ -25,7 +25,7 @@ def extract_score(tag):
     # Example tag value: 8a4330144e5c06c3cf5d905e4c6f5d6e 602:0:602
     m = re.match('.* (\d+):(\d+):(\d+)', tag)
     assert(m)
-    return int(m.group(1))
+    return int(m.group(3))
 
 
 

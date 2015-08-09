@@ -110,6 +110,7 @@ def number_contacts(placement, bsg, filled):
         if (x + 1, y) in filled: contacts += 1
         if (x, y - 1) in filled: contacts += 1
         if (x, y + 1) in filled: contacts += 1
+        if y == bsg.height - 1: contacts += 2 # touch the floor
         if y % 2 == 0: # even rows
             if y == 0: contacts += 2 # left border
             if (x - 1, y - 1): contacts += 1
@@ -169,7 +170,7 @@ def phase_one(initial_bsg):
 
 def main():
     results = []
-    for j in range(2, 3):
+    for j in range(8,9):
         output_file = 'result__' + str(j)
         with open(output_file, "w") as fout:
             fout.write('')
@@ -179,7 +180,7 @@ def main():
             data = json.load(fin)
 
         seeds = data['sourceSeeds']
-        for seed in seeds:
+        for seed in [31314]: #seeds:
             bsg = big_step_game.BigStepGame.from_json(data, seed)
             end_bsg, placments = phase_one(bsg)
             results.append((input_file, seed, end_bsg.move_score))

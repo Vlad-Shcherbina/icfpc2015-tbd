@@ -98,7 +98,7 @@ def storeResultMaybe(x, implementation, own=True):
         """, x)
 
 def getInterestingResults(orderClause=""):
-    return run(qResults("AND (C.score > 0 OR C.powerScore > 0)" + orderClause))
+    return run(qResults(orderClause))
 
 # I was sleepy and I gave up writing idiomatic SQL here
 def getContradictingResults(orderClause=""):

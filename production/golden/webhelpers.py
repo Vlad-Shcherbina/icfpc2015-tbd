@@ -13,13 +13,18 @@ def rearrangeSubmissionTable(rs):
 
 def interestingResults():
     rs = rearrangeSubmissionTable(api.getInterestingResults())
-    return sqlToHTML(rs)
+    return sqlToHTML(rs, "interesting", rewriteSolutionTags)
 
 def contradictingResults():
     rs = rearrangeSubmissionTable(api.getContradictingResults())
-    return sqlToHTML(rs, "contradicting")
+    return sqlToHTML(rs, "contradicting", rewriteSolutionTags)
 
-def sqlToHTML(rs, className=""):
+def rewriteSolutionTags(d, c):
+    if c in ('solution', 'tag'):
+        return '<input class="clickable" onclick="this.select()" value="%s" />' % d
+    return d
+
+def sqlToHTML(rs, className="", rewrite=lambda x: x):
     if not rs:
         return '<div class="empty">∅</div>'
     (th, trs) = rs
@@ -35,9 +40,7 @@ def sqlToHTML(rs, className=""):
         for n, d in enumerate(tr):
             d1 = str(d)
             c  = str(th[n])
-            if c == 'solution':
-                d1 = '<pre>' + d1 + '</pre>'
-            row += '<td class="%s">' % c + d1 + '</td>'
+            row += '<td class="%s">' % c + rewrite(d1, c) + '</td>'
         tbody += '<tr>' + row + '</tr>'
     html += '<tbody>' + tbody + '</tbody>'
     return '<table class="%s">' % className + html + '</table>'
@@ -65,26 +68,6 @@ def css():
 
 def js():
     return """
-    lookup = {
-      "p":"p", "'":"p", "!":"p", ".":"p", "0":"p", "3":"p",
-      "b":"b", "c":"b", "e":"b", "f":"b", "y":"b", "2":"b",
-      "a":"a", "g":"a", "h":"a", "i":"a", "j":"a", "4":"a",
-      "l":"l", "m":"l", "n":"l", "o":"l", " ":"l", "5":"l",
-      "d":"d", "q":"d", "r":"d", "v":"d", "z":"d", "1":"d",
-      "k":"k", "s":"k", "t":"k", "u":"k", "w":"k", "x":"k"
-    }
-
-    function deobfuscate(phrase) {
-      return phrase.replace(/./g, function(m){return lookup[m];});
-    }
-
-    function simplify_solution() {
-      solutions = document.getElementsByClassName('solution');
-      for (i=1; i < solutions.length; ++i) {
-        solutions[i].textContent = deobfuscate(solutions[i].textContent);
-      }
-    }
-
     setTimeout(function() {location.reload()}, 1000 * 120);
     """
 
@@ -111,5 +94,8 @@ def cssBoilerplate():
     }
     table.contradicting td {
         background-color: #FCC !important;
+    }
+    input.clickable {
+        background: #CCC;
     }
     """

@@ -12,7 +12,6 @@ class Main(tornado.web.RequestHandler):
         self.write("<style>%s</style>" % wh.css())
         self.write("<script>%s</script>" % wh.js())
         self.write("<h1>ICFPC TBD 2015</h1>")
-        self.write("<div onClick=\"simplify_solution()\">Click here to deobfuscate solutions</div>")
         self.write("<h2>Contradictions</h2>"      + wh.contradictingResults())
         self.write("<h2>Scoring submissions</h2>" + wh.interestingResults())
 

@@ -23,7 +23,8 @@ public:
   const int UNDEFINED = -42;
 
   TarjanSCC(const Graph &graph) : graph(graph) {
-    int index;
+    index = 0;
+
     v_index = vector<int>(graph.GetSize(), UNDEFINED);
     lowlink = vector<int>(graph.GetSize(), UNDEFINED);
     onstack = vector<bool>(graph.GetSize(), false);

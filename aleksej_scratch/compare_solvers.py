@@ -18,7 +18,7 @@ from production.golden import api
 
 from aleksej_scratch import solved_cmp
 from aleksej_scratch import phase_one as aleksej_scratch
-from peluche_scratch import phase_one as peluche_scratch
+from production import bronze
 
 
 
@@ -29,7 +29,7 @@ def read_json(filename):
 
 
 def main():
-    problem_id = 8
+    problem_id = 3
     problem_file_name = 'problem_%d.json' % problem_id
     path = os.path.join(utils.get_data_dir(), 'qualifier', problem_file_name)
     game_data = read_json(path)
@@ -49,7 +49,7 @@ def main():
             seed = random.randint(0, 100000)
             print('playing game 2 with seed %d' % seed)
             game = big_step_game.BigStepGame.from_json(game_data, seed)
-            game, moves = peluche_scratch.phase_one(game)
+            game, moves = bronze.phase_one(game)
             print(game)
             yield game.move_score
 

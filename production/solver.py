@@ -144,6 +144,8 @@ def fucking_send(solution):
     r   = requests.post(
         goldcfg.url(), auth=('', goldcfg.token()), data=s, headers=hdr)
     assert r.text == 'created'
+    print('sent')
+
 
 def main():
     random.seed(42)

@@ -92,10 +92,13 @@ def cssBoilerplate():
     th {
         text-transform: uppercase;
     }
+    input.clickable {
+        background: #FFC !important;
+    }
     table.contradicting td {
         background-color: #FCC !important;
     }
-    input.clickable {
-        background: #CCC;
+    table.contradicting input.clickable {
+        background: #FCC !important;
     }
     """

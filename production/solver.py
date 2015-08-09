@@ -117,7 +117,7 @@ def get_all_problem_instances():
             yield ProblemInstance(data, seed)
 
 
-def solve(problem_instance):
+def solve(problem_instance, tag_prefix='solve '):
     bsg = big_step_game.BigStepGame.from_json(
         problem_instance.json_data, problem_instance.seed)
     print(bsg)
@@ -132,21 +132,18 @@ def solve(problem_instance):
         seed=problem_instance.seed,
         commands=commands,
         move_score=end_bsg.move_score,
-        power_score=interfaces.compute_power_score(commands))
+        power_score=interfaces.compute_power_score(commands),
+        tag_prefix=tag_prefix)
 
 
 def fucking_send(solution):
-    # TODO: either using Tournament API which is yet to be written
-    #       or some less-generic approach (like getting both score
-    #       and powerScore) instead of using api.httpSubmit(name, soln)
-    #       use api.httpSubmitOwn(name, result, soln)
-    ok = api.httpSubmit("Vlad's solver", solution)
-    if (200, 'Thanks!') == (ok.status_code, ok.text):
-        print("Submission accepted")
-    else:
-        print("Submission rejected")
-        assert False
-
+    # manpages, hands off!
+    # at least this piece works
+    s = json.dumps(solution)
+    hdr = {'content-type': 'application/json'}
+    r   = requests.post(
+        goldcfg.url(), auth=('', goldcfg.token()), data=s, headers=hdr)
+    assert r.text == 'created'
 
 def main():
     random.seed(42)

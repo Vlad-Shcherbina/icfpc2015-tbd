@@ -71,7 +71,7 @@ def gen_output(game, game_ended_excp):
     }
 
 
-def gen_output_raw(id, seed, commands, move_score, power_score):
+def gen_output_raw(id, seed, commands, move_score, power_score, tag_prefix=''):
     '''
     [ { "problemId": number   /* The `id` of the game configuration */
       , "seed":      number   /* The seed for the particular game */
@@ -95,5 +95,5 @@ def gen_output_raw(id, seed, commands, move_score, power_score):
       'problemId': id,
       'seed': seed,
       'solution': commands,
-      'tag': tag
+      'tag': tag_prefix + tag
     }

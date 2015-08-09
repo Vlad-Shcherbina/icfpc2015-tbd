@@ -84,7 +84,7 @@ def phase_one(initial_bsg):
         placement = chose_move_v2(bsg)
         result.append(placement)
         bsg = bsg.lock_unit(placement)
-        print(clr + str(bsg))
+#         print(clr + str(bsg))
     return bsg, result
 
 

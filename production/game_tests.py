@@ -10,6 +10,7 @@ from nose.tools import eq_
 from production import game
 from production import big_step_game
 from production import utils
+from production import interfaces
 from production.interfaces import CHARS_BY_COMMAND, Action
 
 
@@ -128,6 +129,24 @@ class CommonGameTests(object):
             eq_(e.power_score, 300 + 2 * 3 * 1)
         else:
             assert False
+
+
+    def test_custom_power_phrases(self):
+        with interfaces.with_custom_power_phrases(['hello']):
+            assert 'ei!' not in interfaces.POWER_PHRASES
+            g = self.get_2x2_game()
+
+            g.execute_string('Ei!')
+
+            try:
+                while True:
+                    g.execute_char(CHARS_BY_COMMAND[Action.se][0])
+            except game.GameEnded as e:
+                eq_(e.power_score, 0)
+            else:
+                assert False
+        assert 'ei!' in interfaces.POWER_PHRASES
+
 
 
 class PyGameTests(unittest.TestCase, CommonGameTests):

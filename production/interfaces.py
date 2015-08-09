@@ -1,5 +1,6 @@
 from abc import ABCMeta, abstractmethod, abstractproperty
 from enum import Enum
+import contextlib
 
 from production import utils
 
@@ -30,7 +31,7 @@ class IGame:
     @abstractmethod
     def get_current_figure_pivot(self):
         'Return an (x, y) tuple representing the pivot of the current figure (transformed to the field coordinates)'
-        
+
 
 class Action(str, Enum):
     w = 'move_w'
@@ -58,6 +59,16 @@ POWER_PHRASES = ["Ei!", "Ia! Ia!", "R'lyeh", "Yuggoth",
                  "tsathoggua", "yogsothoth", "cthulhu fhtagn!",
                  "john bigboote"]
 POWER_PHRASES = [w.lower() for w in POWER_PHRASES]
+
+
+@contextlib.contextmanager
+def with_custom_power_phrases(phrases):
+    backup = POWER_PHRASES[:]
+    try:
+        POWER_PHRASES[:] = [w.lower() for w in phrases]
+        yield
+    finally:
+        POWER_PHRASES[:] = backup
 
 
 class GameEnded(Exception):

@@ -16,7 +16,7 @@ def get_phrase_submission(phrase):
     g =  game.Game(data, data['sourceSeeds'][0])
     try:
         g.execute_string(phrase)
-    except GameEnded:
+    except (GameEnded, KeyError):
         return None
     c = 'm' if phrase[-1] == 'l' else 'l'
     try:

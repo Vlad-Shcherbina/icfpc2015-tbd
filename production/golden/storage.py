@@ -126,3 +126,13 @@ def getContradictingResults(orderClause=""):
         if invScore != score:
             contradictions.append(sid)
     return run(qResults(("AND S.id in %s" + orderClause) % valueArray(contradictions)))
+
+def getLastSeen():
+    return one("""
+    SELECT fmtTime FROM last_seen;
+    """)[1][0]
+
+def setLastSeen(fmtTime):
+    return run("""
+    UPDATE last_seen SET fmtTime = ?
+    """, (fmtTime,))

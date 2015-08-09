@@ -33,3 +33,9 @@ CREATE TABLE IF NOT EXISTS power_phrases (
    ,submission      INTEGER                         REFERENCES     submissions(id)
    ,status          TEXT            NOT NULL DEFAULT "Not verified"
 );
+
+CREATE TABLE IF NOT EXISTS last_seen (
+    fmtTime         TEXT            NOT NULL DEFAULT "2015-08-08T20:13:03.146Z"
+);
+
+INSERT INTO last_seen (fmtTime) VALUES ("2015-08-08T20:13:03.146Z");

@@ -2,6 +2,7 @@ import json
 import requests as req
 
 from production.golden.storage import addSubmission, storeResultMaybe, getInterestingResults, getContradictingResults
+from production.golden.storage import getLastSeen, setLastSeen
 from production.golden.utils import unixTime, mUnixTime, randomSolution
 from production.golden import goldcfg
 
@@ -46,9 +47,14 @@ def run(s):
 #   fetchDelayed :: () -> SQL StringJSON
 def fetchDelayed():
     y = referenceResults()
+    last_seen  = getLastSeen()
+    logger.info(last_seen)
+    last_seen1 = last_seen
     for i in y:
-        if i['score'] != None and i['createdAt'] > '2015-08-08T20:13:03.146Z':
+        if i['score'] != None and i['createdAt'] > last_seen:
             storeResultMaybe(i, "reference implementation", own=False)
+            last_seen1 = i['createdAt']
+    setLastSeen(last_seen1)
     return y
 
 #   main :: () -> IO ()

@@ -147,11 +147,11 @@ def main():
     all_instances = list(get_all_problem_instances())
     print(len(all_instances), 'problem instances total')
 
-    instance = all_instances[2]
-    solution = solve(instance)
-    print(solution)
+    solutions = list(map(solve, all_instances[10:20]))
 
-    # fucking_send([solution])
+    print(solutions)
+
+    #fucking_send(solutions)
 
 
 if __name__ == '__main__':

@@ -1,6 +1,7 @@
 import hashlib
 import json
 import os
+import re
 
 
 _project_root = os.path.normpath(
@@ -97,3 +98,8 @@ def gen_output_raw(id, seed, commands, move_score, power_score, tag_prefix=''):
       'solution': commands,
       'tag': tag_prefix + tag
     }
+
+
+def score_of_solution(solution):
+    score = re.match('.* \\d+:\\d+:(\\d+)$', solution['tag'])
+    return int(score.group(1)) if score else 0

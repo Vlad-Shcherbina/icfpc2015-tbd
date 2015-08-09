@@ -22,6 +22,9 @@ def main():
 
         g = game.Game(data, data['sourceSeeds'][0])
 
+        print('Seeds (%d): %s' % (
+            len(data['sourceSeeds']),
+            " ".join([str(seed) for seed in data['sourceSeeds']])))
         print(g.show_units())
         print(g)
 

@@ -2,16 +2,20 @@
 
 import argparse
 import contextlib
+import functools
 import json
 import itertools
 import logging
+import multiprocessing
 import os
-import pprint
 import resource
 import signal
 import sys
+import time
+import traceback
 
 from production import interfaces
+from production import utils
 from production import solver
 
 logger = logging.getLogger(__name__)
@@ -103,6 +107,36 @@ def prettify_limit(limit, fmt):
     return fmt % limit if limit != NO_LIMIT else 'no limit'
 
 
+def safe_solve(power_phrases, problem_instance):
+    t0 = time.time()
+    problem_id = problem_instance.json_data['id']
+    seed = problem_instance.seed
+    logging.info('Solving problem %d with seed %d', problem_id, seed)
+
+    # Just to be on the safe side catch all possible exception and return an
+    # empty solution.
+    try:
+        # This is to prevent print()s in the code to pollute stdout and corrupt the
+        # solution.
+        with contextlib.redirect_stdout(sys.stderr):
+            with interfaces.with_custom_power_phrases(power_phrases):
+                solution = solver.solve(
+                    problem_instance, tag_prefix='play_icfp2015 ')
+
+        logging.info(
+            'Problem %d with seed %d solved (total score: %d runtime: %.3fs)',
+            problem_id, seed, utils.score_of_solution(solution),
+            time.time() - t0)
+        return solution
+    except Exception as e:
+        logging.error(
+            'Something went wrong when solving problem %d with seed %d. '
+            'Returning an empty solution (%s)', problem_id, seed, e)
+        return utils.gen_output_raw(
+            id=problem_id, seed=seed, commands='', move_score=0, power_score=0,
+            tag_prefix='play_icfp2015 (error) ')
+
+
 def main():
     logging.basicConfig(level=logging.DEBUG)
     args = parser.parse_args()
@@ -112,27 +146,32 @@ def main():
     power_phrases = [p for p in args.p]
     max_runtime = args.t
     max_memory = args.m
-    cores_available = args.c
+    max_cores = args.c
+
+    if max_cores == NO_LIMIT:
+        cores = multiprocessing.cpu_count()
+    else:
+        cores = min(max_cores, multiprocessing.cpu_count())
 
     logging.info(
         'Loaded %d problems (%d instances) and %d power phrases',
         len(problems), len(problem_instances), len(power_phrases))
     logging.info(
-        'Time limit: %s, memory limit: %s, cores: %s',
+        'Time limit: %s, memory limit: %s, cores: %d '
+        '(%s, %d available)',
         prettify_limit(max_runtime, '%ds'),
         prettify_limit(max_memory, '%dMB'),
-        prettify_limit(cores_available, '%d'))
+        cores, prettify_limit(max_cores, '%d'),
+        multiprocessing.cpu_count())
 
     signal.signal(signal.SIGALRM, alarm_handler)
     signal.alarm(1)
 
-    # This is to prevent print()s in the code to pollute stdout and corrupt the
-    # solution.
-    with contextlib.redirect_stdout(sys.stderr):
-        with interfaces.with_custom_power_phrases(power_phrases):
-            solutions = []
-            for problem_instance in problem_instances:
-                solutions.append(solver.solve(problem_instance))
+
+    pool = multiprocessing.Pool(cores)
+    solutions = pool.map(
+        functools.partial(safe_solve, power_phrases),
+        problem_instances)
 
     json.dump(solutions, sys.stdout)
 

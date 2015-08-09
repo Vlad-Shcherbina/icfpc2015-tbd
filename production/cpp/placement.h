@@ -82,8 +82,10 @@ struct Graph {
     return result;
   }
 
- private:
   std::vector<std::array<int, 6> > tr;
   std::vector<Placement> meaning;
   int start_node;
 };
+
+
+std::vector<std::vector<int> > StronglyConnectedComponents(const Graph &graph);

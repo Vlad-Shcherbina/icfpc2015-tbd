@@ -94,10 +94,10 @@ def alarm_handler(*args):
 def load_problems(path):
     problem_instances = []
     with open(path) as problem:
-        logging.info('Loading %s', path)
         problem = json.load(problem)
         for seed in problem['sourceSeeds']:
             problem_instances.append(solver.ProblemInstance(problem, seed))
+        logging.debug('Loaded %s (%d seeds)', path, len(problem['sourceSeeds']))
     return problem_instances
 
 
@@ -154,6 +154,7 @@ def main():
     logging.info(
         'Loaded %d problems (%d instances) and %d power phrases',
         len(problems), len(problem_instances), len(power_phrases))
+    logging.info('Power phrases: %r', power_phrases)
     logging.info(
         'Time limit: %s, memory limit: %s, cores: %d '
         '(%s, %d available)',
@@ -164,7 +165,6 @@ def main():
 
     signal.signal(signal.SIGALRM, alarm_handler)
     signal.alarm(1)
-
 
     pool = multiprocessing.Pool(cores)
     solutions = pool.map(

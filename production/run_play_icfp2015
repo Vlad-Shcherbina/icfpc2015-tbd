@@ -1,0 +1,22 @@
+#!/usr/bin/env python3
+
+import glob
+import os
+import subprocess
+
+from production import interfaces
+from production import utils
+
+problems = sorted(glob.glob(os.path.join(utils.get_data_dir(), 'qualifier/problem_*.json')))
+
+exe = os.path.join(utils.get_project_root(), 'production/play_icfp2015')
+cmdline = [exe]
+
+for problem in sorted(glob.glob(os.path.join(utils.get_data_dir(), 'qualifier/problem_*.json'))):
+  cmdline.append('-f')
+  cmdline.append(problem)
+for power_phrase in interfaces.POWER_PHRASES:
+  cmdline.append('-p')
+  cmdline.append(power_phrase)
+
+subprocess.call(cmdline)

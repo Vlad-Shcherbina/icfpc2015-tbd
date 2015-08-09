@@ -152,7 +152,10 @@ def main():
     all_instances = list(get_all_problem_instances())
     print(len(all_instances), 'problem instances total')
 
-    solutions = list(map(solve, all_instances[10:20]))
+    instances = [i for i in all_instances if i.json_data['id'] in range(15, 20)]
+    print(len(instances), 'instances to solve')
+
+    solutions = list(map(solve, instances))
 
     print(solutions)
 

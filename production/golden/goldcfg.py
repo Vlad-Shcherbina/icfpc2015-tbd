@@ -3,3 +3,6 @@ def token():
 
 def url():
     return 'https://davar.icfpcontest.org/teams/93/solutions'
+
+def us():
+    return 'http://127.0.0.1:55315'

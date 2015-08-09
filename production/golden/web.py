@@ -4,6 +4,7 @@ import tornado.web
 import json
 
 from production.golden import webhelpers as wh
+from production.golden import api
 
 class Main(tornado.web.RequestHandler):
     def get(self):
@@ -19,11 +20,25 @@ class Main(tornado.web.RequestHandler):
         <h2 onclick="toggle('interesting')">Scoring submissions<sup>click to toggle</sup></h2>%s
         """ % wh.interestingResults())
 
+class Own(tornado.web.RequestHandler):
+    def get(self, req):
+        req = json.loads(req)
+        api.storeOwnResult( req['user']
+                          , req['result']
+                          , req['solution']
+                          , 'Output by %s' % req['user'] )
+        self.write('Thanks!')
+
+class Snd(tornado.web.RequestHandler):
+    def get(self, req):
+        req = json.loads(req)
+        api.runReference(req['solution'], 'Testing %s' % req['user'])
+        self.write('Thanks!')
+
 class Submit(tornado.web.RequestHandler):
     def get(self, req):
         self.set_header("Content-Type", "text/html")
         req = json.loads(req)
-        from production.golden import api
         api.storeOwnResult(
             req['user'], req['result'], req['solution'],
             '%s playing' % req['user'])
@@ -41,7 +56,6 @@ class Run(tornado.web.RequestHandler):
 class GetSubmission(tornado.web.RequestHandler):
     def get(self, req):
         self.set_header("Content-Type", "text/json")
-        from production.golden import api
         data = api.getSubmission(req)
         if not data:
             raise tornado.web.HTTPError(404)

@@ -14,6 +14,7 @@ from production import big_step_game
 from production import utils
 from production import interfaces
 from production.golden import goldcfg
+from production.golden import api
 #from production.interfaces import GameEnded, Action
 #from production.cpp.placement import Graph
 
@@ -134,11 +135,11 @@ def solve(problem_instance):
 
 
 def fucking_send(solution):
-    s = json.dumps(solution)
-    hdr = {'content-type': 'application/json'}
-    r   = requests.post(
-        goldcfg.url(), auth=('', goldcfg.token()), data=s, headers=hdr)
-    assert r.text == 'created'
+    ok = api.httpSubmit("Vlad's solver", solution)
+    if (200, 'Thanks!') == (ok.status_code, ok.text):
+        print("Submission accepted")
+    else:
+        print("Submission rejected")
 
 
 def main():
@@ -151,7 +152,7 @@ def main():
 
     print(solutions)
 
-    #fucking_send(solutions)
+    fucking_send(solutions)
 
 
 if __name__ == '__main__':

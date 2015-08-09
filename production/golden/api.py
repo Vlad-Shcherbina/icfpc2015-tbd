@@ -4,6 +4,7 @@ import requests as req
 from production.golden import storage
 from production.golden import goldcfg
 from production.golden import runner
+from production.golden import utils
 
 import logging
 logger = logging.getLogger(__name__)
@@ -12,24 +13,47 @@ logger = logging.getLogger(__name__)
 def mkDict(problem, seed, tag, solution):
     return {'problem': int(problem), 'seed': int(seed), 'tag': tag, 'solution': solution}
 
+# Stores locally computed score on central server
+# without submitting it to organizers 
+def httpOwn(user, result):
+    return req.get(goldcfg.us() + '/own/%s' % json.dumps({ 'user':      user
+                                                         , 'result':    result
+                                                         , 'solution':  solution }))
+
+# Submits solution to organizers 
+# without storing it on central server.
+def httpSubmit(user, solution):
+    return req.get(goldcfg.us() + '/snd/%s' % json.dumps({ 'user':     user
+                                                         , 'solution': solution }))
+
+# Submits solution to organizers and stores it on central server.
+def httpSubmitOwn(user, result, solution):
+    return req.get(goldcfg.us() + '/submit/%s' % json.dumps({ 'user':      user
+                                                            , 'result':    result
+                                                            , 'solution':  solution }))
+
 # Runs a solution against reference implementation,
 # stores promise to provide score in SQLite.
 # Dict must be an dictionary that translates to valid JSON
 # see mkDict above.
 def runReference(x, k="Unknown purpose"):
-    return runner.runDict(x, k)
+    if isinstance(x, dict):
+        return runner.runDict(x, k)
+    return runner.runDicts(x, k)
 
 # Ditto
 def runReferenceJSON(x, k="Unknown purpose"):
-    return runner.runDict(json.loads(x), k)
+    return runReference(json.loads(x), k)
 
 # Ditto
 def justRunReference(x, k="Unknown purpose"):
-    return runner.runDict(x, k, withSQL=False)
+    if isinstance(x, dict):
+        return runner.runDict(x, k, withSQL=False)
+    return runner.runDicts(x, k, withSQL=False)
 
 # Ditto
 def justRunReferenceJSON(x, k="Unknown purpose"):
-    return runner.runDict(json.loads(x), k, withSQL=False)
+    return justRunReference(json.loads(x), k)
 
 # Stores result, computed by one of our own implementation.
 # For submission and result is similar to reference API except

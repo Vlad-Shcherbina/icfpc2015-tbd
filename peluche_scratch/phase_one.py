@@ -145,7 +145,7 @@ def score_placement_v2(placement, bsg, filled, line_has):
     nb_collapse = count_collapse(placement, line_has)
     return (1 * sum_height +
             3 * nb_contacts +
-            8 * nb_collapse)
+            8 * nb_collapse ** 2)
 
 def chose_move_v2(bsg):
     filled = bsg.filled
@@ -164,7 +164,7 @@ def phase_one(initial_bsg):
         placement = chose_move_v2(bsg)
         result.append(placement)
         bsg = bsg.lock_unit(placement)
-#         print(clr + str(bsg))
+        print(clr + str(bsg))
     return bsg, result
 
 

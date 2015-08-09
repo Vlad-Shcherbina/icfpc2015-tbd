@@ -58,13 +58,28 @@ class BigStepGame(object):
 
         bsg.units = list(map(game.Unit, json_data['units']))
 
+        bsg.cpp_units = []
+        for unit in bsg.units:
+          unit_builder = cpp_placement.UnitBuilder()
+          for shapes in [unit.even_shapes, unit.odd_shapes]:
+            for angle, shape in enumerate(shapes):
+              for cell_x, cell_y in shape.members:
+                unit_builder.SetCell(
+                    shape.pivot_x, shape.pivot_y, angle,
+                    shape.min_x, shape.min_y,
+                    shape.max_x, shape.max_y,
+                    cell_x, cell_y)
+          bsg.cpp_units.append(unit_builder.Build(bsg.width, bsg.height))
+
         bsg.move_score = 0
         bsg.ls_old = 0
         bsg.game_ended = False
         bsg.reason = None
 
         bsg.current_unit = None
+        bsg.current_cpp_unit = None
         bsg.initial_placement = None
+
         bsg.pick_next_unit()
 
         return bsg
@@ -87,7 +102,9 @@ class BigStepGame(object):
 
         bsg.filled = copy.copy(self.filled)
 
-        bsg.units = self.units  # no need in deep copy because they don't change
+        # no need in deep copy because they don't change
+        bsg.units = self.units
+        bsg.cpp_units = self.cpp_units
 
         bsg.move_score = self.move_score
         bsg.ls_old = self.ls_old
@@ -141,7 +158,9 @@ class BigStepGame(object):
         self.remaining_units -= 1
 
         x = self.lcg.pop(0)
+        assert len(self.units) == len(self.cpp_units)
         self.current_unit = self.units[x % len(self.units)]
+        self.current_cpp_unit = self.cpp_units[x % len(self.cpp_units)]
         self.initial_placement = \
             self.current_unit.get_inital_placement(self.width)
         if not self.can_place(self.initial_placement):
@@ -190,6 +209,15 @@ class BigStepGame(object):
         raise NotImplementedError()
 
     def get_placement_graph(self):
+      return self.get_placement_graph_twice()
+
+    def get_placement_graph_twice(self):
+      cpp_graph = self.get_placement_graph_cpp()
+      py_graph = self.get_placement_graph_py()
+      assert cpp_placement.IsIdentical(cpp_graph, py_graph)
+      return py_graph
+
+    def get_placement_graph_py(self):
         num_placements = 1
         # <placement>: placement index
         placements = {self.initial_placement : 0}
@@ -231,6 +259,21 @@ class BigStepGame(object):
         result.SetStartNode(placements[self.initial_placement])
 
         return result
+
+    def get_placement_graph_cpp(self):
+      graph_builder = cpp_placement.GraphBuilder(self.width, self.height)
+
+      for x, y in self.filled:
+        graph_builder.FillCell(x, y)
+
+      graph_builder.SetCurrentUnit(self.current_cpp_unit)
+      graph_builder.ComputeValidPlacements()
+
+      p = self.initial_placement
+      result = graph_builder.Build(p.pivot_x, p.pivot_y, p.angle)
+
+      return result
+
 
     def get_placement_by_node_index(self, placement_graph, index):
         return game.Placement(

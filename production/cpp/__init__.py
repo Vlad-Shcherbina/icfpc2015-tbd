@@ -20,7 +20,7 @@ def setup():
                     ['placement.i', 'placement.cpp'],
                     depends=['placement.h'],
                     swig_opts=['-c++'],
-                    extra_compile_args=['-std=c++11'],
+                    extra_compile_args=['-std=c++11', '-Wno-sign-compare'],
                     undef_macros=['NDEBUG'],  # want assertions
                 ),
             ],
@@ -28,6 +28,7 @@ def setup():
         )
     finally:
         os.chdir(cur_dir)
+
 
 
 # Make sure everything goes to stderr otherwise we risk to pollute to output of

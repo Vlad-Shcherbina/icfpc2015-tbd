@@ -1,11 +1,13 @@
 #pragma once
 
-#include <cassert>
 #include <array>
+#include <cassert>
+#include <iostream>
+#include <map>
 #include <vector>
 
-
 struct Graph {
+  Graph() {}
   Graph(int size) : tr(size), meaning(size) {}
 
   // Order should be in sync with INDEXED_ACTIONS in big_step_game.py!
@@ -104,9 +106,99 @@ struct Graph {
   int start_node;
 };
 
+inline bool operator==(const Graph::Placement& a, const Graph::Placement& b) {
+  return a.x == b.x && a.y == b.y && a.angle == b.angle;
+}
+
+inline bool IsIdentical(const Graph& a, const Graph& b) {
+  return
+      a.tr == b.tr &&
+      a.meaning == b.meaning &&
+      a.start_node == b.start_node;
+}
+
+struct Unit {
+  Unit() : num_angles(0) {}
+
+  struct ShapeSegment {
+    ShapeSegment() : mask(0) {}
+
+    uint64_t mask;
+
+    int pivot_dx;
+    int pivot_dy;
+    int angle;
+
+    int begin_pos_x, end_pos_x;
+    int begin_pos_y, end_pos_y;
+  };
+
+  std::vector<ShapeSegment> segments;
+  int num_angles;
+};
+
+class UnitBuilder {
+ public:
+  void SetCell(
+      int pivot_x, int pivot_y, int angle,
+      int min_x, int min_y,
+      int max_x, int max_y,
+      int cell_x, int cell_y) {
+    shapes_[std::make_tuple(pivot_x, pivot_y, angle)].SetCell(
+        min_x, min_y, max_x, max_y, cell_x, cell_y);
+  }
+
+  Unit Build(int board_width, int board_height);
+
+ private:
+  struct Shape {
+    void SetCell(
+        int min_x, int min_y,
+        int max_x, int max_y,
+        int cell_x, int cell_y);
+
+    std::vector<std::vector<uint64_t> > mask;
+    int min_x, min_y, max_x, max_y;
+  };
+
+  std::map<std::tuple<int, int, int>, Shape> shapes_;
+};
+
+class GraphBuilder {
+ public:
+  GraphBuilder(int board_width, int board_height)
+      : board_(board_height, std::vector<uint64_t>((board_width + 63) / 64)) {}
+
+  void FillCell(int x, int y) {
+    // Least significant bit is bit 0.
+    board_[y][x / 64] |= 1ULL << (x % 64);
+    is_invalid_pos_.clear();
+  }
+
+  void SetCurrentUnit(const Unit* unit) {
+    current_unit_ = unit;
+    is_invalid_pos_.clear();
+  }
+
+  void ComputeValidPlacements();
+  Graph Build(int pivot_x, int pivot_y, int angle);
+
+  bool IsValidPlacement(int pivot_x, int pivot_y, int angle) const {
+    return IsValidPlacement(std::make_tuple(pivot_x, pivot_y, angle));
+  }
+
+ private:
+  bool IsValidPlacement(const std::tuple<int, int, int>& pos) const {
+    auto it = is_invalid_pos_.find(pos);
+    return it != is_invalid_pos_.end() && it->second == false;
+  }
+
+  const Unit* current_unit_;
+  std::vector<std::vector<uint64_t> > board_;
+  std::map<std::tuple<int, int, int>, bool> is_invalid_pos_;
+};
 
 std::vector<std::vector<int> > StronglyConnectedComponents(const Graph &graph);
-
 
 class DFA {
 public:

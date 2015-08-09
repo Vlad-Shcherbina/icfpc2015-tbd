@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import glob
+import json
 import os
 import subprocess
 
@@ -19,4 +20,16 @@ for power_phrase in interfaces.POWER_PHRASES:
   cmdline.append('-p')
   cmdline.append(power_phrase)
 
-subprocess.call(cmdline)
+p = subprocess.Popen(cmdline, bufsize=2**11, stdout=subprocess.PIPE)
+out = str(p.stdout.read(), 'UTF-8')
+
+sols = []
+tot_score = 0
+for sol in json.loads(out):
+  sols.append((sol['problemId'], sol['seed'], utils.score_of_solution(sol)))
+  tot_score += utils.score_of_solution(sol)
+
+for sol in sorted(sols):
+  print('Problem: %-8d     Seed: %-8d     Score: %d' % sol)
+
+print('Total score: %d' % tot_score)

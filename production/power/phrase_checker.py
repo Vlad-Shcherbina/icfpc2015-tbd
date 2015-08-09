@@ -33,6 +33,7 @@ def main():
             if not phrase:
                 continue
             print('Checking phrase "%s"' % phrase)
+            phrase = phrase.replace('-', '')
             try:
                 if phrase.lower() in known_phrases:
                     print("Already known")

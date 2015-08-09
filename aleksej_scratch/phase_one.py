@@ -15,9 +15,6 @@ from production import utils
 from production import interfaces
 from production.golden import goldcfg
 from production.golden import api
-#from production.interfaces import GameEnded, Action
-#from production.cpp.placement import Graph
-
 
 
 def get_possible_placements(bsg):
@@ -34,8 +31,8 @@ def score_game_pos(game, last_move):
     density_score = 0
     density_check = 0
     for x, y in last_move.get_members():
-        xx = [x + i for i in range(-1, 1)]
-        yy = [y + i for i in range(-1, 1)]
+        xx = [x + i for i in range(-2, 2)]
+        yy = [y + i for i in range(-2, 2)]
         has_neibour = [(a, b) in game.filled for a in xx for b in yy]
         density_check += len(has_neibour)
         density_score += sum(has_neibour)
@@ -60,17 +57,18 @@ def find_next_placement(game):
     assert(result)
     return result
 
-def play_game(game):
+
+def phase_one(game):
+    time_left_func = lambda: 1000
     result = []
-    turn_cnt = 0
     while not game.game_ended:
         placement = find_next_placement(game)
         result.append(placement)
         game = game.lock_unit(placement)
-        turn_cnt += 1
-#        if turn_cnt % 10 == 0:
-#            print('current turn %d' % turn_cnt)
-    return result, game
+        if time_left_func() < 0:
+            break
+    return game, result
+
 
 
 def print_game_result(problem_id, games, comment=''):
@@ -88,20 +86,22 @@ def read_json(filename):
     with open(path) as f:
         return json.load(f)
 
+#def generated_seeds():
+#    pass
 
 def main():
-    problem_id = 3
+    problem_id = 2
     problem_file_name = 'problem_%d.json' % problem_id
     path = os.path.join(utils.get_data_dir(), 'qualifier', problem_file_name)
     game_data = read_json(path)
     all_games = dict()
     for seed in game_data['sourceSeeds']:
         game = big_step_game.BigStepGame.from_json(game_data, seed)
-        moves, game = play_game(game)
+        game, moves = phase_one(game)
         all_games[seed] = game
         print(game)
 
-    #print_game_result(problem_id, all_games, 'deepest min-max per figure')
+    #print_game_result(problem_id, all_games, 'more_area_to_analyse')
     #print_game_result(problem_id, all_games, 'neighbor analysis')
 
 

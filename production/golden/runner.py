@@ -29,11 +29,12 @@ def sampleDict0():
 def runDict(x, k):
     return runDicts([x], k)
 
-#   runDicts :: [SubmissionDict] -> Kind -< SQL ()
-def runDicts(xs, k):
+#   runDicts :: [SubmissionDict] -> Kind -< Either (SQL Bool, Bool)
+def runDicts(xs, k, withSQL=True):
     assert(run(json.dumps(xs)))
-    for x in xs:
-        addSubmission(x, k)
+    if withSQL:
+        for x in xs:
+            addSubmission(x, k)
     return True
 
 #   run :: SubmissionJSON -> HTTPRequest

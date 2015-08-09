@@ -23,6 +23,14 @@ def runReference(x, k="Unknown purpose"):
 def runReferenceJSON(x, k="Unknown purpose"):
     return runner.runDict(json.loads(x), k)
 
+# Ditto
+def justRunReference(x, k="Unknown purpose"):
+    return runner.runDict(x, k, withSQL=False)
+
+# Ditto
+def justRunReferenceJSON(x, k="Unknown purpose"):
+    return runner.runDict(json.loads(x), k, withSQL=False)
+
 # Stores result, computed by one of our own implementation.
 # For submission and result is similar to reference API except
 # it doesn't require result to contain meta-fields such as

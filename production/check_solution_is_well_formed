@@ -1,0 +1,11 @@
+#!/usr/bin/env python3
+
+import sys
+import json
+
+try:
+    json.load(sys.stdin)
+except Exception:
+    print('\033[91m!!!! The solution is not a valid JSON file !!!!\033[0m\n')
+    print('Most likely the problem is that the program prints garbage on stdout')
+    exit(1)

@@ -47,8 +47,10 @@ def css():
     return """
     %s
     .solution {
-        word-wrap: break-word;
-        max-width: 200px;
+        max-width: 400px;
+    }
+    .name {
+        max-width: 100px;
     }
     """ % cssBoilerplate()
 
@@ -99,6 +101,6 @@ def cssBoilerplate():
         text-transform: uppercase;
     }
     table.contradicting td {
-        background-color: red !important;
+        background-color: #FCC !important;
     }
     """

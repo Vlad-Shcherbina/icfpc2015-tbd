@@ -18,8 +18,8 @@ from production.golden import goldcfg
 from production.golden import api
 
 
-N = 10
-MAX_GAMES = 100
+N = 5
+MAX_GAMES = 30
 
 def find_interval(values):
     average = 1.0 * sum(values) / len(values)

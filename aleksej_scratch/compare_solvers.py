@@ -18,7 +18,7 @@ from production.golden import api
 
 from aleksej_scratch import solved_cmp
 
-from aleksej_scratch import phase_one as candidate_solver
+from peluche_scratch import phase_one as candidate_solver
 from production import bronze
 
 
@@ -40,7 +40,6 @@ def test_problem(problem_id):
             game = big_step_game.BigStepGame.from_json(game_data, seed)
             game, moves = candidate_solver.phase_one(game)
             print('played candidate game %d with seed %d scored %d' % (problem_id, seed, game.move_score))
-#            print(game)
             yield game.move_score
 
     def play_dist2_games():
@@ -49,7 +48,6 @@ def test_problem(problem_id):
             game = big_step_game.BigStepGame.from_json(game_data, seed)
             game, moves = bronze.phase_one(game)
             print('played production game %d with seed %d scored %d' % (problem_id, seed, game.move_score))
- #           print(game)
             yield game.move_score
 
     return solved_cmp.compare_solver(play_dist1_games(), play_dist2_games())
@@ -57,7 +55,9 @@ def test_problem(problem_id):
 
 def main():
     res = []
-    for problem_id in range(0, 24):
+    # Change to range(25) if you want to run it for ALL tests.
+    imporant_test = [5, 6, 7, 20, 14, 22]
+    for problem_id in imporant_test:
         print('Testing problem %d' % problem_id)
         t = test_problem(problem_id)
         res.append(t)

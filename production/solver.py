@@ -156,7 +156,7 @@ def main():
 
     print(solutions)
 
-    fucking_send(solutions)
+    # fucking_send(solutions)
 
 
 if __name__ == '__main__':

@@ -82,6 +82,23 @@ struct Graph {
     return result;
   }
 
+  // Add new node. Its transitions are looped to itself.
+  // Return its index.
+  int AddNewNode() {
+    int node = tr.size();
+
+    tr.emplace_back();
+    for (int i = 0; i < 6; i++)
+      tr[node][i] = node;
+
+    meaning.emplace_back();
+    meaning.back().x = -1;
+    meaning.back().y = -1;
+    meaning.back().angle = -1; // this angle is intentionally impossible
+
+    return node;
+  }
+
   std::vector<std::array<int, 6> > tr;
   std::vector<Placement> meaning;
   int start_node;

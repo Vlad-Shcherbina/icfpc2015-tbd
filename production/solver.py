@@ -51,15 +51,16 @@ def dummy_phase_two(initial_bsg, locking_placements):
             placement.pivot_x, placement.pivot_y, placement.angle)
         print(dst_node)
 
-        path = path_in_graph(graph, graph.GetStartNode(), dst_node)
+        exit_node = graph.AddNewNode()
 
-        # Add final locking move.
+        found = False
         for cmd in range(6):
             if graph.GetNext(dst_node, cmd) == graph.COLLISION:
-                break
-        else:
-            assert False, 'locking move not found'
-        path.append(cmd)
+                graph.SetNext(dst_node, cmd, exit_node)
+                found = True
+        assert found, 'locking move not found'
+
+        path = path_in_graph(graph, graph.GetStartNode(), exit_node)
 
         print(path)
         for cmd in path:
@@ -144,6 +145,7 @@ def fucking_send(solution):
         print("Submission accepted")
     else:
         print("Submission rejected")
+        assert False
 
 
 def main():

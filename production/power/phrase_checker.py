@@ -9,8 +9,8 @@ class InvalidPhrase(BaseException):
     pass
 
 
-def check_phrase(phrase):
-    submission = get_phrase_submission(phrase)
+def check_phrase(phrase, problem=24):
+    submission = get_phrase_submission(phrase, problem)
     if submission is None:
         raise InvalidPhrase
     solution, result = submission

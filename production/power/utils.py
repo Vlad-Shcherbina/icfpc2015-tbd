@@ -7,12 +7,12 @@ import json
 
 # Accepts a potential power phrase and returns None if it is impossible to build
 # or tuple for httpSubmitOwn otherwise.
-def get_phrase_submission(phrase):
+def get_phrase_submission(phrase, problem=24):
     phrase = phrase.lower()
-    path = os.path.join(utils.get_data_dir(), 'qualifier/problem_24.json')
+    path = os.path.join(utils.get_data_dir(), 'qualifier/problem_%d.json' % problem)
     with open(path) as fin:
         data = json.load(fin)
-        data['problemId'] = 24
+        data['problemId'] = problem
     g =  game.Game(data, data['sourceSeeds'][0])
     c = 'm' if phrase[0] == 'l' else 'l'
     c *= 5

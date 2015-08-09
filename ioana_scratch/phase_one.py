@@ -17,7 +17,7 @@ from production.golden import goldcfg
 from production.golden import api
 #from production.interfaces import GameEnded, Action
 #from production.cpp.placement import Graph
-
+clr = "\x1b\x5b\x48\x1b\x5b\x32\x4a"
 
 
 def get_possible_placements(bsg):
@@ -31,6 +31,9 @@ def get_pair(member):
 def get_y(member):
     return get_pair(member)[1]
 
+def get_x(member):
+    return get_pair(member)[0]
+
 def get_depthest_cell(placements):
     if len(placements) == 0:
         return placements
@@ -42,6 +45,20 @@ def get_depthest_cell(placements):
             max_y = y
             result = []
         if y == max_y:
+            result.append(position)
+    return result
+
+def get_most_left_cell(placements):
+    if len(placements) == 0:
+        return placements
+    result = []
+    min_x = get_x(placements[0].get_members())
+    for position in placements:
+        x = get_x(position.get_members()) 
+        if x < min_x:
+            min_x = x
+            result = []
+        if x == min_x:
             result.append(position)
     return result
 
@@ -61,6 +78,8 @@ def phase_one(initial_bsg):
         placement = random.choice(depthest_destination_cells)
         result.append(placement)
         bsg = bsg.lock_unit(placement)
+        print(clr+str(bsg))
+        input()
 
     return bsg, result
 
@@ -83,7 +102,7 @@ def phase_one_random(initial_bsg):
 
 def main():    
     for j in range(0, 25):
-        output_file = 'result_' + str(j)
+        output_file = 'result__' + str(j)
         with open(output_file, "w") as fout:
             fout.write('')
         input_file = 'qualifier/problem_' + str(j) + '.json'
@@ -93,29 +112,10 @@ def main():
 
         seeds = data['sourceSeeds']
         bsg = big_step_game.BigStepGame.from_json(data, seeds[0])
-        print(bsg)
 
-        total_score_random = 0.0
-        total_score_depthest = 0.0
-        total_games = 10
-
-        for i in range(total_games):
-            message = "Now playing game " + str(i) + "\n"
-            end_bsg, placments = phase_one(bsg)
-            total_score_depthest += end_bsg.move_score
-            message += 'Final score depthest:' + str(end_bsg.move_score) + '\n'
-            message += str(end_bsg) + '\n'
-            message += '============================= vs ==============================\n'
-            end_bsg, placments = phase_one_random(bsg)
-            total_score_random += end_bsg.move_score
-            message += 'Final score random:' + str(end_bsg.move_score) + '\n'
-            message += str(end_bsg) + '\n\n'
-            with open(output_file, "a") as fout:
-                fout.write(message)
-        depthest_avg = total_score_depthest / total_games;
-        random_avg = total_score_random / total_games;
-        with open(output_file, "a") as fout:
-                fout.write("depthest avg = " + str(depthest_avg) + "\nrandom avg = " + str(random_avg));
+        end_bsg, placments = phase_one(bsg)
+        total_score_depthest += end_bsg.move_score
+        print ()
 
 
 if __name__ == '__main__':

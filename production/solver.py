@@ -135,6 +135,10 @@ def solve(problem_instance):
 
 
 def fucking_send(solution):
+    # TODO: either using Tournament API which is yet to be written
+    #       or some less-generic approach (like getting both score
+    #       and powerScore) instead of using api.httpSubmit(name, soln)
+    #       use api.httpSubmitOwn(name, result, soln)
     ok = api.httpSubmit("Vlad's solver", solution)
     if (200, 'Thanks!') == (ok.status_code, ok.text):
         print("Submission accepted")

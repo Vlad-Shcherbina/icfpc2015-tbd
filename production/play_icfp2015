@@ -140,6 +140,7 @@ def safe_solve(power_phrases, problem_instance):
 
 
 def main():
+    start_time = time.time()
     logging.basicConfig(level=logging.DEBUG)
     args = parser.parse_args()
 
@@ -174,6 +175,21 @@ def main():
     solutions = pool.map(
         functools.partial(safe_solve, power_phrases),
         problem_instances)
+
+    scores = []
+    total_score = 0
+    for solution in solutions:
+        score = utils.score_of_solution(solution)
+        scores.append((
+            solution['problemId'], solution['seed'],
+            score))
+        total_score += score
+
+    logging.info('Total score: %d', total_score)
+    logging.info('Totoal runtime: %ds', time.time() - start_time)
+
+    for score in sorted(scores):
+        logging.info('Problem: %-8d     Seed: %-8d     Score: %d', *score)
 
     json.dump(solutions, sys.stdout)
 

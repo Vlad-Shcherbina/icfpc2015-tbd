@@ -106,16 +106,22 @@ def getContradictingResults(orderClause=""):
     SELECT S.id
          , C.score
          , C.powerScore
-    FROM ( submissions AS S
-         , scores      AS C )
-    WHERE C.submission = S.id
+         , I.name
+    FROM ( submissions     AS S
+         , scores          AS C 
+         , implementations AS I )
+    WHERE C.submission = S.id AND C.implementation = I.id
     """)[1]
     candidates = {}
     contradictions = []
-    for (sid, score, powerScore) in submissions:
+    for (sid, score, powerScore, implementation) in submissions:
+        if implementation != 'reference implementation':
+            score = score + powerScore
         if sid not in candidates:
             candidates[sid] = (score, powerScore)
         (invScore, invPowerScore) = candidates[sid]
-        if (invScore != score) or (invPowerScore != powerScore):
+        # powerScore is computed in a strange way in reference implementation, ignore it for now
+        # if (invScore != score) or (invPowerScore != powerScore):
+        if invScore != score:
             contradictions.append(sid)
     return run(qResults(("AND S.id in %s" + orderClause) % valueArray(contradictions)))

@@ -42,7 +42,7 @@ def phase_one(initial_bsg):
         result.append(placement)
         bsg = bsg.lock_unit(placement)
 
-    return result
+    return bsg, result
 
 
 def main():
@@ -55,7 +55,9 @@ def main():
     print(bsg)
 
 
-    phase_one(bsg)
+    end_bsg, placments = phase_one(bsg)
+
+    print('Final score:', end_bsg.move_score)
 
 
 if __name__ == '__main__':

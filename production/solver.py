@@ -21,7 +21,7 @@ from production.golden import api
 
 def dummy_phase_one(initial_bsg):
     '''
-    Return list of Placements nodes, where to lock units.
+    Return pair (end_bsg, list of Placements nodes to where to lock units).
     '''
 
     result = []
@@ -35,7 +35,7 @@ def dummy_phase_one(initial_bsg):
         result.append(placement)
         bsg = bsg.lock_unit(placement)
 
-    return result
+    return bsg, result
 
 
 def dummy_phase_two(initial_bsg, locking_placements):
@@ -121,7 +121,7 @@ def solve(problem_instance):
         problem_instance.json_data, problem_instance.seed)
     print(bsg)
 
-    locking_placements = dummy_phase_one(bsg)
+    _, locking_placements = dummy_phase_one(bsg)
     print(locking_placements)
 
     end_bsg, commands = dummy_phase_two(bsg, locking_placements)

@@ -3,6 +3,8 @@ import json
 from production.golden import api
 
 def rearrangeSubmissionTable(rs):
+    if not rs:
+        return ()
     def rearrangeRow(xs):
         (name, id, tag, problem, seed, solution, status, kind, timestamp, score, powerScore) = xs
         return (name, id, tag, score, powerScore, problem, seed, status, kind, timestamp, solution)

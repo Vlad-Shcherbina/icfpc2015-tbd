@@ -13,6 +13,7 @@ from production import game
 from production import interfaces
 from production.interfaces import GameEnded, Action
 from production.cpp.placement import Graph
+from production.cpp import placement as cpp_placement
 
 
 # Order should be in sync with enum Command in placements.h!
@@ -249,6 +250,12 @@ class StepGameAdapter(interfaces.IGame):
                 reason=self.bsg.reason)
         self.graph = self.bsg.get_placement_graph()
         self.current_node = self.graph.GetStartNode()
+
+        # Sanity check for SCC
+        scc = cpp_placement.StronglyConnectedComponents(self.graph)
+        assert sum(map(len, scc)) == self.graph.GetSize()
+        xs = sum(scc, ())
+        assert len(xs) == len(set(xs))
 
     @property
     def filled(self):

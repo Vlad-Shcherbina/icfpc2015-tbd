@@ -34,7 +34,6 @@ public:
   }
 
   void StrongConnect(int v) {
-    cout << "sc " << v << endl;
     assert(v >= 0);
     assert(v < graph.GetSize());
 

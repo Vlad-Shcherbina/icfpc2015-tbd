@@ -4,14 +4,13 @@ import os
 
 from production import utils
 
-db = s.connect(os.path.join(utils.get_project_root(), 'production', 'golden', 'sshfs-db', 'tbd.db'))
 logger = logging.getLogger(__name__)
 
 def one(q, a=()):
   return run(q, a, lambda x: x.fetchone())
 
 def run(q, a=(), f=(lambda x: x.fetchall())):
-    global db
+    db = s.connect(os.path.join(utils.get_project_root(), 'production', 'golden', 'sshfs-db', 'tbd.db'))
     global logger
     with db:
         e = db.cursor()

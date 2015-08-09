@@ -18,7 +18,8 @@ from production.golden import goldcfg
 from production.golden import api
 
 
-N = 5
+N = 10
+MAX_GAMES = 100
 
 def find_interval(values):
     average = 1.0 * sum(values) / len(values)
@@ -37,21 +38,19 @@ def compare_solver(gen1, gen2):
     count = 0
     while True:
         count += 1
-        if count > 1000:
+        if count > MAX_GAMES:
             return 0, (a, b), (c, d)
         a, b = find_interval(data1)
         c, d = find_interval(data2)
-        print(max(len(data1), len(data2)), (a, b), (c, d))
+        # print(max(len(data1), len(data2)), (a, b), (c, d))
         if b < c:
             return -1, (a, b), (c, d)
         if a > d:
             return 1, (a, b), (c, d)
         if b - a > d - c:
             data1.append(next(gen1))
-#            print('extract point 1')
         else:
             data2.append(next(gen2))
-#            print('extract point 2')
 
 def main():
     random.seed(42)

@@ -2,13 +2,19 @@
 
 import argparse
 import json
+import itertools
 import logging
 import os
 import pprint
 import resource
 import signal
+import sys
+
+from production import solver
 
 logger = logging.getLogger(__name__)
+
+NO_LIMIT = -1
 
 parser = argparse.ArgumentParser()
 # The parameter -f may be provided multiple times, which means that the program
@@ -19,21 +25,21 @@ parser.add_argument('-f', action='append', default=[],
 # output for all problems. If it has not finished, the program will be killed
 # after that many seconds. If -t is not provided, no time limit is imposed on
 # the program.
-parser.add_argument('-t', type=int, default=0,
+parser.add_argument('-t', type=int, default=NO_LIMIT,
                     help='Time limit, in seconds, to produce output')
 # If provided, the parameter -m indicates the maximum amount of memory that the
 # program is allowed to use at any time. Programs that try to allocate more
 # than this amount of memory will be killed. If -m is not provided, no memory
 # limit (other than the hard memory limit of the system the judges choose to
 # run it on) is imposed on the program.
-parser.add_argument('-m', type=int, default=0,
+parser.add_argument('-m', type=int, default=NO_LIMIT,
                     help='Memory limit, in megabytes, to produce output')
 # If provided, the parameter -m indicates the maximum amount of memory that the
 # program is allowed to use at any time. Programs that try to allocate more
 # than this amount of memory will be killed. If -m is not provided, no memory
 # limit (other than the hard memory limit of the system the judges choose to
 # run it on) is imposed on the program.
-parser.add_argument('-c', type=int, default=1,
+parser.add_argument('-c', type=int, default=NO_LIMIT,
                     help='How many processor cores are available')
 # - including the quotation marks - for the phrase given above). The parameter
 # -p may be provided multiple times, once for each phrase of power the program
@@ -80,24 +86,49 @@ def alarm_handler(*args):
     logging.info('Current memory usage %s', mem_usage)
     signal.alarm(1)
 
-def load_problem(path):
+
+def load_problems(path):
+    problem_instances = []
     with open(path) as problem:
         logging.info('Loading %s', path)
-        return json.load(problem)
+        problem = json.load(problem)
+        for seed in problem['sourceSeeds']:
+            problem_instances.append(solver.ProblemInstance(problem, seed))
+    return problem_instances
+
+
+def prettify_limit(limit, fmt):
+    return fmt % limit if limit != NO_LIMIT else 'no limit'
 
 
 def main():
     logging.basicConfig(level=logging.DEBUG)
     args = parser.parse_args()
 
-    problems = [load_problem(f) for f in args.f]
+    problems = [load_problems(f) for f in args.f]
+    problem_instances = list(itertools.chain.from_iterable(problems))
     power_phrases = [p for p in args.p]
-    timeout = args.t
-    memlimit = args.m
+    max_runtime = args.t
+    max_memory = args.m
+    cores_available = args.c
+
+    logging.info(
+        'Loaded %d problems (%d instances) and %d power phrases',
+        len(problems), len(problem_instances), len(power_phrases))
+    logging.info(
+        'Time limit: %s, memory limit: %s, cores: %s',
+        prettify_limit(max_runtime, '%ds'), 
+        prettify_limit(max_memory, '%dMB'),
+        prettify_limit(cores_available, '%d'))
 
     signal.signal(signal.SIGALRM, alarm_handler)
     signal.alarm(1)
-    input()
+
+    solutions = []
+    for problem_instance in problem_instances:
+        solutions.append(solver.solve(problem_instance))
+
+    json.dump(solutions, sys.stdout)
 
 
 if __name__ == '__main__':

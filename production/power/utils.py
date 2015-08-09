@@ -14,8 +14,10 @@ def get_phrase_submission(phrase):
         data = json.load(fin)
         data['problemId'] = 24
     g =  game.Game(data, data['sourceSeeds'][0])
+    c = 'm' if phrase[0] == 'l' else 'l'
+    c *= 5
     try:
-        g.execute_string(phrase)
+        g.execute_string(c + phrase)
     except (GameEnded, KeyError):
         return None
     c = 'm' if phrase[-1] == 'l' else 'l'

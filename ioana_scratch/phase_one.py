@@ -17,6 +17,8 @@ from production.golden import goldcfg
 from production.golden import api
 #from production.interfaces import GameEnded, Action
 #from production.cpp.placement import Graph
+total_score_random = 0;
+total_score_depthest = 0;
 
 
 def get_possible_placements(bsg):
@@ -24,7 +26,25 @@ def get_possible_placements(bsg):
     return [bsg.get_placement_by_node_index(graph, node)
             for node in  graph.GetLockedNodes()]
 
+def get_pair(member):
+    return member[0]
 
+def get_y(member):
+    return get_pair(member)[1]
+
+def get_depthest_cell(placements):
+    if len(placements) == 0:
+        return placements
+    result = []
+    max_y = get_y(placements[0].get_members())
+    for position in placements:
+        y = get_y(position.get_members()) 
+        if y > max_y:
+            max_y = y
+            result = []
+        if y == max_y:
+            result.append(position)
+    return result
 def phase_one(initial_bsg):
     '''
     Return list of Placements nodes, where to lock units.
@@ -35,10 +55,10 @@ def phase_one(initial_bsg):
     bsg = initial_bsg
     while not bsg.game_ended:
         possible_placements = get_possible_placements(bsg)
-        print(bsg)
-        print(possible_placements)
-
-        placement = random.choice(possible_placements)
+        depthest_destination_cells = get_depthest_cell(possible_placements)
+        #print(bsg)
+        #print(possible_placements)
+        placement = random.choice(depthest_destination_cells)
         result.append(placement)
         bsg = bsg.lock_unit(placement)
 

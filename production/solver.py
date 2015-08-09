@@ -15,6 +15,7 @@ from production import utils
 from production import interfaces
 from production.golden import goldcfg
 from production.golden import api
+from production import bronze
 #from production.interfaces import GameEnded, Action
 #from production.cpp.placement import Graph
 
@@ -122,7 +123,7 @@ def solve(problem_instance, tag_prefix='solve '):
         problem_instance.json_data, problem_instance.seed)
     print(bsg)
 
-    _, locking_placements = dummy_phase_one(bsg)
+    _, locking_placements = bronze.phase_one(bsg)
     print(locking_placements)
 
     end_bsg, commands = dummy_phase_two(bsg, locking_placements)

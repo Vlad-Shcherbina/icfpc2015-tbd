@@ -1,0 +1,212 @@
+Now playing game 0
+Final score depthest:2300
+ . . . . . . . . . . 
+  . . . . . . . . . . 
+ . . . . . . . . . . 
+  . . . . . . . . . . 
+ . . . . . . . . . . 
+  . . . . . . * . . . 
+ . . . . . * * . . . 
+Game ended (no more units), move_score = 2300
+============================= vs ==============================
+Final score random:6
+ . . . . . * . . . . 
+  * . * . * * * . * . 
+ . . . . . . . . . . 
+  . . . . . . . . . . 
+ . . . . . . . . * * 
+  . * * * * * * * * . 
+ . . . . . . * * . . 
+Game ended (can't spawn new unit), move_score = 6
+
+Now playing game 1
+Final score depthest:256
+ . . * * * * . . . . 
+  . * * . * * . * * . 
+ . * * * * * . * * * 
+  * * * * * * * * * . 
+ . . * . * . * . * . 
+  * * * * * * * * * . 
+ * * * * * * . * * * 
+Game ended (can't spawn new unit), move_score = 256
+============================= vs ==============================
+Final score random:16
+ . * * . . * * * * . 
+  * . * . * . * . * . 
+ . * . * . . . . . . 
+  * . * * * . . . . . 
+ * * . * * . . . . . 
+  . * * * * * * * * . 
+ . . . . . . . . . . 
+Game ended (can't spawn new unit), move_score = 16
+
+Now playing game 2
+Final score depthest:2200
+ . . . . . . . . . . 
+  . . . . . . . . . . 
+ . . . . . . . . . . 
+  . . . . . . . . . . 
+ . . . . . . . . . . 
+  . * . * * . * . . . 
+ * * * * * * * * * . 
+Game ended (no more units), move_score = 2200
+============================= vs ==============================
+Final score random:2
+ . . . . . * * . . . 
+  * . * . * . * . * . 
+ . . . . . . . . . . 
+  . . . . . . . . . . 
+ . . . . . . . . . . 
+  . * * * * * * * * . 
+ . . . . . . . . . . 
+Game ended (can't spawn new unit), move_score = 2
+
+Now playing game 3
+Final score depthest:258
+ . . . . . * * . . . 
+  * * . * * . * * * * 
+ * * * * . * * . * * 
+  * * * * * * * * * . 
+ . * . . * . * * * * 
+  * * * * * * * * * . 
+ * * * * * * . * * * 
+Game ended (can't spawn new unit), move_score = 258
+============================= vs ==============================
+Final score random:18
+ * * . . * * . . . . 
+  * . * . * . * . * . 
+ * * . . . . . . . * 
+  . . * * . . * . * . 
+ . . * * * * . * . . 
+  . * * * * * * * * . 
+ . . . . . . * * . . 
+Game ended (can't spawn new unit), move_score = 18
+
+Now playing game 4
+Final score depthest:2200
+ . . . . . . . . . . 
+  . . . . . . . . . . 
+ . . . . . . . . . . 
+  . . . . . . . . . . 
+ . . . . . . . . . . 
+  . * . . . . * * . * 
+ * * * * * . * * * * 
+Game ended (no more units), move_score = 2200
+============================= vs ==============================
+Final score random:18
+ . * * * * . . . * * 
+  * . * . * . * . * . 
+ . . . . . . * . . * 
+  * * * * . * * . * . 
+ * . * . . . * . . . 
+  . * * * * * * * * . 
+ . . . . . . . . . . 
+Game ended (can't spawn new unit), move_score = 18
+
+Now playing game 5
+Final score depthest:2200
+ . . . . . . . . . . 
+  . . . . . . . . . . 
+ . . . . . . . . . . 
+  . . . . . . . . . . 
+ . . . . . . . . . . 
+  . . * . . . * * * . 
+ * . * * * * * * * * 
+Game ended (no more units), move_score = 2200
+============================= vs ==============================
+Final score random:8
+ . . . . . * * . . . 
+  * * * . * . * . * . 
+ . . * . . . . . . . 
+  . * * . . . . . * * 
+ . . . . . . . . . . 
+  . * * * * * * * * . 
+ . . . . . . . . . . 
+Game ended (can't spawn new unit), move_score = 8
+
+Now playing game 6
+Final score depthest:2200
+ . . . . . . . . . . 
+  . . . . . . . . . . 
+ . . . . . . . . . . 
+  . . . . . . . . . . 
+ . . . . . . . . . . 
+  * * * . . . . . * . 
+ * * * * * * . * * * 
+Game ended (no more units), move_score = 2200
+============================= vs ==============================
+Final score random:4
+ . . . . . * * . . . 
+  * . * . * . * . * . 
+ . . * . . . . . . . 
+  . * . . . . . . . . 
+ . . . . . . . . . . 
+  . * * * * * * * * . 
+ . . . . . . . . . . 
+Game ended (can't spawn new unit), move_score = 4
+
+Now playing game 7
+Final score depthest:1900
+ . . . . . . . . . . 
+  . . . . . . . . . . 
+ * * . * * * * * * * 
+  . * * . * * * * * . 
+ * * . * * * * * * * 
+  * * * * * * * * * . 
+ * * . * * * * * * * 
+Game ended (no more units), move_score = 1900
+============================= vs ==============================
+Final score random:24
+ . . * * * * * * . . 
+  * . * . * . * . * . 
+ . . * * * . . . * . 
+  . * * * * . . . * . 
+ . . * . * * . . * * 
+  * * * * * * * * * . 
+ . * . . * * . . . . 
+Game ended (can't spawn new unit), move_score = 24
+
+Now playing game 8
+Final score depthest:2300
+ . . . . . . . . . . 
+  . . . . . . . . . . 
+ . . . . . . . . . . 
+  . . . . . . . . . . 
+ . . . . . . . . . . 
+  . . . . . . . . . . 
+ . . * * . . * . . . 
+Game ended (no more units), move_score = 2300
+============================= vs ==============================
+Final score random:4
+ . . . . . * * . . . 
+  * . * . * . * . * . 
+ . . . . . . . . . . 
+  * . . . . . . . . . 
+ . * . . . . . . . . 
+  . * * * * * * * * . 
+ . . . . . . . . . . 
+Game ended (can't spawn new unit), move_score = 4
+
+Now playing game 9
+Final score depthest:2200
+ . . . . . . . . . . 
+  . . . . . . . . . . 
+ . . . . . . . . . . 
+  . . . . . . . . . . 
+ . . . . . . . . . . 
+  * . * * . . . * . . 
+ * * * * * * * . * * 
+Game ended (no more units), move_score = 2200
+============================= vs ==============================
+Final score random:10
+ . . . * * * . . . . 
+  * . * * * . * . * . 
+ . . . . . . . . . . 
+  . . . . . * . . . . 
+ . * . . . . * . . . 
+  * * * * * * * * * . 
+ . . . . . . . * * . 
+Game ended (can't spawn new unit), move_score = 10
+
+depthest avg = 1801.4
+random avg = 11.0

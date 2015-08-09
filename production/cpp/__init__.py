@@ -1,7 +1,8 @@
 # Magically compile extension in this package when we try to import it.
 
-import sys
+import contextlib
 import os
+import sys
 
 # Not `from distutils.core import setup`, otherwise nose will attempt to run
 # `setup` function.
@@ -29,18 +30,7 @@ def setup():
         os.chdir(cur_dir)
 
 
-class RedirectStdoutToStderr(object):
-    def __enter__(self):
-        sys.stdout.flush()
-        self.old_stdout = sys.stdout
-        sys.stdout = sys.stderr
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        sys.stdout.flush()
-        sys.stdout = self.old_stdout
-
-
 # Make sure everything goes to stderr otherwise we risk to pollute to output of
 # the solver and corrupt the solution.
-with RedirectStdoutToStderr():
+with contextlib.redirect_stdout(sys.stderr):
     setup()

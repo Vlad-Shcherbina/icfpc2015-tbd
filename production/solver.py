@@ -121,7 +121,7 @@ def get_all_problem_instances():
             yield ProblemInstance(data, seed)
 
 
-def solve(problem_instance, tag_prefix='solve '):
+def solve(problem_instance, tag_prefix='gotta catch them all '):
     bsg = big_step_game.BigStepGame.from_json(
         problem_instance.json_data, problem_instance.seed)
 #     print(bsg)
@@ -131,6 +131,11 @@ def solve(problem_instance, tag_prefix='solve '):
 
     end_bsg, commands = dummy_phase_two(bsg, locking_placements)
     print(end_bsg)
+
+    for phrase in interfaces.POWER_PHRASES:
+        if phrase in commands:
+            print('{:>5} {}'.format(
+                utils.count_substrings(commands, phrase), phrase))
 
     return utils.gen_output_raw(
         id=problem_instance.json_data['id'],

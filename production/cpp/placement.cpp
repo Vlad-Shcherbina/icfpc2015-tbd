@@ -321,19 +321,41 @@ const int NEG_INF = -1000000000;
 
 struct Status {
 
-  int score;
-  Chain best;
+  //int score;
+  //Chain best;  at
 
-  void Merge(const Status &other) {
-    if (other.score > score)
-      *this = other;
+  // For each DFA state, pair (score, best).
+  vector<pair<int, Chain>> by_state;
+
+  static Status MakeInvalid(const DFA &dfa) {
+    Status s;
+    s.by_state = vector<pair<int, Chain>>(
+        dfa.transitions.size(), {NEG_INF, EmptyChain()});
+    return s;
   }
 
-  Status Translate(int cmd) const {
-    if (score == NEG_INF) return *this;
-    Status s = *this;
-    s.score--;
-    s.best = AppendToChain(best, cmd * 6);
+  void Merge(const Status &other) {
+    for (int i = 0; i < by_state.size(); i++) {
+      if (other.by_state[i].first > by_state[i].first)
+        by_state[i] = other.by_state[i];
+    }
+  }
+
+  Status Translate(int cmd, const DFA &dfa) const {
+    Status s = MakeInvalid(dfa);
+    for (int i = 0; i < by_state.size(); i++) {
+      if (by_state[i].first == NEG_INF)
+        continue;
+
+      for (int ch = cmd * 6; ch < (cmd + 1) * 6; ch++) {
+        int j = dfa.transitions[i][ch];
+        int new_score = by_state[i].first + dfa.increments[j];
+        if (new_score > s.by_state[j].first) {
+          s.by_state[j].first = new_score;
+          s.by_state[j].second = AppendToChain(by_state[i].second, ch);
+        }
+      }
+    }
     return s;
   }
 };
@@ -420,7 +442,7 @@ public:
   }
 
   DpSolver(const DFA &dfa, const Graph &graph) : dfa(dfa), graph(graph) {
-    statii = {(size_t) graph.GetSize(), MakeInvalidStatus()};
+    statii = {(size_t) graph.GetSize(), Status::MakeInvalid(dfa)};
     statii.at(graph.GetStartNode()) = MakeInitialStatus();
 
     scc_by_node = vector<int>(graph.GetSize(), 0);
@@ -450,7 +472,7 @@ public:
 
           if (scc_by_node.at(node2) > scc_by_node.at(node)) {
             //cout << node << " -> " << node2 << endl;
-            statii[node2].Merge(statii[node].Translate(cmd));
+            statii[node2].Merge(statii[node].Translate(cmd, dfa));
             //
           }
         }
@@ -556,7 +578,7 @@ public:
     if (!incoming_arrows.at(a.first).empty())
       assert(found_reverse);
 
-    status_by_arrow[a] = status.Translate(a.second);
+    status_by_arrow[a] = status.Translate(a.second, dfa);
   }
 
   void ApplyStatusByArrow() {
@@ -569,18 +591,11 @@ public:
 
 
   Status MakeInitialStatus() const {
-    Status status;
-    status.score = 0;
-    status.best = EmptyChain();
+    Status status = Status::MakeInvalid(dfa);
+    status.by_state[dfa.initial].first = 0;
     return status;
   }
 
-  Status MakeInvalidStatus() const {
-    Status status;
-    status.score = NEG_INF;
-    status.best = EmptyChain();
-    return status;
-  }
 
   vector<int> GetResult(int destination) const {
     /*Chain c = EmptyChain();
@@ -589,10 +604,20 @@ public:
     c = AppendToChain(c, 3);
     return ChainToVector(c);*/
 
-    auto status = statii.at(destination);
-    assert(status.score != NEG_INF);
+    //assert(status.score != NEG_INF);
 
-    return ChainToVector(status.best);
+    auto status = statii.at(destination);
+
+    int best_state = 0;
+    for (int i = 1; i < status.by_state.size(); i++) {
+      if (status.by_state[i].first > status.by_state[best_state].first)
+        best_state = i;
+    }
+    //cout << "best score " << status.by_state[best_state].first << endl;
+    assert(status.by_state[best_state].first != NEG_INF);
+    //assert(status.by_state[best_state].first == 0);
+
+    return ChainToVector(status.by_state[best_state].second);
 
     //return {42};
   }

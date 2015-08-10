@@ -59,13 +59,19 @@ def count_collapse(placement, line_has):
             collapse += 1
     return collapse
 
+def pivot_height(placement, bsg):
+    '''very low number 0 <= x <= 1, used as a tiebreaker between same positions'''
+    return placement.pivot_y / (2.0 * bsg.height)
+
 def score_placement_v2(placement, bsg, filled, line_has):
     sum_height = sum_height_placement(placement)
     nb_contacts = number_contacts(placement, bsg, filled)
     nb_collapse = count_collapse(placement, line_has)
+    height_pivot = pivot_height(placement, bsg)
     return (4 * sum_height +
             3 * nb_contacts +
-            8 * nb_collapse ** 2)
+            8 * nb_collapse ** 2 +
+            1 * height_pivot) # do not change this coef, it's a tiebreaker
 
 def chose_move_v2(bsg):
     filled = bsg.filled

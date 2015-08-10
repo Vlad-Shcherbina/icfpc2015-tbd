@@ -101,6 +101,30 @@ struct Graph {
     return node;
   }
 
+  void Append(const Graph& graph) {
+    if (tr.empty()) {
+      tr = graph.tr;
+      meaning = graph.meaning;
+      start_node = graph.start_node;
+    } else {
+      assert(graph.start_node == 0);
+
+      tr.pop_back();
+      meaning.pop_back();
+
+      int offset = tr.size();
+      for (auto edges : graph.tr) {
+        for (int& node : edges) {
+          if (node >= 0) node += offset;
+        }
+        tr.emplace_back(std::move(edges));
+      }
+      meaning.insert(meaning.end(), graph.meaning.begin(), graph.meaning.end());
+
+      assert(tr.size() == meaning.size());
+    }
+  }
+
   std::vector<std::array<int, 6> > tr;
   std::vector<Placement> meaning;
   int start_node;

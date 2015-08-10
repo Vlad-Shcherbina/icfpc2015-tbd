@@ -1,1 +1,4 @@
-make && nix-shell --command "./play_icfp2015 -f data/qualifier/problem_20.json -t 10 -m 20 -p 'Ia! Ia!' -p 'Ei!'"
+build_helpers/nix_install.sh              && \
+  . ~/.nix-profile/etc/profile.d/nix.sh   && \
+  make                                    && \
+  nix-shell --command "./play_icfp2015 -f data/qualifier/problem_20.json -t 10 -m 20 -p 'Ia! Ia!' -p 'Ei!'"

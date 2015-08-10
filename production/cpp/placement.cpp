@@ -420,7 +420,7 @@ public:
   }
 
   DpSolver(const DFA &dfa, const Graph &graph) : dfa(dfa), graph(graph) {
-    statii = {graph.GetSize(), MakeInvalidStatus()};
+    statii = {(size_t) graph.GetSize(), MakeInvalidStatus()};
     statii.at(graph.GetStartNode()) = MakeInitialStatus();
 
     scc_by_node = vector<int>(graph.GetSize(), 0);

@@ -4,6 +4,7 @@
 #include <iostream>
 #include <map>
 #include <stack>
+#include <memory>
 
 using namespace std;
 
@@ -282,17 +283,183 @@ std::vector<std::vector<int> > StronglyConnectedComponents(const Graph &graph) {
 }
 
 
+
+// Linked lists that share a lot of tails.
+struct Fragment {
+  int ch;
+  shared_ptr<Fragment> prev;
+};
+typedef shared_ptr<Fragment> Chain;
+
+
+Chain EmptyChain() {
+  return nullptr;
+}
+
+Chain AppendToChain(Chain c, int ch) {
+  Chain result(new Fragment);
+  result->ch = ch;
+  result->prev = c;
+  return result;
+}
+
+vector<int> ChainToVector(Chain c) {
+  vector<int> result;
+  while (c != nullptr) {
+    result.push_back(c->ch);
+    c = c->prev;
+  }
+  reverse(result.begin(), result.end());
+  return result;
+}
+
+
+const int NEG_INF = -1000000000;
+
+struct Status {
+
+  int score;
+  Chain best;
+
+  void Merge(const Status &other) {
+    if (other.score > score)
+      *this = other;
+  }
+
+  Status Translate(int ch) const {
+    if (score == NEG_INF) return *this;
+    Status s = *this;
+    s.score++;
+    s.best = AppendToChain(best, ch);
+    return s;
+  }
+};
+
+
+template<typename T>
+std::ostream& operator<<(std::ostream &out, const std::vector<T> &v) {
+  out << "[";
+  bool first = true;
+  for (const auto &e : v) {
+    if (!first)
+      out << ", ";
+    first = false;
+    out << e;
+  }
+  out << "]";
+  return out;
+}
+template<typename T1, typename T2>
+std::ostream& operator<<(std::ostream &out, const std::pair<T1, T2> &p) {
+  out << "(" << p.first << ", " << p.second << ")";
+  return out;
+}
+
 class DpSolver {
 public:
   const DFA &dfa;
   const Graph &graph;
 
-  DpSolver(const DFA &dfa, const Graph &graph) : dfa(dfa), graph(graph) {
+  vector<Status> statii;
 
+  DpSolver(const DFA &dfa, const Graph &graph) : dfa(dfa), graph(graph) {
+    statii = {graph.GetSize(), MakeInvalidStatus()};
+    statii.at(graph.GetStartNode()) = MakeInitialStatus();
+
+    vector<int> scc_by_node(graph.GetSize());
+    auto sccs = StronglyConnectedComponents(graph);
+    int i = 0;
+    for (const auto &scc : sccs) {
+      for (int node : scc)
+        scc_by_node[node] = i;
+      i++;
+    }
+
+    cout << scc_by_node << endl;
+
+    for (const auto &scc : sccs) {
+      UpdateSCC(scc);
+      for (int node : scc) {
+        for (int cmd = 0; cmd < 6; cmd++) {
+          int node2 = graph.tr[node][cmd];
+          if (node2 == Graph::COLLISION)
+            continue;
+
+          if (scc_by_node.at(node2) > scc_by_node.at(node)) {
+            //cout << node << " -> " << node2 << endl;
+            statii[node2].Merge(statii[node].Translate(cmd));
+            //
+          }
+        }
+      }
+    }
+
+    for (const auto &scc : sccs) {
+      cout << "---" << endl;
+      for (int node : scc) {
+        //cout << node << " " << statii[node].score << " " << ChainToVector(statii[node].best) << endl;
+      }
+    }
+  }
+
+  typedef pair<int, int> Arrow;  // (node, cmd)
+  map<int, vector<Arrow>> incoming_arrows;
+
+  int ArrowEnd(const Arrow &a) {
+    node = graph.tr[a.first][a.second];
+    assert(node >= 0);
+    assert(node < graph.GetSize());
+    return node;
+  }
+
+  void UpdateSCC(const vector<int> &scc) {
+    vector<Arrow> spanning_tree;
+
+    // TODO: actual spanning tree
+    for (int node : scc) {
+      for (int cmd = 0; cmd < 6; cmd++) {
+        int node2 = graph.tr[node][cmd];
+        if (node2 == Graph::COLLISION)
+          continue;
+        if (node2 == node)
+          continue;
+        spanning_tree.emplace_back(node, cmd);
+      }
+    }
+    cout << "Updating SCC " << scc << endl;
+    cout << "Spanning tree: " << spanning_tree << endl;
+
+    incoming_arrows.clear();
+    for (Arrow arrow : spanning_tree) {
+      //int arrow_end =
+    }
+
+    for (Arrow arrow : spanning_tree) {
+      UpdateArrow(arrow);
+    }
+  }
+
+  Status MakeInitialStatus() const {
+    Status status;
+    status.score = 0;
+    status.best = EmptyChain();
+    return status;
+  }
+
+  Status MakeInvalidStatus() const {
+    Status status;
+    status.score = NEG_INF;
+    status.best = EmptyChain();
+    return status;
   }
 
   vector<int> GetResult() const {
-    return {42};
+    Chain c = EmptyChain();
+    c = AppendToChain(c, 1);
+    c = AppendToChain(c, 2);
+    c = AppendToChain(c, 3);
+    return ChainToVector(c);
+    //return {42};
   }
 };
 

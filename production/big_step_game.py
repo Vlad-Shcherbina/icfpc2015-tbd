@@ -35,7 +35,7 @@ class BigStepGame(object):
         bsg = BigStepGame()
 
         #bsg.dfa = cpp_placement.DFA()
-        bsg.dfa = translate_dfa(['ei!'])  # TODO
+        bsg.dfa = translate_dfa(interfaces.POWER_PHRASES[:3])  # TODO
 
         bsg.problem_id = json_data['problemId'] \
             if 'problemId' in json_data else -1

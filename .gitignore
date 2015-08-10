@@ -10,3 +10,4 @@ build
 *.pyc
 .vagrant
 submission.tar.gz
+nix-binary-tarball-unpack/

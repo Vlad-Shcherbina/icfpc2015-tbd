@@ -15,7 +15,7 @@ from production.cpp import placement as cpp_placement
 
 
 def main():
-    path = os.path.join(utils.get_data_dir(), 'qualifier/problem_0.json')
+    path = os.path.join(utils.get_data_dir(), 'qualifier/problem_10.json')
     with open(path) as fin:
         data = json.load(fin)
 
@@ -24,10 +24,9 @@ def main():
     print(bsg)
 
     graph = bsg.get_placement_graph()
-    #print(cpp_placement.StronglyConnectedComponents(graph))
 
     dfa = cpp_placement.DFA()
-    print(dfa.FindBestPath(graph, graph.GetSize()))
+    print(dfa.FindBestPath(graph, graph.GetSize() - 1))
 
     print('done')
 

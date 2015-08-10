@@ -309,6 +309,11 @@ class StepGameAdapter(interfaces.IGame):
 
         scc_by_node = {}
         for i, cc in enumerate(scc):
+            ys = set(graph.GetNodeMeaningY(node) for node in cc)
+            if len(ys) > 1:
+                print(self.bsg.current_unit)
+                assert len(ys) == 1, ys
+
             for node in cc:
                 assert node not in scc_by_node
                 scc_by_node[node] = i

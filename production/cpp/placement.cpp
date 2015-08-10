@@ -224,11 +224,12 @@ public:
   const int UNDEFINED = -42;
 
   TarjanSCC(const Graph &graph) : graph(graph) {
-    index = 0;
-
     v_index = vector<int>(graph.GetSize(), UNDEFINED);
     lowlink = vector<int>(graph.GetSize(), UNDEFINED);
     onstack = vector<bool>(graph.GetSize(), false);
+
+    index = 0;
+    S.clear();
 
     for (int v = 0; v < v_index.size(); v++) {
       if (v_index[v] == UNDEFINED)
@@ -267,6 +268,7 @@ public:
         assert(!S.empty());
         w = S.back();
         S.pop_back();
+        onstack[w] = false;
         result.back().push_back(w);
       } while (w != v);
     }
@@ -329,7 +331,7 @@ struct Status {
   Status Translate(int ch) const {
     if (score == NEG_INF) return *this;
     Status s = *this;
-    s.score++;
+    s.score--;
     s.best = AppendToChain(best, ch);
     return s;
   }
@@ -362,11 +364,27 @@ public:
 
   vector<Status> statii;
 
+  vector<int> scc_by_node;
+
+  void ShowNode(int node) {
+    auto m = graph.meaning.at(node);
+    cout << "(x=" << m.x << ", y=" << m.y << ", a=" << m.angle << ")";
+  }
+  void ShowNodes(vector<int> nodes) {
+    cout << "[";
+    for (int node : nodes) {
+      ShowNode(node);
+      cout << ", ";
+    }
+    cout << "]" << endl;
+  }
+
   DpSolver(const DFA &dfa, const Graph &graph) : dfa(dfa), graph(graph) {
     statii = {graph.GetSize(), MakeInvalidStatus()};
     statii.at(graph.GetStartNode()) = MakeInitialStatus();
 
-    vector<int> scc_by_node(graph.GetSize());
+    scc_by_node = vector<int>(graph.GetSize(), 0);
+
     auto sccs = StronglyConnectedComponents(graph);
     int i = 0;
     for (const auto &scc : sccs) {
@@ -375,7 +393,12 @@ public:
       i++;
     }
 
-    cout << scc_by_node << endl;
+    // cout << scc_by_node << endl;
+
+    //cout << sccs << endl;
+    // for (auto scc : sccs) {
+    //   ShowNodes(scc);
+    // }
 
     for (const auto &scc : sccs) {
       UpdateSCC(scc);
@@ -394,50 +417,130 @@ public:
       }
     }
 
-    for (const auto &scc : sccs) {
-      cout << "---" << endl;
-      for (int node : scc) {
-        //cout << node << " " << statii[node].score << " " << ChainToVector(statii[node].best) << endl;
-      }
-    }
+    // for (const auto &scc : sccs) {
+    //   cout << "---" << endl;
+    //   for (int node : scc) {
+    //     cout << node << " " << statii[node].score << " " << ChainToVector(statii[node].best) << endl;
+    //   }
+    // }
   }
 
   typedef pair<int, int> Arrow;  // (node, cmd)
   map<int, vector<Arrow>> incoming_arrows;
+  map<Arrow, Status> status_by_arrow;
 
   int ArrowEnd(const Arrow &a) {
-    node = graph.tr[a.first][a.second];
+    int node = graph.tr[a.first][a.second];
     assert(node >= 0);
     assert(node < graph.GetSize());
     return node;
   }
 
+  map<int, int> islands;
+
+  void UniteIslands(const vector<int> &scc, int node1, int node2) {
+    int island1 = islands.at(node1);
+    int island2 = islands.at(node2);
+    assert(island1 != island2);
+
+    for (int node : scc)
+      if (islands.at(node) == island1)
+        islands.at(node) = island2;
+  }
+
   void UpdateSCC(const vector<int> &scc) {
+    assert(!scc.empty());
+
     vector<Arrow> spanning_tree;
 
+    int island_cnt = 0;
+    islands.clear();
+    for (int node : scc)
+      islands[node] = island_cnt++;
+
     // TODO: actual spanning tree
+    // cout << "SCC: " << scc << endl;
+
     for (int node : scc) {
       for (int cmd = 0; cmd < 6; cmd++) {
         int node2 = graph.tr[node][cmd];
         if (node2 == Graph::COLLISION)
           continue;
+        if (scc_by_node.at(node) != scc_by_node.at(node2))
+          continue;
         if (node2 == node)
           continue;
-        spanning_tree.emplace_back(node, cmd);
+
+        // cout << "node " << node << ";  node2 " << node2 << endl;
+
+        if (islands.at(node) != islands.at(node2)) {
+          UniteIslands(scc, node, node2);
+          spanning_tree.emplace_back(node, cmd);
+          int rev_cmd = Graph::ReverseCommand((Graph::Command)cmd);
+          // cout << cmd << " " << rev_cmd << endl;
+          assert(graph.tr[node2][rev_cmd] == node);
+          spanning_tree.emplace_back(node2, rev_cmd);
+        }
+        //spanning_tree.emplace_back(node, cmd);
       }
     }
-    cout << "Updating SCC " << scc << endl;
-    cout << "Spanning tree: " << spanning_tree << endl;
+
+    // Check that all islands are united.
+    for (int node : scc)
+      assert(islands.at(node) == islands.at(scc.front()));
+
+    // cout << "Updating SCC " << scc << endl;
+    // cout << "Spanning tree: " << spanning_tree << endl;
 
     incoming_arrows.clear();
     for (Arrow arrow : spanning_tree) {
-      //int arrow_end =
+      incoming_arrows[ArrowEnd(arrow)].push_back(arrow);
     }
 
+    status_by_arrow.clear();
     for (Arrow arrow : spanning_tree) {
       UpdateArrow(arrow);
     }
+
+    ApplyStatusByArrow();
   }
+
+  void UpdateArrow(const Arrow &a) {
+    if (status_by_arrow.count(a) > 0)
+      return;
+
+    int node2 = ArrowEnd(a);
+
+    Status status = statii.at(a.first);
+
+    bool found_reverse = false;
+    for (const auto &ia : incoming_arrows.at(a.first)) {
+      assert(ArrowEnd(ia) == a.first);
+      //cout << "  ia " << ia << " " << ArrowEnd(ia) << endl;
+      if (ia.first == node2) {
+        found_reverse = true;
+        continue;
+      }
+      UpdateArrow(ia);
+      status.Merge(status_by_arrow.at(ia));
+    }
+    // cout << "UA " << a << " " << node2 << endl;
+
+    assert(!incoming_arrows.at(a.first).empty());  // todo: remove in non-tree case
+    if (!incoming_arrows.at(a.first).empty())
+      assert(found_reverse);
+
+    status_by_arrow[a] = status.Translate(a.second);
+  }
+
+  void ApplyStatusByArrow() {
+    for (const auto &kv : status_by_arrow) {
+      const Arrow &a = kv.first;
+      int node2 = ArrowEnd(a);
+      statii.at(node2).Merge(kv.second);
+    }
+  }
+
 
   Status MakeInitialStatus() const {
     Status status;
@@ -453,17 +556,23 @@ public:
     return status;
   }
 
-  vector<int> GetResult() const {
-    Chain c = EmptyChain();
+  vector<int> GetResult(int destination) const {
+    /*Chain c = EmptyChain();
     c = AppendToChain(c, 1);
     c = AppendToChain(c, 2);
     c = AppendToChain(c, 3);
-    return ChainToVector(c);
+    return ChainToVector(c);*/
+
+    auto status = statii.at(destination);
+    assert(status.score != NEG_INF);
+
+    return ChainToVector(status.best);
+
     //return {42};
   }
 };
 
 
 std::vector<int> DFA::FindBestPath(const Graph &graph, int destination) const {
-  return DpSolver(*this, graph).GetResult();
+  return DpSolver(*this, graph).GetResult(destination);
 }

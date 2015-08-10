@@ -20,6 +20,18 @@ struct Graph {
     CCW = 5,
   };
 
+  static Command ReverseCommand(Command c) {
+    switch (c) {
+      case W: return E;
+      case E: return W;
+
+      case CW: return CCW;
+      case CCW: return CW;
+
+      default: assert(false);
+    }
+  }
+
   enum EndState {
     COLLISION = -1,
     UNINTERESTING = -2,

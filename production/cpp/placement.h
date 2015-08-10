@@ -238,5 +238,13 @@ std::vector<std::vector<int> > StronglyConnectedComponents(const Graph &graph);
 
 class DFA {
 public:
+  int initial;
+  std::vector<std::vector<int>> transitions;
+  std::vector<int> increments;
+
+  DFA(int initial, std::vector<std::vector<int>> transitions, std::vector<int> increments)
+    : initial(initial), transitions(transitions), increments(increments) {
+  }
+
   std::vector<int> FindBestPath(const Graph &graph, int destination) const;
 };

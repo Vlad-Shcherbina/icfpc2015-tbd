@@ -14,6 +14,7 @@ from production import interfaces
 from production.interfaces import GameEnded, Action
 from production.cpp.placement import Graph
 from production.cpp import placement as cpp_placement
+from production.dfa import FullDfa
 
 
 # Order should be in sync with enum Command in placements.h!
@@ -33,7 +34,8 @@ class BigStepGame(object):
     def from_json(json_data, seed):
         bsg = BigStepGame()
 
-        bsg.dfa = cpp_placement.DFA()
+        #bsg.dfa = cpp_placement.DFA()
+        bsg.dfa = translate_dfa(['ei!'])  # TODO
 
         bsg.problem_id = json_data['problemId'] \
             if 'problemId' in json_data else -1
@@ -370,9 +372,55 @@ class StepGameAdapter(interfaces.IGame):
         return interfaces.compute_power_score(s)
 
 
+ALPHABET = ''
+for action in INDEXED_ACTIONS:
+    chars = interfaces.CHARS_BY_COMMAND[action]
+    assert len(chars) == 6
+    ALPHABET += chars
+
+
+def translate_dfa(phrases):
+    dfa = FullDfa(phrases, ALPHABET)
+    logging.info('DFA has {} states'.format(len(dfa._dfa)))
+
+    state_code = {}
+    for state, _ in dfa._dfa.items():
+        assert state not in state_code
+        state_code[state] = len(state_code)
+
+    #pprint.pprint(state_code)
+
+    initial = state_code[dfa._current_state]
+    logging.info('initial state: {}'.format(initial))
+
+    transitions = [[] for _ in state_code]
+    for state, ts in dfa._dfa.items():
+        for c in ALPHABET:
+            transitions[state_code[state]].append(state_code[ts[c]])
+            #print(ts)
+
+    for row in transitions:
+        logging.info(row)
+
+    increments = [0] * len(state_code)
+    for state, _ in dfa._dfa.items():
+        for word in dfa._end_state_lookup.get(state, []):
+            increments[state_code[state]] += len(word)
+
+    logging.info('increments {}'.format(increments))
+
+    return cpp_placement.DFA(initial, transitions, increments)
+
+
+
 def main():
     random.seed(42)
     logging.basicConfig(level=logging.DEBUG)
+
+
+    print(translate_dfa(interfaces.POWER_PHRASES[:1]))
+
+    return
 
     path = os.path.join(utils.get_data_dir(), 'qualifier/problem_0.json')
     with open(path) as fin:

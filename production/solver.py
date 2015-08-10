@@ -66,9 +66,10 @@ def dummy_phase_two(initial_bsg, locking_placements):
         path = bsg.dfa.FindBestPath(graph, exit_node)
 
 #         print(path)
-        for cmd in path:
-            cmd = big_step_game.INDEXED_ACTIONS[cmd]
-            result.append(random.choice(interfaces.CHARS_BY_COMMAND[cmd]))
+        for char_code in path:
+            #cmd = big_step_game.INDEXED_ACTIONS[cmd]
+            #result.append(random.choice(interfaces.CHARS_BY_COMMAND[cmd]))
+            result.append(big_step_game.ALPHABET[char_code])
 
         bsg = bsg.lock_unit(placement)
 

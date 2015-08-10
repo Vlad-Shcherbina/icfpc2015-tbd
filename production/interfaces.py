@@ -54,11 +54,20 @@ COMMAND_CHARS =[
 COMMAND_BY_CHAR = {char: cmd for chars, cmd in COMMAND_CHARS for char in chars}
 CHARS_BY_COMMAND = {cmd: chars for chars, cmd in COMMAND_CHARS if cmd}
 
-POWER_PHRASES = ["Ei!", "Ia! Ia!", "R'lyeh", "Yuggoth",
-                 "ph'nglui mglw'nafh cthulhu r'lyeh wgah'nagl fhtagn.",
-                 "tsathoggua", "yogsothoth", "cthulhu fhtagn!",
-                 "john bigboote", "blue hades", "planet 10",
-                 "case nightmare green"]
+POWER_PHRASES = [
+    "Ei!",
+    "Ia! Ia!",
+    "R'lyeh",
+    "blue hades",
+    "case nightmare green",
+    "cthulhu fhtagn!",
+    "john bigboote",
+    "planet 10",
+    "tsathoggua",
+    "yogsothoth",
+    "Yuggoth",
+    "ph'nglui mglw'nafh cthulhu r'lyeh wgah'nagl fhtagn.",
+]
 POWER_PHRASES = [w.lower() for w in POWER_PHRASES]
 
 

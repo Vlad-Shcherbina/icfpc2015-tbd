@@ -4,7 +4,7 @@ from collections import defaultdict
 class DFA:
     """Class that encapsulates a DFA."""
     def __init__(self, transitionFunction, initialState, finalStates):
-        self.delta = transitionFunction 
+        self.delta = transitionFunction
         self.q0 = initialState
         self.F = finalStates
     def deltaHat(self, state, inputString):
@@ -20,16 +20,16 @@ class DFA:
 class NFA:
     """Class that encapsulates an NFA."""
     def __init__(self, transitionFunction, initialState, finalStates):
-        self.delta = transitionFunction 
+        self.delta = transitionFunction
         self.q0 = initialState
         self.F = set(finalStates)
     def deltaHat(self, state, inputString):
         """deltaHat is smart enough to return the empty set if no transition is defined."""
         states = set([state])
-        for a in inputString: 
+        for a in inputString:
             newStates = set([])
-            for state in states: 
-                try: 
+            for state in states:
+                try:
                     newStates = newStates | self.delta[state][a]
                 except KeyError: pass
                 states = newStates
@@ -96,8 +96,8 @@ class FullDfa:
         pp(self._end_state_lookup)
 
     def convertNFAtoDFA(self,N):
-        """Converts the input NFA into a DFA. 
-        The output DFA has a state for every *reachable* subset of states in the input NFA.  
+        """Converts the input NFA into a DFA.
+        The output DFA has a state for every *reachable* subset of states in the input NFA.
         In the worst case, there will be an exponential increase in the number of states.
         """
         q0 = frozenset([N.q0])  # frozensets are hashable, so can key the delta dictionary

@@ -329,11 +329,11 @@ struct Status {
       *this = other;
   }
 
-  Status Translate(int ch) const {
+  Status Translate(int cmd) const {
     if (score == NEG_INF) return *this;
     Status s = *this;
     s.score--;
-    s.best = AppendToChain(best, ch);
+    s.best = AppendToChain(best, cmd * 6);
     return s;
   }
 };

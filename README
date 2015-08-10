@@ -3,7 +3,7 @@ ICFPC 2015 team TBD submission deployment and running instructions.
 
  1. Get to environment by executing
 
-    $ make && nix-shell
+    $ make && . ~/.nix-profile/etc/profile.d/nix.sh && nix-shell
 
  2. Run submissions the regular way
 	

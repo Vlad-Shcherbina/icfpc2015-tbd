@@ -26,6 +26,7 @@ in
 , tornado         ? pkgs.python34Packages.tornado
 , requests        ? pkgs.python34Packages.requests2
 , swig3           ? pkgs.swig3
+, psutil          ? pkgs.python34Packages.psutil
 }:
 stdenv.mkDerivation {
   name = "icfpc2015-tbd";
@@ -39,5 +40,6 @@ stdenv.mkDerivation {
                   sqlite 
                   tornado
                   requests
+                  psutil
                   swig3 ];
 }

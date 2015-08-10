@@ -8,3 +8,4 @@ build
 *.pyd
 *.so
 *.pyc
+.vagrant

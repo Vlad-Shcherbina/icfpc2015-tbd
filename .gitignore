@@ -9,3 +9,4 @@ build
 *.so
 *.pyc
 .vagrant
+submission.tar.gz

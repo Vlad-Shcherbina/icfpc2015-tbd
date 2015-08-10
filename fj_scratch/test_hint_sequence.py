@@ -12,6 +12,9 @@ def print_seq():
         #print(cc, b)
         print(c, cc, COMMAND_BY_CHAR[c], b)
 
+print_seq()
+print()
+
 json = {'width': 20, 'height':20, 'filled': [], 'sourceLength':1, 'units': [{
         'pivot': {'x': 0, 'y': 1}, 'members':[{'x': 0, 'y': 0}]}
         ]}

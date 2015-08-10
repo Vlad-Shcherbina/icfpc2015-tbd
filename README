@@ -2,10 +2,9 @@ ICFPC 2015 team TBD submission deployment and running instructions.
 ===
 
  1. Get to environment by executing
-      $ build_helpers/nix_install.sh          && \
-      . ~/.nix-profile/etc/profile.d/nix.sh   && \
-      make                                    && \
-      nix-shell
+
+    $ make && nix-shell
 
  2. Run submissions the regular way
-	$ ./play_icfp2015 -f data/qualifier/problem_20.json -t 10 -m 20 -p "Ph'nglui mglw'nafh Cthulhu R'lyeh wgah'nagl fhtagn."
+	
+    $ ./play_icfp2015 -f data/qualifier/problem_20.json -t 10 -m 20 -p "Ph'nglui mglw'nafh Cthulhu R'lyeh wgah'nagl fhtagn."

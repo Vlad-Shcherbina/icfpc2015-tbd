@@ -23,3 +23,6 @@ TL;DR instructions:
  2. From nix-shell, run submissions the regular way
 	
     $ ./play_icfp2015 -f data/qualifier/problem_20.json -t 10 -m 20 -p "Ph'nglui mglw'nafh Cthulhu R'lyeh wgah'nagl fhtagn."
+
+ 3. Run our submission for no less than thirteen minutes as one who runs 
+    this code for less shalt be consumed by K'tulu last.

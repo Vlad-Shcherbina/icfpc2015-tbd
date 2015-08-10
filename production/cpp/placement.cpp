@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <iostream>
 #include <map>
+#include <unordered_map>
 #include <stack>
 #include <memory>
 
@@ -360,8 +361,8 @@ std::ostream& operator<<(std::ostream &out, const std::pair<T1, T2> &p) {
 
 class DSU {
 public:
-  map<int, int> up;
-  map<int, int> rank;
+  unordered_map<int, int> up;
+  unordered_map<int, int> rank;
 
   DSU(const vector<int>& items) {
     for (int i : items) {
@@ -465,7 +466,7 @@ public:
   }
 
   typedef pair<int, int> Arrow;  // (node, cmd)
-  map<int, vector<Arrow>> incoming_arrows;
+  unordered_map<int, vector<Arrow>> incoming_arrows;
   map<Arrow, Status> status_by_arrow;
 
   int ArrowEnd(const Arrow &a) {

@@ -404,14 +404,15 @@ class Unit(object):
             json_data['pivot']['x'], json_data['pivot']['y'],
             ((pt['x'], pt['y']) for pt in json_data['members']))
 
-        # TODO: this is shit because it does not take min_y into account
-        self.initial_parity = base_shape.pivot_y % 2
-
+        #  even/odd distinction is based on pivot.y parity
         if base_shape.pivot_y % 2:
             base_shape = base_shape.flipped_row_parity()
-
+        
         self.even_shapes = build_shape_cycle(base_shape)
         self.odd_shapes = build_shape_cycle(base_shape.flipped_row_parity())
+        
+        # initial parity is such that we can place the shape in the top row.
+        self.initial_parity = base_shape.min_y % 2
 
         assert len(self.even_shapes) == len(self.odd_shapes)
 

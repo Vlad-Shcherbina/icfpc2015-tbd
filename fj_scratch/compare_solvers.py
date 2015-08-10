@@ -38,7 +38,7 @@ def test_problem(problem_id):
         while True:
             seed = random.randint(0, 10 ** 9)
             game = big_step_game.BigStepGame.from_json(game_data, seed)
-            game, moves = candidate_solver.phase_one(game)
+            game, moves = bronze.phase_one(game, 2)
             print('played candidate game %d with seed %d scored %d' % (problem_id, seed, game.move_score))
             yield game.move_score
 
@@ -56,7 +56,7 @@ def test_problem(problem_id):
 def main():
     res = []
     # Change to range(25) if you want to run it for ALL tests.
-    imporant_test = [5, 6, 7, 20, 14, 22]
+    imporant_test = [5, 6, 7] #, 20, 14, 22]
     for problem_id in imporant_test:
         print('Testing problem %d' % problem_id)
         t = test_problem(problem_id)

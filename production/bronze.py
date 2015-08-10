@@ -79,19 +79,31 @@ def chose_move_v2(bsg):
     return max(get_possible_placements(bsg),
                key=lambda x: score_placement_v2(x, bsg, filled, line_has))
 
+
 def chose_move_v2_rec(bsg, lookahead):
-    if lookahead == 0:
-        return 0, None
     if bsg.game_ended:
         return -1000000, None # never end the game prematurely
     filled = bsg.filled
     line_has = how_much_collapse(bsg, filled)
-    best_score, best_placement = None, None  
-    for placement in get_possible_placements(bsg):
+    best_score, best_placement = None, None
+    possible_placements = get_possible_placements(bsg)
+    
+    best_placements = []
+    for placement in possible_placements:
         score = score_placement_v2(placement, bsg, filled, line_has)
-        new_bsg = bsg.lock_unit(placement)
-        future_score, _ = chose_move_v2_rec(new_bsg, lookahead - 1)
-        score += future_score
+        best_placements.append((score, placement))
+
+    best_placements.sort(key=lambda x: x[0], reverse=True)
+    BEST_PLACEMENTS, BEST_Y_PLACEMENTS = 3, 5
+    placements, best_placements = best_placements[0:BEST_PLACEMENTS], best_placements[BEST_PLACEMENTS:]
+    best_placements.sort(key=lambda x: (x[1].pivot_y, x[0]), reverse=True)
+    placements.extend(best_placements[0:BEST_Y_PLACEMENTS])
+
+    for score, placement in placements: 
+        if lookahead > 1:
+            new_bsg = bsg.lock_unit(placement)
+            future_score, _ = chose_move_v2_rec(new_bsg, lookahead - 1)
+            score += future_score
         if best_score is None or score >= best_score:
             best_score = score
             best_placement = placement

@@ -1,1 +1,1 @@
-git archive -v --format=tar HEAD | gzip >submission.tar.gz
+git archive -v -o submission.tar.gz HEAD

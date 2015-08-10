@@ -402,17 +402,17 @@ def translate_dfa(phrases):
     for row in transitions:
         logging.info(row)
 
-    increments = [0] * len(state_code)
+    mask_increments = [0] * len(state_code)
     for state, _ in dfa._dfa.items():
         for word in dfa._end_state_lookup.get(state, []):
-            increments[state_code[state]] += len(word)
+            mask_increments[state_code[state]] |= 2 ** phrases.index(word)
 
-    logging.info('increments {}'.format(increments))
+    logging.info('mask_increments {}'.format(mask_increments))
 
     word_lengths = list(map(len, phrases))
     logging.info('world lenghts {}'.format(word_lengths))
 
-    return cpp_placement.DFA(initial, transitions, increments)
+    return cpp_placement.DFA(initial, transitions, mask_increments, word_lengths)
 
 
 

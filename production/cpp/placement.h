@@ -240,11 +240,27 @@ class DFA {
 public:
   int initial;
   std::vector<std::vector<int>> transitions;
-  std::vector<int> increments;
+  std::vector<int> mask_increments;
+  std::vector<int> word_lengths;
 
-  DFA(int initial, std::vector<std::vector<int>> transitions, std::vector<int> increments)
-    : initial(initial), transitions(transitions), increments(increments) {
+  DFA(int initial,
+      std::vector<std::vector<int>> transitions,
+      std::vector<int> mask_increments,
+      std::vector<int> word_lengths)
+    : initial(initial), transitions(transitions),
+      mask_increments(mask_increments), word_lengths(word_lengths) {
   }
 
-  std::vector<int> FindBestPath(const Graph &graph, int destination) const;
+  std::vector<int> FindBestPath(const Graph &graph, int destination, unsigned novelty_mask) const;
+
+
+  int score_from_mask_increments(int mask) const {
+    if (mask == 0)
+      return 0;
+    int result = 0;
+    for (int i = 0; i < word_lengths.size(); i++)
+      if ((1 << i) & mask)
+        result += 2 * word_lengths[i];
+    return result;
+  }
 };

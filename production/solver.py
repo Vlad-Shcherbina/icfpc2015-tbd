@@ -45,8 +45,12 @@ def dummy_phase_two(initial_bsg, locking_placements):
     '''
     result = []
 
+    novelty_mask = 0
+
     bsg = initial_bsg
+    #print('---')
     for placement in locking_placements:
+        #print(bin(novelty_mask))
         graph = bsg.get_placement_graph()
 
         dst_node = graph.FindNodeByMeaning(
@@ -64,10 +68,19 @@ def dummy_phase_two(initial_bsg, locking_placements):
 
         assert exit_node == graph.GetSize() - 1
 
-        path = bsg.dfa.FindBestPath(graph, exit_node)
-        for char_code in path:
-            result.append(big_step_game.ALPHABET[char_code])
+        tmp = []
 
+        path = bsg.dfa.FindBestPath(graph, exit_node, novelty_mask)  # novelty_mask
+        for char_code in path:
+            tmp.append(big_step_game.ALPHABET[char_code])
+
+        tmp = ''.join(tmp)
+
+        for zzzzz, phrase in enumerate(interfaces.POWER_PHRASES):
+            if phrase in tmp:
+                novelty_mask |= 2 ** zzzzz;
+
+        result.append(tmp)
         bsg = bsg.lock_unit(placement)
 
     assert bsg.game_ended
@@ -158,7 +171,7 @@ def get_all_problem_instances():
             yield ProblemInstance(data, seed)
 
 
-def solve(problem_instance, tag_prefix='solve '):
+def solve(problem_instance, tag_prefix='NOVELTY2 '):
     bsg = big_step_game.BigStepGame.from_json(
         problem_instance.json_data, problem_instance.seed)
 #     print(bsg)
@@ -200,7 +213,7 @@ def main():
     all_instances = list(get_all_problem_instances())
     print(len(all_instances), 'problem instances total')
 
-    instances = [i for i in all_instances if i.json_data['id'] in range(25)]
+    instances = [i for i in all_instances if i.json_data['id'] in range(0, 100)]
     print(len(instances), 'instances to solve')
 
     solutions = list(map(solve, instances))

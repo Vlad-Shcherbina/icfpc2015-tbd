@@ -327,18 +327,30 @@ struct Status {
   //Chain best;  at
 
   // For each DFA state, pair (score, best).
-  vector<pair<int, Chain>> by_state;
+
+  struct Hz {
+    int score;
+    unsigned first_seen_mask;
+    Chain best;
+  };
+
+  vector<Hz> by_state;
 
   static Status MakeInvalid(const DFA &dfa) {
     Status s;
-    s.by_state = vector<pair<int, Chain>>(
-        dfa.transitions.size(), {NEG_INF, EmptyChain()});
+    Hz qq;
+    qq.score = NEG_INF;
+    qq.first_seen_mask = 0;
+    qq.best = EmptyChain();
+
+    s.by_state = vector<Hz>(
+        dfa.transitions.size(), qq);
     return s;
   }
 
   void Merge(const Status &other) {
     for (int i = 0; i < by_state.size(); i++) {
-      if (other.by_state[i].first > by_state[i].first)
+      if (other.by_state[i].score > by_state[i].score)
         by_state[i] = other.by_state[i];
     }
   }
@@ -346,15 +358,25 @@ struct Status {
   Status Translate(int cmd, const DFA &dfa) const {
     Status s = MakeInvalid(dfa);
     for (int i = 0; i < by_state.size(); i++) {
-      if (by_state[i].first == NEG_INF)
+      if (by_state[i].score == NEG_INF)
         continue;
 
       for (int ch = cmd * 6; ch < (cmd + 1) * 6; ch++) {
         int j = dfa.transitions[i][ch];
-        int new_score = by_state[i].first + dfa.increments[j];
-        if (new_score > s.by_state[j].first) {
-          s.by_state[j].first = new_score;
-          s.by_state[j].second = AppendToChain(by_state[i].second, ch);
+
+        unsigned novelty_mask = (unsigned)dfa.mask_increments[j] & ~by_state[i].first_seen_mask;
+        int novelty_score = 300 * __builtin_popcount(novelty_mask);
+
+        int new_score =
+          by_state[i].score +
+          dfa.score_from_mask_increments(dfa.mask_increments[j]) +
+          novelty_score;
+
+        if (new_score > s.by_state[j].score) {
+          s.by_state[j].score = new_score;
+          s.by_state[j].first_seen_mask =
+            (unsigned)dfa.mask_increments[j] | by_state[i].first_seen_mask;
+          s.by_state[j].best = AppendToChain(by_state[i].best, ch);
         }
       }
     }
@@ -429,6 +451,7 @@ public:
   vector<Status> statii;
 
   vector<int> scc_by_node;
+  unsigned novelty_mask;
 
   /*void ShowNode(int node) {
     auto m = graph.meaning.at(node);
@@ -443,7 +466,7 @@ public:
     cout << "]" << endl;
   }*/
 
-  DpSolver(const DFA &dfa, const Graph &graph) : dfa(dfa), graph(graph) {
+  DpSolver(const DFA &dfa, const Graph &graph, unsigned novelty_mask) : dfa(dfa), graph(graph), novelty_mask(novelty_mask) {
     statii = {(size_t) graph.GetSize(), Status::MakeInvalid(dfa)};
     statii.at(graph.GetStartNode()) = MakeInitialStatus();
 
@@ -594,7 +617,8 @@ public:
 
   Status MakeInitialStatus() const {
     Status status = Status::MakeInvalid(dfa);
-    status.by_state[dfa.initial].first = 0;
+    status.by_state[dfa.initial].score = 0;
+    status.by_state[dfa.initial].first_seen_mask = novelty_mask;
     return status;
   }
 
@@ -612,20 +636,20 @@ public:
 
     int best_state = 0;
     for (int i = 1; i < status.by_state.size(); i++) {
-      if (status.by_state[i].first > status.by_state[best_state].first)
+      if (status.by_state[i].score > status.by_state[best_state].score)
         best_state = i;
     }
     //cout << "best score " << status.by_state[best_state].first << endl;
-    assert(status.by_state[best_state].first != NEG_INF);
+    assert(status.by_state[best_state].score != NEG_INF);
     //assert(status.by_state[best_state].first == 0);
 
-    return ChainToVector(status.by_state[best_state].second);
+    return ChainToVector(status.by_state[best_state].best);
 
     //return {42};
   }
 };
 
 
-std::vector<int> DFA::FindBestPath(const Graph &graph, int destination) const {
-  return DpSolver(*this, graph).GetResult(destination);
+std::vector<int> DFA::FindBestPath(const Graph &graph, int destination, unsigned novelty_mask) const {
+  return DpSolver(*this, graph, novelty_mask).GetResult(destination);
 }

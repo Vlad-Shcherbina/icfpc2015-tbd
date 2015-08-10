@@ -61,7 +61,9 @@ def dummy_phase_two(initial_bsg, locking_placements):
                 found = True
         assert found, 'locking move not found'
 
-        path = path_in_graph(graph, graph.GetStartNode(), exit_node)
+        #path = path_in_graph(graph, graph.GetStartNode(), exit_node)
+
+        path = bsg.dfa.FindBestPath(graph, exit_node)
 
 #         print(path)
         for cmd in path:

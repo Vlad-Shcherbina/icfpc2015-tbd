@@ -91,7 +91,7 @@ class Gui(object):
             self.update(game)
     
     
-    def update(self, game):
+    def update(self, game, special_marks=[]):
         tri_step_x = self.CELL_SIZE * 0.5
         tri_step_y = self.CELL_SIZE * 0.5 * math.tan(math.pi / 6) 
         def tri(x, y):
@@ -132,6 +132,15 @@ class Gui(object):
                         default_bg)
                 c.create_polygon(*hexagon(x, y), fill=bg_color, outline='#000000', width=1)
         c.create_oval(*circle_bb(*pivot, r=self.CELL_SIZE * 0.5), fill='#FF0000', outline='#FFFFFF', width=2)
+        
+        for x, y in special_marks:
+            h = hexagon(x, y)
+            def hexline(idx1, idx2, **kwargs):
+                return c.create_line(h[idx1 * 2 + 0], h[idx1 * 2 + 1], h[idx2 * 2 + 0], h[idx2 * 2 + 1],
+                        **kwargs)
+            hexline(0, 3, fill='#FF4040', width=2)
+            hexline(2, 5, fill='#FF4040', width=2)
+            
         c_bbox = c.bbox(tkinter.ALL)
         c.config(scrollregion=c_bbox, width=c_bbox[2] - c_bbox[0], height=c_bbox[3] - c_bbox[1])
         
@@ -139,7 +148,6 @@ class Gui(object):
         for textbox in self.stat_textboxes:
             textbox.config(text=textbox.callback(game))
 
-    
     def wait_for_action(self):
         self.action = None
         self.root.mainloop()

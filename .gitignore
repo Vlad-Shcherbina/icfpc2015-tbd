@@ -9,5 +9,5 @@ build
 *.so
 *.pyc
 .vagrant
-submission.tar.gz
+submission*.tar.gz
 nix-binary-tarball-unpack/

@@ -67,6 +67,9 @@ POWER_PHRASES = [
     "yogsothoth",
     "Yuggoth",
     "yoyodyne",
+    "necronomicon",
+    "the laundry",
+    "monkeyboy",
     "ph'nglui mglw'nafh cthulhu r'lyeh wgah'nagl fhtagn.",
 ]
 POWER_PHRASES = [w.lower() for w in POWER_PHRASES]

@@ -357,6 +357,45 @@ std::ostream& operator<<(std::ostream &out, const std::pair<T1, T2> &p) {
   return out;
 }
 
+
+class DSU {
+public:
+  map<int, int> up;
+  map<int, int> rank;
+
+  DSU(const vector<int>& items) {
+    for (int i : items) {
+      assert(up.count(i) == 0);
+      up[i] = i;
+      rank[i] = 0;
+    }
+  }
+
+  int Find(int x) {
+    if (up.at(x) != x) {
+      up.at(x) = Find(up.at(x));
+    }
+    return up.at(x);
+  }
+
+  void Union(int x, int y) {
+    int x_root = Find(x);
+    int y_root = Find(y);
+
+    assert(x_root != y_root);
+
+    if (rank.at(x_root) < rank.at(y_root)) {
+      up.at(x_root) = y_root;
+    } else if (rank.at(x_root) > rank.at(y_root)) {
+      up.at(y_root) = x_root;
+    } else {
+      up.at(y_root) = x_root;
+      rank.at(x_root)++;
+    }
+  }
+};
+
+
 class DpSolver {
 public:
   const DFA &dfa;
@@ -436,27 +475,12 @@ public:
     return node;
   }
 
-  map<int, int> islands;
-
-  void UniteIslands(const vector<int> &scc, int node1, int node2) {
-    int island1 = islands.at(node1);
-    int island2 = islands.at(node2);
-    assert(island1 != island2);
-
-    for (int node : scc)
-      if (islands.at(node) == island1)
-        islands.at(node) = island2;
-  }
-
   void UpdateSCC(const vector<int> &scc) {
     assert(!scc.empty());
 
     vector<Arrow> spanning_tree;
 
-    int island_cnt = 0;
-    islands.clear();
-    for (int node : scc)
-      islands[node] = island_cnt++;
+    DSU dsu(scc);
 
     // TODO: actual spanning tree
     // cout << "SCC: " << scc << endl;
@@ -473,8 +497,9 @@ public:
 
         // cout << "node " << node << ";  node2 " << node2 << endl;
 
-        if (islands.at(node) != islands.at(node2)) {
-          UniteIslands(scc, node, node2);
+        if (dsu.Find(node) != dsu.Find(node2)) {
+          //UniteIslands(scc, node, node2);
+          dsu.Union(node, node2);
           spanning_tree.emplace_back(node, cmd);
           int rev_cmd = Graph::ReverseCommand((Graph::Command)cmd);
           // cout << cmd << " " << rev_cmd << endl;
@@ -487,7 +512,7 @@ public:
 
     // Check that all islands are united.
     for (int node : scc)
-      assert(islands.at(node) == islands.at(scc.front()));
+      assert(dsu.Find(node) == dsu.Find(scc.front()));
 
     // cout << "Updating SCC " << scc << endl;
     // cout << "Spanning tree: " << spanning_tree << endl;

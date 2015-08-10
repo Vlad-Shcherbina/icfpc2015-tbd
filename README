@@ -1,10 +1,25 @@
 ICFPC 2015 team TBD submission deployment and running instructions.
 ===
 
- 1. Get to environment by executing
+This submission uses Nix package manager to fetch dependencies and
+Nix-shell to make sure that those exact dependencies are used on
+any distro.
+
+Notice that if you don't re-login, after you ran ``make``, you'll have to source
+file ``~/.nix-profile/etc/profile.d/nix.sh`` in every shell spawned,
+so, if you want to run some automated scripts that spawn shells, please
+make sure to relogin after you ran ``make``!
+
+Because Nix package manager is non-intrusive (and not compatible, for
+that matter) with conventional package managers of other Linux distros,
+please be considerate about the fact that first run of ``make`` takes some time.
+
+TL;DR instructions:
+
+ 1. Get to environment for running submission by executing
 
     $ make && . ~/.nix-profile/etc/profile.d/nix.sh && nix-shell
 
- 2. Run submissions the regular way
+ 2. From nix-shell, run submissions the regular way
 	
     $ ./play_icfp2015 -f data/qualifier/problem_20.json -t 10 -m 20 -p "Ph'nglui mglw'nafh Cthulhu R'lyeh wgah'nagl fhtagn."

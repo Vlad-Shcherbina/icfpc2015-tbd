@@ -17,7 +17,7 @@ from production.golden import goldcfg
 from production.golden import api
 from production import bronze
 #from production.interfaces import GameEnded, Action
-#from production.cpp.placement import Graph
+from production.cpp import placement as cpp_placement
 
 
 def dummy_phase_one(initial_bsg):
@@ -48,6 +48,7 @@ def dummy_phase_two(initial_bsg, locking_placements):
     bsg = initial_bsg
     for placement in locking_placements:
         graph = bsg.get_placement_graph()
+
         dst_node = graph.FindNodeByMeaning(
             placement.pivot_x, placement.pivot_y, placement.angle)
 #         print(dst_node)
@@ -61,22 +62,58 @@ def dummy_phase_two(initial_bsg, locking_placements):
                 found = True
         assert found, 'locking move not found'
 
-        #path = path_in_graph(graph, graph.GetStartNode(), exit_node)
+        assert exit_node == graph.GetSize() - 1
 
         path = bsg.dfa.FindBestPath(graph, exit_node)
-
-#         print(path)
         for char_code in path:
-            #cmd = big_step_game.INDEXED_ACTIONS[cmd]
-            #result.append(random.choice(interfaces.CHARS_BY_COMMAND[cmd]))
             result.append(big_step_game.ALPHABET[char_code])
 
         bsg = bsg.lock_unit(placement)
 
-#     print(bsg)
+    assert bsg.game_ended
+
+    return None, ''.join(result)
+
+
+def total_phase_two(initial_bsg, locking_placements):
+    '''
+    Returns pair (end_bsg, solution string).
+    '''
+    result = []
+
+    total_graph = cpp_placement.Graph()
+
+    bsg = initial_bsg
+    for placement in locking_placements:
+        graph = bsg.get_placement_graph()
+
+        dst_node = graph.FindNodeByMeaning(
+            placement.pivot_x, placement.pivot_y, placement.angle)
+
+        exit_node = graph.AddNewNode()
+
+        found = False
+        for cmd in range(6):
+            if graph.GetNext(dst_node, cmd) == graph.COLLISION:
+                graph.SetNext(dst_node, cmd, exit_node)
+                found = True
+        assert found, 'locking move not found'
+
+        assert exit_node == graph.GetSize() - 1
+        total_graph.Append(graph)
+
+        bsg = bsg.lock_unit(placement)
 
     assert bsg.game_ended
-    return bsg, ''.join(result)
+
+
+    total_path = bsg.dfa.FindBestPath(total_graph, total_graph.GetSize() - 1)
+    total_result = []
+    for char_code in total_path:
+        total_result.append(big_step_game.ALPHABET[char_code])
+    #print('total result: ', ''.join(total_result))
+
+    return None, ''.join(total_result)
 
 
 def path_in_graph(graph, start, finish):
@@ -121,15 +158,15 @@ def get_all_problem_instances():
             yield ProblemInstance(data, seed)
 
 
-def solve(problem_instance, tag_prefix='gotta catch them all '):
+def solve(problem_instance, tag_prefix='solve '):
     bsg = big_step_game.BigStepGame.from_json(
         problem_instance.json_data, problem_instance.seed)
 #     print(bsg)
 
-    _, locking_placements = bronze.phase_one(bsg)
+    end_bsg, locking_placements = bronze.phase_one(bsg)
 #     print(locking_placements)
 
-    end_bsg, commands = dummy_phase_two(bsg, locking_placements)
+    _, commands = dummy_phase_two(bsg, locking_placements)
     print(end_bsg)
 
     for phrase in interfaces.POWER_PHRASES:

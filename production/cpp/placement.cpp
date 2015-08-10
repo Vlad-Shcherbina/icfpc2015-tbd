@@ -232,10 +232,12 @@ public:
     index = 0;
     S.clear();
 
+    // cout << "BEGIN SCC" << endl;
     for (int v = 0; v < v_index.size(); v++) {
       if (v_index[v] == UNDEFINED)
         StrongConnect(v);
     }
+    // cout << "END SCC (we survived recursion)" << endl;
 
     reverse(result.begin(), result.end());
   }
@@ -428,7 +430,7 @@ public:
 
   vector<int> scc_by_node;
 
-  void ShowNode(int node) {
+  /*void ShowNode(int node) {
     auto m = graph.meaning.at(node);
     cout << "(x=" << m.x << ", y=" << m.y << ", a=" << m.angle << ")";
   }
@@ -439,7 +441,7 @@ public:
       cout << ", ";
     }
     cout << "]" << endl;
-  }
+  }*/
 
   DpSolver(const DFA &dfa, const Graph &graph) : dfa(dfa), graph(graph) {
     statii = {(size_t) graph.GetSize(), Status::MakeInvalid(dfa)};

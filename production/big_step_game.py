@@ -409,6 +409,9 @@ def translate_dfa(phrases):
 
     logging.info('increments {}'.format(increments))
 
+    word_lengths = list(map(len, phrases))
+    logging.info('world lenghts {}'.format(word_lengths))
+
     return cpp_placement.DFA(initial, transitions, increments)
 
 
@@ -418,7 +421,7 @@ def main():
     logging.basicConfig(level=logging.DEBUG)
 
 
-    print(translate_dfa(interfaces.POWER_PHRASES[:1]))
+    print(translate_dfa(interfaces.POWER_PHRASES[:2]))
 
     return
 

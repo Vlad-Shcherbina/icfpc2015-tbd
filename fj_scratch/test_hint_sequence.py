@@ -10,7 +10,7 @@ def print_seq():
         c = c.lower()
         cc = ord(c) - ord('n')
         #print(cc, b)
-        print(c, cc, COMMAND_BY_CHAR[c], b)
+        print(c, cc % 6, COMMAND_BY_CHAR[c], b)
 
 print_seq()
 print()
@@ -31,3 +31,4 @@ for it in s.split():
     if action is None:
         break
     g.execute_char(c)
+

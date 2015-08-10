@@ -79,7 +79,26 @@ def chose_move_v2(bsg):
     return max(get_possible_placements(bsg),
                key=lambda x: score_placement_v2(x, bsg, filled, line_has))
 
-def phase_one(initial_bsg):
+def chose_move_v2_rec(bsg, lookahead):
+    if lookahead == 0:
+        return 0, None
+    if bsg.game_ended:
+        return -1000000, None # never end the game prematurely
+    filled = bsg.filled
+    line_has = how_much_collapse(bsg, filled)
+    best_score, best_placement = None, None  
+    for placement in get_possible_placements(bsg):
+        score = score_placement_v2(placement, bsg, filled, line_has)
+        new_bsg = bsg.lock_unit(placement)
+        future_score, _ = chose_move_v2_rec(new_bsg, lookahead - 1)
+        score += future_score
+        if best_score is None or score >= best_score:
+            best_score = score
+            best_placement = placement
+    return best_score, best_placement 
+    
+
+def phase_one(initial_bsg, lookahead=1):
     '''
     Return list of Placements nodes, where to lock units.
     '''
@@ -87,7 +106,11 @@ def phase_one(initial_bsg):
 
     bsg = initial_bsg
     while not bsg.game_ended:
-        placement = chose_move_v2(bsg)
+        if lookahead == 1:
+            # fall back on the usual implementation in case I made a bug
+            placement = chose_move_v2(bsg)
+        else:
+            _, placement = chose_move_v2_rec(bsg, lookahead)
         result.append(placement)
         bsg = bsg.lock_unit(placement)
 #         print(clr + str(bsg))

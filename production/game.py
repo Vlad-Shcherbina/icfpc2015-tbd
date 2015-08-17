@@ -185,7 +185,7 @@ class Game(IGame):
     def render_cell(self, x, y):
         current_members = set(self.current_placement.get_members())
         if (x, y) in current_members:
-            assert (x, y) not in self.filled
+            #assert (x, y) not in self.filled
             return '?'
         if (x, y) in self.filled:
             return '*'
@@ -407,10 +407,10 @@ class Unit(object):
         #  even/odd distinction is based on pivot.y parity
         if base_shape.pivot_y % 2:
             base_shape = base_shape.flipped_row_parity()
-        
+
         self.even_shapes = build_shape_cycle(base_shape)
         self.odd_shapes = build_shape_cycle(base_shape.flipped_row_parity())
-        
+
         # initial parity is such that we can place the shape in the top row.
         self.initial_parity = base_shape.min_y % 2
 

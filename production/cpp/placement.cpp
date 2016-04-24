@@ -7,6 +7,11 @@
 #include <stack>
 #include <memory>
 
+#ifdef _MSC_VER
+#  include <intrin.h>
+#  define __builtin_popcount __popcnt
+#endif
+
 using namespace std;
 
 Unit UnitBuilder::Build(int board_width, int board_height) {

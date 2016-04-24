@@ -9,6 +9,11 @@ import sys
 import distutils.core
 
 def setup():
+    if sys.platform == 'win32':
+        extra_compile_args = []
+    else:
+        extra_compile_args=['-std=c++11', '-Wno-sign-compare']
+
     cur_dir = os.getcwd()
     try:
         os.chdir(os.path.dirname(os.path.abspath(__file__)))
@@ -20,7 +25,7 @@ def setup():
                     ['placement.i', 'placement.cpp'],
                     depends=['placement.h'],
                     swig_opts=['-c++'],
-                    extra_compile_args=['-std=c++11', '-Wno-sign-compare'],
+                    extra_compile_args=extra_compile_args,
                     undef_macros=['NDEBUG'],  # want assertions
                 ),
             ],

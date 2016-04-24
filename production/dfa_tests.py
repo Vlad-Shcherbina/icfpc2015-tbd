@@ -50,8 +50,8 @@ class DfaTests(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    hypothesis.Settings.default.max_examples = 1000
-    nose.run_exit(argv=[
-        sys.argv[0], __file__,
-        '--verbose', '--with-doctest', '--logging-level=DEBUG'
-    ])
+    with hypothesis.settings(max_examples=1000):
+        nose.run_exit(argv=[
+            sys.argv[0], __file__,
+            '--verbose', '--with-doctest', '--logging-level=DEBUG'
+        ])

@@ -185,10 +185,8 @@ def disable_isolation():
 
 
 def make_hypothesis_reproducible():
-    # This is a workaround until
-    # https://github.com/DRMacIver/hypothesis/issues/111 is fixed.
-    hypothesis.Settings.default = hypothesis.Settings(database=None)
-    #hypothesis.Settings.default.database_file = None
-
-    hypothesis.Settings.default.timeout = -1
-    hypothesis.Settings.default.derandomize = True
+    hypothesis.settings.register_profile('reproducible', hypothesis.settings(
+        database=None,
+        timeout=-1,
+        derandomize=True))
+    hypothesis.settings.load_profile('reproducible')
